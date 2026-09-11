@@ -57,20 +57,8 @@ Public Sub UI_ArriveePatient()
     If f.Annule Then Unload f: Exit Sub
     Set r = f.Resultat
     Unload f
-    modAgenda.MarquerStatut r("ID"), "Arrive"
-    ' publication NAS ; le poste medecin alimente ensuite son cache SQLite et le GDT
-    Dim noteEcg As String, p As Object, patientTrouve As Boolean
-    For Each p In modBaseIO.LireTableX(modConfig.FichierPatients(), "PATIENTS")
-        If p("ID") = r("PatientID") Then
-            modEchange.PublierArrivee r, p
-            noteEcg = vbCrLf & "Identite publiee pour le poste medecin et l'ECG."
-            patientTrouve = True
-            Exit For
-        End If
-    Next p
-    If Not patientTrouve Then Err.Raise vbObjectError + 920, "modUI", "Patient du rendez-vous introuvable."
-    MsgBox r("Prenom") & " " & r("Nom") & " marque ARRIVE a " & Format$(Now, "hh:nn") & "." & noteEcg, _
-           vbInformation, "Cabinet"
+    modEchange.SignalerArrivee r
+    MsgBox r("Prenom") & " " & r("Nom") & " : arrivee transmise au medecin.", vbInformation, "Cabinet"
     Exit Sub
 Erreur:
     MsgBox "Erreur : " & Err.Description, vbCritical, "Cabinet"

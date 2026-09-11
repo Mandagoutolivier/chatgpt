@@ -1,0 +1,555 @@
+[
+  {
+    "host": "word",
+    "module": "ThisDocument",
+    "source": "Src/Prod6/ThisDocument.cls",
+    "lines": 8,
+    "sha256": "6d7b7fd22869872b04bcc106514b36a55fb7bf8d9fa8eceb59a213b2770db4ba"
+  },
+  {
+    "host": "word",
+    "module": "clsNCBouton",
+    "source": "Src/Prod6/clsNCBouton.cls",
+    "lines": 20,
+    "sha256": "2daedfe0170fc57ec38df42a6ff4898c76b16f2ded678380c5633a6936b6dd76"
+  },
+  {
+    "host": "word",
+    "module": "clsNCCombo",
+    "source": "Src/Prod6/clsNCCombo.cls",
+    "lines": 20,
+    "sha256": "8fba83d8ff7abf02a4ce70af38c10693e8bfe2f7a5400cfa4cdf17e8d85a7b10"
+  },
+  {
+    "host": "word",
+    "module": "clsNCTextBox",
+    "source": "Src/Prod6/clsNCTextBox.cls",
+    "lines": 24,
+    "sha256": "c71c6574f251b189a6c0eadce3af2816ef91f8f627e668d1d1c9c04d8923220f"
+  },
+  {
+    "host": "word",
+    "module": "clsNSBouton",
+    "source": "Src/Prod6/clsNSBouton.cls",
+    "lines": 20,
+    "sha256": "2aede1b6bc47333707ee0efda21ab6f0b602e34e5058d4ca3cb9d2c6968f3ab3"
+  },
+  {
+    "host": "word",
+    "module": "clsNSTextBox",
+    "source": "Src/Prod6/clsNSTextBox.cls",
+    "lines": 24,
+    "sha256": "4d1d83d29935724df1a04339066385f05cc1df8262e24a89807517c4c29d509e"
+  },
+  {
+    "host": "word",
+    "module": "frmCTDestination",
+    "source": "Src/Prod6/frmCTDestination.vba",
+    "lines": 152,
+    "sha256": "1d2f26456daa9f424139c153f5534779b30d212629e138f322f6b5275673019d"
+  },
+  {
+    "host": "word",
+    "module": "frmNouveauCorrespondant",
+    "source": "Src/Prod6/frmNouveauCorrespondant.vba",
+    "lines": 8,
+    "sha256": "677be28afaa076633e0730ee083407f3038780f908459e68c8f52f2de59f5ab0"
+  },
+  {
+    "host": "word",
+    "module": "frmNouvelleStructure",
+    "source": "Src/Prod6/frmNouvelleStructure.vba",
+    "lines": 8,
+    "sha256": "b9d834fca98bde619f3c63aeebf068fb64858b32dd125ba072fa026f25775660"
+  },
+  {
+    "host": "word",
+    "module": "modAnonymisation",
+    "source": "Src/Prod6/modAnonymisation.bas",
+    "lines": 645,
+    "sha256": "2c0edc11aaa0bdd4b90f63f1807deb52521040f5af2a9d6a0c6a1f0855fcbe88"
+  },
+  {
+    "host": "word",
+    "module": "modBaseCorrespondants",
+    "source": "Src/Prod6/modBaseCorrespondants.bas",
+    "lines": 668,
+    "sha256": "9e6e377e9bc2c9818f545cbebee8692a3a3c50fd2a24e0ecaf7ac1c8c42d10ef"
+  },
+  {
+    "host": "word",
+    "module": "modCabinetTestDemandes",
+    "source": "Src/Prod6/modCabinetTestDemandes.bas",
+    "lines": 517,
+    "sha256": "7b62a9a4add74ff13689067c702f3718ff1fae1ef8d8aa2c13802247e614a762"
+  },
+  {
+    "host": "word",
+    "module": "modCabinetTestDestinations",
+    "source": "Src/Prod6/modCabinetTestDestinations.bas",
+    "lines": 727,
+    "sha256": "912b98a30b5c48f1abe73d7fcec443bac5651cb03edfa0ff2780454d005f53c9"
+  },
+  {
+    "host": "word",
+    "module": "modCommandesDDERAC",
+    "source": "Src/Prod6/modCommandesDDERAC.bas",
+    "lines": 303,
+    "sha256": "a7672487958bf29026454d78f4e24a98399347828fbf63d6ffb2b95a7fcbddbb"
+  },
+  {
+    "host": "word",
+    "module": "modDetectionDemandesDico",
+    "source": "Src/Prod6/modDetectionDemandesDico.bas",
+    "lines": 409,
+    "sha256": "a137a9aaad79fdbae45726d34355cc08648e38c3a7f710aeb2dd3084985bc82f"
+  },
+  {
+    "host": "word",
+    "module": "modEnregistrementCorrespondants",
+    "source": "Src/Prod6/modEnregistrementCorrespondants.bas",
+    "lines": 2356,
+    "sha256": "f5ec877087901ca1d9f16268f6e6e112c01c93cc180c5f745f0ae9cda8acd25f"
+  },
+  {
+    "host": "word",
+    "module": "modGenerationDemandes",
+    "source": "Src/Prod6/modGenerationDemandes.bas",
+    "lines": 884,
+    "sha256": "d426719dd9d36a3948e4b96e353aa7c89d66c10720dc58a64213e963b0778c49"
+  },
+  {
+    "host": "word",
+    "module": "modGlobals",
+    "source": "Src/Prod6/modGlobals.bas",
+    "lines": 111,
+    "sha256": "8c65a454418cf93fe126f67ba8c0758c2058ed7c6fc9ca818581d223102c8770"
+  },
+  {
+    "host": "word",
+    "module": "modInsertion",
+    "source": "Src/Prod6/modInsertion.bas",
+    "lines": 289,
+    "sha256": "e058f9cef6cb76222792679a80b23791cc97a072a84363f68016fde5087aa896"
+  },
+  {
+    "host": "word",
+    "module": "modLettresComplementairesModele",
+    "source": "Src/Prod6/modLettresComplementairesModele.bas",
+    "lines": 1375,
+    "sha256": "5e75c6e6410c7eca76061f550bb7e723ba155f17baf2edc208a7baba4a3d67be"
+  },
+  {
+    "host": "word",
+    "module": "modMiseEnPageFinale",
+    "source": "Src/Prod6/modMiseEnPageFinale.bas",
+    "lines": 863,
+    "sha256": "2d5993d3dd62a03f25035d46b6b70ef2ec3dcdb2f1a72ea1df6ece34c1f8fb0c"
+  },
+  {
+    "host": "word",
+    "module": "modNormalisationGrasLocal",
+    "source": "Src/Prod6/modNormalisationGrasLocal.bas",
+    "lines": 569,
+    "sha256": "dce5556944d641a08af9edb3a2ec07403136ff3a712065a551f2bc8efef4761d"
+  },
+  {
+    "host": "word",
+    "module": "modOpenAI_v22_corrige",
+    "source": "Src/Prod6/modOpenAI_v22_corrige.bas",
+    "lines": 1330,
+    "sha256": "59c3f6b9c331cae3d2b4140ff7e8c31c4c6b50b2e1f0e4bbdd39f68edb8461e0"
+  },
+  {
+    "host": "word",
+    "module": "modProdRapide",
+    "source": "Src/Prod6/modProdRapide.bas",
+    "lines": 1584,
+    "sha256": "3e76b97315432d66d6e36a8d9860d7d4240f81ed806a82b06e6fa7382eddbb5c"
+  },
+  {
+    "host": "word",
+    "module": "modPrompts",
+    "source": "Src/Prod6/modPrompts.bas",
+    "lines": 776,
+    "sha256": "5ff59e655d42ddab801fc16f0c06fe704248458968c41b8e4179e11e8637d6ae"
+  },
+  {
+    "host": "word",
+    "module": "modSaisieCorrespondants",
+    "source": "Src/Prod6/modSaisieCorrespondants.bas",
+    "lines": 1951,
+    "sha256": "bc00323bceb447cf8f8fc9f9cdd7805c915eb8dcfacebe2a702a0c8e5033586d"
+  },
+  {
+    "host": "word",
+    "module": "modSaisieStructures",
+    "source": "Src/Prod6/modSaisieStructures.bas",
+    "lines": 826,
+    "sha256": "d18202bcc3a2bb0472a43989e03bb7284776bb0e93a3b494fd278c81bb8cf0c3"
+  },
+  {
+    "host": "word",
+    "module": "modSortieDragon",
+    "source": "Src/Prod6/modSortieDragon.bas",
+    "lines": 510,
+    "sha256": "eeccbc81af7c56fba610eb7c86b658dbabc2e1f7aba7fe9b1310e69783a3aae1"
+  },
+  {
+    "host": "word",
+    "module": "modUtilitaires",
+    "source": "Src/Prod6/modUtilitaires.bas",
+    "lines": 85,
+    "sha256": "dc574f7a1fc7621fc1af61f7348f5a0c8ecd606c34c47d6d23acaf13102eac13"
+  },
+  {
+    "host": "word",
+    "module": "modAnonymise",
+    "source": "Src/Word/modAnonymise.bas",
+    "lines": 259,
+    "sha256": "124207b9d0ab9d658c6fb6ea4067067f7ad938472a813eb3faa09035040f1a7e"
+  },
+  {
+    "host": "word",
+    "module": "modBase",
+    "source": "Src/Word/modBase.bas",
+    "lines": 164,
+    "sha256": "41a11a002e948d80815d9f1f6be1ed04aef3bb698c72d229c0226b5f1e48266d"
+  },
+  {
+    "host": "word",
+    "module": "modClaude",
+    "source": "Src/Word/modClaude.bas",
+    "lines": 241,
+    "sha256": "97628f845bf6de85535a0b27e2df68ecf1f8e84d9561ee02a75c2689173449f6"
+  },
+  {
+    "host": "word",
+    "module": "modConfig",
+    "source": "Src/Commun/modConfig.bas",
+    "lines": 173,
+    "sha256": "73e8313d9142637a94b629a2d92d04d68fb77eef8d43f963a0f0127403057d19"
+  },
+  {
+    "host": "word",
+    "module": "modCourrier",
+    "source": "Src/Word/modCourrier.bas",
+    "lines": 675,
+    "sha256": "d9c34d9a65c58530df0d9f93dfac868e60a23189f938b650b10b645e8f173964"
+  },
+  {
+    "host": "word",
+    "module": "modDemandes",
+    "source": "Src/Word/modDemandes.bas",
+    "lines": 561,
+    "sha256": "8feec51ebc33ca33b276afb09fea8527ff52c7ea776cd0301146e033ffd574f7"
+  },
+  {
+    "host": "word",
+    "module": "modDerivees",
+    "source": "Src/Word/modDerivees.bas",
+    "lines": 334,
+    "sha256": "b8eb82c99b2dd4f89b37c27f84bdf0f90090f915cf0904b7b376af5bcdb9ba69"
+  },
+  {
+    "host": "word",
+    "module": "modEcg",
+    "source": "Src/Word/modEcg.bas",
+    "lines": 26,
+    "sha256": "bda7e2dcdc3025cb98bfc55b6da2c87c75b3abcf85f710a113735053c9b29811"
+  },
+  {
+    "host": "word",
+    "module": "modFichiers",
+    "source": "Src/Commun/modFichiers.bas",
+    "lines": 304,
+    "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9"
+  },
+  {
+    "host": "word",
+    "module": "modGdt",
+    "source": "Src/Commun/modGdt.bas",
+    "lines": 107,
+    "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34"
+  },
+  {
+    "host": "word",
+    "module": "modGras",
+    "source": "Src/Word/modGras.bas",
+    "lines": 218,
+    "sha256": "145eb448bc589b84f1b09b79cd9fda13f910c0d30655e52ac01088ccd29265c4"
+  },
+  {
+    "host": "word",
+    "module": "modJson",
+    "source": "Src/Commun/modJson.bas",
+    "lines": 240,
+    "sha256": "95a7c2ceb1c7d4041ffdc6b92e144d1a0066523d89a3836bd0c383bdf0317636"
+  },
+  {
+    "host": "word",
+    "module": "modLog",
+    "source": "Src/Commun/modLog.bas",
+    "lines": 79,
+    "sha256": "69496b88bb03fa01cb57797542b504f5dcc926f015c34afcfae2af44523af297"
+  },
+  {
+    "host": "word",
+    "module": "modPatient",
+    "source": "Src/Word/modPatient.bas",
+    "lines": 73,
+    "sha256": "01a8553d774e7df3cbbfd9d39b9ba106006b9d6ce0b5e041e8608bb0daf2d1b6"
+  },
+  {
+    "host": "word",
+    "module": "modPowerMic",
+    "source": "Src/Word/modPowerMic.bas",
+    "lines": 37,
+    "sha256": "4f22aa1ec058f8663fdba691405ab887f9ff6c77666a59f5c61873fa5e572da3"
+  },
+  {
+    "host": "word",
+    "module": "modRaccourcis",
+    "source": "Src/Word/modRaccourcis.bas",
+    "lines": 120,
+    "sha256": "1bb2669281b0c08cae2cf0d144c9a90b0d4f5740e067476e4787aa7e5174a4d0"
+  },
+  {
+    "host": "word",
+    "module": "modRuban",
+    "source": "Src/Word/modRuban.bas",
+    "lines": 35,
+    "sha256": "39e62d77f674ef5e58b590b2244b42abd365c4e4f82733f4e0512d711de84e48"
+  },
+  {
+    "host": "word",
+    "module": "modSchemas",
+    "source": "Src/Word/modSchemas.bas",
+    "lines": 39,
+    "sha256": "45fb971cbf846a2af4993756e471fa1ef40fc7cd6f5f9ddc55a042f104938ed6"
+  },
+  {
+    "host": "word",
+    "module": "modSubstitutions",
+    "source": "Src/Word/modSubstitutions.bas",
+    "lines": 41,
+    "sha256": "a24ae57953c43e2c2bafd09e539d13badb46f5d8d417b37a162694b9fc94c302"
+  },
+  {
+    "host": "word",
+    "module": "modTests_Word",
+    "source": "Src/Word/modTests_Word.bas",
+    "lines": 589,
+    "sha256": "a2cbc246e2db84b9efc66859ce2d50448d76a8e2e6de7a73d74b6d0c39e20f05"
+  },
+  {
+    "host": "word",
+    "module": "modTexte",
+    "source": "Src/Commun/modTexte.bas",
+    "lines": 165,
+    "sha256": "505d95a246a545e914b13e121f907d61b23d635a8fa95c24b308c1d4f43e3726"
+  },
+  {
+    "host": "word",
+    "module": "modValidation",
+    "source": "Src/Word/modValidation.bas",
+    "lines": 143,
+    "sha256": "2a1741a9c3ab4445e2a04ff79e003625cb0fea80061e25b48db2ce51573ebdf9"
+  },
+  {
+    "host": "word",
+    "module": "ufListe",
+    "source": "Src/Word/ufListe.vba",
+    "lines": 114,
+    "sha256": "fd55bbfcc0c18450f1d5ff2739aaa5f266c2b52d40b7fbcee5358c520c683113"
+  },
+  {
+    "host": "word",
+    "module": "ufProgression",
+    "source": "Src/Word/ufProgression.vba",
+    "lines": 16,
+    "sha256": "49b383108d2e7c85f27b4f4aadd438c0251042e412cc36c06a60adb7a611f6b2"
+  },
+  {
+    "host": "word",
+    "module": "modAttenteLocale",
+    "source": "Src/Integration/modAttenteLocale.bas",
+    "lines": 168,
+    "sha256": "4ca63fe383585450c909ab710a8d77027a1ad2831a81e867a067ae4d1430de2c"
+  },
+  {
+    "host": "word",
+    "module": "modIntegrationUnifie",
+    "source": "Src/Integration/modIntegrationUnifie.bas",
+    "lines": 163,
+    "sha256": "709d4ed7d77f537f5b37fa191c3093d416252ff478d8008f009d571f868c6b69"
+  },
+  {
+    "host": "word",
+    "module": "modPowerMicUnifie",
+    "source": "Src/Integration/modPowerMicUnifie.bas",
+    "lines": 68,
+    "sha256": "2966d4d9f544d946d9f0a16c4ef5d0448d74fbb279cf54164782c275d99cfc19"
+  },
+  {
+    "host": "word",
+    "module": "modAuditTests",
+    "source": "Src/Integration/modAuditTests.bas",
+    "lines": 117,
+    "sha256": "dec42f949f9c1f32ae1e4a62bab9783522eda71d1505e998203d2092ede3f049"
+  },
+  {
+    "host": "excel",
+    "module": "Feuil1",
+    "source": "Src/Excel/Feuil1.cls",
+    "lines": 8,
+    "sha256": "8b6d1fc4f872634510d7a8323acaeca8b89024c115aac0c3e7c5dcfd25331905"
+  },
+  {
+    "host": "excel",
+    "module": "ThisWorkbook",
+    "source": "Src/Excel/ThisWorkbook.cls",
+    "lines": 28,
+    "sha256": "8a39e77a2c2842d1eda5907a62a7f0cebfa380b1d35abdb0593bbda426bbadb1"
+  },
+  {
+    "host": "excel",
+    "module": "modActes",
+    "source": "Src/Excel/modActes.bas",
+    "lines": 158,
+    "sha256": "f37f8ea5fe84f5546293a9da4ac6b10c05c3586c11498c1942a39cc33db880af"
+  },
+  {
+    "host": "excel",
+    "module": "modAgenda",
+    "source": "Src/Excel/modAgenda.bas",
+    "lines": 91,
+    "sha256": "8095a6d147195ad5a35d2f2acb4f6f1c6e0ef2ad87a443b14fb875160a0dfaba"
+  },
+  {
+    "host": "excel",
+    "module": "modAgendaVue",
+    "source": "Src/Excel/modAgendaVue.bas",
+    "lines": 375,
+    "sha256": "30a262deb327ec44dd4c808557303ac64e6cecd81394f7db7ad5825675fcccb9"
+  },
+  {
+    "host": "excel",
+    "module": "modBaseIO",
+    "source": "Src/Excel/modBaseIO.bas",
+    "lines": 385,
+    "sha256": "d6a0fd604652b96e051f26d2cad025f9ede037234770ebc431b2d2a92e976ffa"
+  },
+  {
+    "host": "excel",
+    "module": "modCerfaPrint",
+    "source": "Src/Excel/modCerfaPrint.bas",
+    "lines": 203,
+    "sha256": "f79110a9f075add2699d1a5f047022121e2a1e08c9473e9fa24055ff0d00172c"
+  },
+  {
+    "host": "excel",
+    "module": "modConfig",
+    "source": "Src/Commun/modConfig.bas",
+    "lines": 173,
+    "sha256": "73e8313d9142637a94b629a2d92d04d68fb77eef8d43f963a0f0127403057d19"
+  },
+  {
+    "host": "excel",
+    "module": "modEchange",
+    "source": "Src/Excel/modEchange.bas",
+    "lines": 178,
+    "sha256": "c3d2b0d55d397e5aa2c87b0672226fbc31f3753b577460b1a3d4c7da7a8ae84b"
+  },
+  {
+    "host": "excel",
+    "module": "modFichiers",
+    "source": "Src/Commun/modFichiers.bas",
+    "lines": 304,
+    "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9"
+  },
+  {
+    "host": "excel",
+    "module": "modGdt",
+    "source": "Src/Commun/modGdt.bas",
+    "lines": 107,
+    "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34"
+  },
+  {
+    "host": "excel",
+    "module": "modJournal",
+    "source": "Src/Excel/modJournal.bas",
+    "lines": 34,
+    "sha256": "e1deb0c5b59b1966deba945d3a55762a9214970e406e14d7855f61d2b3663513"
+  },
+  {
+    "host": "excel",
+    "module": "modJson",
+    "source": "Src/Commun/modJson.bas",
+    "lines": 240,
+    "sha256": "95a7c2ceb1c7d4041ffdc6b92e144d1a0066523d89a3836bd0c383bdf0317636"
+  },
+  {
+    "host": "excel",
+    "module": "modLog",
+    "source": "Src/Commun/modLog.bas",
+    "lines": 79,
+    "sha256": "69496b88bb03fa01cb57797542b504f5dcc926f015c34afcfae2af44523af297"
+  },
+  {
+    "host": "excel",
+    "module": "modTests_Excel",
+    "source": "Src/Excel/modTests_Excel.bas",
+    "lines": 186,
+    "sha256": "d23e03e401b6f02e254edcad12910386baea5f7fa4bc547ac14e048c82452d8d"
+  },
+  {
+    "host": "excel",
+    "module": "modTexte",
+    "source": "Src/Commun/modTexte.bas",
+    "lines": 165,
+    "sha256": "505d95a246a545e914b13e121f907d61b23d635a8fa95c24b308c1d4f43e3726"
+  },
+  {
+    "host": "excel",
+    "module": "modUI",
+    "source": "Src/Excel/modUI.bas",
+    "lines": 149,
+    "sha256": "2e03dd86171eec683066207f1687c765b0247cd4406feca630d22debd23c7e9f"
+  },
+  {
+    "host": "excel",
+    "module": "ufChoixActe",
+    "source": "Src/Excel/ufChoixActe.vba",
+    "lines": 150,
+    "sha256": "cba4883f5ef8ec442e41ed2492ef674e07a6a96a6b5ded5ab26216b680c784bb"
+  },
+  {
+    "host": "excel",
+    "module": "ufCorrespEdit",
+    "source": "Src/Excel/ufCorrespEdit.vba",
+    "lines": 95,
+    "sha256": "941b1ba1bc6b66000c0ead952ac8d1fae9851b578840023e5e9ecebab7f683e6"
+  },
+  {
+    "host": "excel",
+    "module": "ufListe",
+    "source": "Src/Excel/ufListe.vba",
+    "lines": 114,
+    "sha256": "1d40b76607705d85decc2a7d25da79d224c6dba6171fdc0701396f5812c4ebd7"
+  },
+  {
+    "host": "excel",
+    "module": "ufPatientEdit",
+    "source": "Src/Excel/ufPatientEdit.vba",
+    "lines": 154,
+    "sha256": "78fa2c4db975396b26626a9366d5e93f75f65d86a9b3591333f2699de3bf8b13"
+  },
+  {
+    "host": "excel",
+    "module": "ufRdvEdit",
+    "source": "Src/Excel/ufRdvEdit.vba",
+    "lines": 96,
+    "sha256": "70248dd9e8786a109786d0884e2d829638751522b8c5d998cf76dc10c347457f"
+  }
+]

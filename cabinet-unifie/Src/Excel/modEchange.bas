@@ -12,7 +12,6 @@ Private mScrutationActive As Boolean
 Public Sub DemarrerScrutation()
     ArreterScrutation
     mScrutationActive = True
-    ProgrammerProchaine
     VerifierEchange
 End Sub
 
@@ -38,7 +37,7 @@ End Function
 
 ' Appelee par OnTime : met a jour le compteur sur la feuille Accueil
 Public Sub VerifierEchange()
-    On Error Resume Next
+    On Error GoTo Erreur
     Dim n As Long, ws As Worksheet
     n = NombreEnAttente()
     Set ws = ThisWorkbook.Worksheets("Accueil")
@@ -53,7 +52,13 @@ Public Sub VerifierEchange()
         ws.Range("B4").Font.Color = RGB(0, 128, 0)
         Application.StatusBar = False
     End If
+Sortie:
     If mScrutationActive Then ProgrammerProchaine
+    Exit Sub
+Erreur:
+    Application.StatusBar = "File des courriers inaccessible : verifier le NAS."
+    modLog.LogErreur "Scrutation du NAS impossible."
+    Resume Sortie
 End Sub
 
 Public Function NombreEnAttente() As Long
@@ -84,8 +89,11 @@ Public Sub DeplacerVersTraites(ByVal cheminDrapeau As String)
     Set fso = CreateObject("Scripting.FileSystemObject")
     modFichiers.EnsureDossier modConfig.Chemin("Echange") & "\Traites"
     dest = modConfig.Chemin("Echange") & "\Traites\" & fso.GetFileName(cheminDrapeau)
-    If fso.FileExists(dest) Then fso.DeleteFile dest, True
-    fso.MoveFile cheminDrapeau, dest
+    If fso.FileExists(dest) Then
+        If fso.FileExists(cheminDrapeau) Then Err.Raise vbObjectError + 910, "modEchange", "Conflit dans l historique des courriers."
+        Exit Sub
+    End If
+    modFichiers.RenommerAtomique cheminDrapeau, dest
 End Sub
 
 Public Sub OuvrirCourrier(ByVal d As Object)
@@ -106,6 +114,10 @@ End Sub
 ' contient ni adresse, ni telephone, ni donnees comptables.
 Public Function PublierArrivee(ByVal rdv As Object, ByVal pat As Object) As String
     Dim d As Object, dossier As String, nomBase As String
+    If modTexte.DateFr(CStr(rdv("Date"))) <> Date Then Err.Raise vbObjectError + 912, "modEchange", "Seul un rendez-vous du jour peut etre marque arrive."
+    If CStr(rdv("PatientID")) <> CStr(pat("ID")) Then Err.Raise vbObjectError + 913, "modEchange", "Patient et rendez-vous incoherents."
+    Dim controleGdt As String
+    controleGdt = modGdt.ConstruireGdt(pat)  ' valider l identite sans ecrire sur le poste secretariat
     Set d = CreateObject("Scripting.Dictionary")
     d("PatientID") = pat("ID")
     d("Nom") = pat("Nom")
@@ -121,7 +133,46 @@ Public Function PublierArrivee(ByVal rdv As Object, ByVal pat As Object) As Stri
     d("Statut") = "Arrive"
     d("PosteSecretariat") = Environ$("COMPUTERNAME")
     dossier = modConfig.Chemin("Echange") & "\Arrives"
-    nomBase = Format$(Now, "yyyymmdd-hhnnss") & "_" & rdv("ID")
+    nomBase = Format$(Date, "yyyymmdd") & "_" & rdv("ID")
+    If modFichiers.FichierExiste(dossier & "\" & nomBase & ".txt") Then
+        PublierArrivee = dossier & "\" & nomBase & ".txt"
+        Exit Function
+    End If
+    If modFichiers.FichierExiste(dossier & "\Pris\" & nomBase & ".txt") Or _
+       modFichiers.FichierExiste(dossier & "\EnCours\" & nomBase & ".txt") Then
+        Err.Raise vbObjectError + 911, "modEchange", "Ce rendez-vous est deja pris en charge par le medecin."
+    End If
     PublierArrivee = modFichiers.EcrireDrapeau(dossier, nomBase, d)
     modLog.LogInfo "Arrivee publiee : " & PublierArrivee
 End Function
+
+' Utilisee par le bouton d'accueil ET par la grille de l'agenda.
+' L'arrivee est une publication durable ; le statut est reparable en reexecutant.
+Public Sub SignalerArrivee(ByVal rdv As Object)
+    Dim p As Object, pat As Object, verrou As String, numero As Long, description As String
+    For Each p In modBaseIO.LireTableX(modConfig.FichierPatients(), "PATIENTS")
+        If CStr(p("ID")) = CStr(rdv("PatientID")) Then Set pat = p: Exit For
+    Next p
+    If pat Is Nothing Then Err.Raise vbObjectError + 914, "modEchange", "Patient absent de la base NAS."
+    verrou = "arrivee_" & CStr(rdv("ID"))
+    If Not modFichiers.AcquerirVerrou(verrou, 5000) Then Err.Raise vbObjectError + 915, "modEchange", "Arrivee deja en cours."
+    On Error GoTo Echec
+    PublierArrivee rdv, pat
+    modAgenda.MarquerStatut CStr(rdv("ID")), "Arrive", Year(modTexte.DateFr(CStr(rdv("Date"))))
+    modFichiers.RelacherVerrou verrou
+    Exit Sub
+Echec:
+    numero = Err.Number: description = Err.Description
+    modFichiers.RelacherVerrou verrou
+    Err.Raise numero, "modEchange.SignalerArrivee", description
+End Sub
+
+Public Sub RetirerArrivee(ByVal rdv As Object)
+    Dim dossier As String, source As String
+    dossier = modConfig.Chemin("Echange") & "\Arrives"
+    source = dossier & "\" & Format$(modTexte.DateFr(CStr(rdv("Date"))), "yyyymmdd") & "_" & rdv("ID") & ".txt"
+    If modFichiers.FichierExiste(source) Then
+        modFichiers.EnsureDossier dossier & "\Annules"
+        modFichiers.RenommerAtomique source, dossier & "\Annules\" & modFichiers.IdUnique() & ".txt"
+    End If
+End Sub

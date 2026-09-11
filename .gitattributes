@@ -1,0 +1,13 @@
+*.md text eol=lf
+*.json text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+*.bas text eol=lf
+*.cls text eol=lf
+*.vba text eol=lf
+*.dotm binary
+*.dot binary
+*.xlsm binary
+*.xlsx binary
+*.txt text eol=lf
+*.ini text eol=lf

@@ -1,77 +1,56 @@
-# CabinetCardio unifie — branche de travail
+# Architecture et fonctionnement — 2026.09-audit1
 
-## Identification du modele historique
+## Répartition
 
-`ModeleCourrierChatGPT_PROD(6).dotm` a pour SHA-256
-`A8CCB702E8DEFC9FCE19B9AFB968C4F7CD5B25D59DA562DBA172BC6B51B85524`.
-Il est identique a `PROD(4)` et porte les marqueurs
-`DOMICILE-DOUBLE-API-DETAILLE-1` et `DOMICILE-GRAS-1Z`.
-
-Ce modele est la branche fonctionnelle **R7 / double API detaillee**, utilisee
-comme point de depart de R12. Ce n'est pas le R12 complet « profils 3 API » :
-les modules `modProfilsExamensR12`, `modMoteurLettresProfilsR12`,
-`modRevisionFinaleR12` et `modZonesMedicalesR12` en sont absents. Ce n'est pas
-non plus R13.1.
-
-## Architecture retenue
-
-- `Cabinet.xlsm` reste l'application du poste secretariat : patients, agenda,
-  arrivees, courriers a traiter, facturation, feuille de soins et journal.
-- un seul `CabinetUnifie_TEST.dotm` est charge par Word sur le poste medecin ;
-  il rassemble `Cabinet(1).dotm` et le moteur courrier de `PROD(6)` ;
-- les bases maitresses restent sous `\\DS224\CabinetCardio` ;
-- `%LOCALAPPDATA%\CabinetCardio\attente_medecin.sqlite` est uniquement un cache
-  des patients arrives du jour. Il est efface/reconstruit depuis
-  `Echange\Arrives` et ne constitue jamais une base patient de reference ;
-- `C:\Mandagout\IMPORT.GDT` est produit sur le poste medecin apres selection du
-  patient. Le GDT contient nom, prenom, DDN (`3103`) et sexe (`3110`, 1/2).
-
-## Construction sous Windows / Word 2016
-
-Fermer Word puis activer temporairement « Acces approuve au modele d'objet du
-projet VBA ». Depuis PowerShell :
-
-```powershell
-.\Build\construire_modele_unifie.ps1 `
-  -Prod6 'C:\Mandagout\ModeleCourrierChatGPT_PROD(6).dotm' `
-  -Cabinet1 'C:\Mandagout\Cabinet(1).dotm' `
-  -Sortie 'C:\Mandagout\CabinetUnifie_TEST.dotm'
-```
-
-Installer ensuite l'executable officiel `sqlite3.exe` sur le poste medecin :
-
-```powershell
-.\Build\installer_sqlite_medecin.ps1 -SqliteExe 'C:\chemin\sqlite3.exe'
-```
-
-Ouvrir `CabinetUnifie_TEST.dotm`, lancer **Debogage > Compiler TemplateProject**,
-enregistrer, fermer Word, puis tester exclusivement sur des patients fictifs.
-
-Construire aussi la copie de test du poste secretariat, qui publie les arrivees :
-
-```powershell
-.\Build\construire_cabinet_secretariat.ps1 `
-  -CabinetXlsm '.\Donnees\Modeles\Deploy\Cabinet.xlsm' `
-  -Sortie 'C:\Mandagout\CabinetSecretariat_TEST.xlsm'
-```
-
-## Affectation PowerMic
-
-| Touche | Macro |
+| Emplacement | Rôle |
 |---|---|
-| A | `Unifie_A_NouvelleLettre` |
-| B | `Unifie_B_FormuleAppel` |
-| C | `Unifie_C_InsererPatient` |
-| D | `Unifie_D_Finaliser` |
+| `\\DS224\CabinetCardio` | Patients, agenda annuel, journal des actes, dictionnaires, modèles, brouillons et files d'échange |
+| `\\DS224\home\sortiedragon` | Destination configurée des courriers DOCX/PDF publiés |
+| PC secrétaire | `Cabinet.xlsm`, saisie administrative, arrivées, rendez-vous, actes et impression |
+| PC médecin | `CabinetUnifie.dotm`, Dragon, correction API, lettres annexes, préparation de l'identité ECG |
+| `%APPDATA%\CabinetCardio` | Configuration du poste, exécutables locaux, versions et sauvegardes d'installation, cache SQLite |
+| `C:\Mandagout\IMPORT.GDT` | Identité destinée à Resting12Lead sur le PC médecin |
 
-Le bouton D utilise le moteur API et les lettres complementaires de `PROD(6)`.
-Le constructeur remplace son moteur de gras par celui de `Cabinet(1)` et ajoute
-la transmission du document final a `Echange\AEnvoyer` avant sa fermeture.
+Un seul complément Word regroupe les commandes du médecin. Excel reste l'application du secrétariat : ce n'est pas un exécutable autonome remplaçant Office. Le moteur de courrier et d'annexes provient de PROD6 ; les règles de gras et les fonctions de cabinet proviennent de Cabinet(1)/Cabinet.xlsm.
 
-## Validation obligatoire avant production
+## Saisie et consultation
 
-Verifier successivement : arrivee secretaria -> cache SQLite -> fenetre des
-patients arrives -> GDT Resting12Lead -> A/B/C -> D -> document principal et
-lettres complementaires -> file des courriers du secretariat -> impression,
-feuille de soins, journal et nouveau rendez-vous. Conserver les trois modeles
-actuels en sauvegarde et ne remplacer la production qu'apres ces essais.
+1. Le secrétariat crée ou retrouve le patient : nom, prénom, date de naissance, **sexe**, adresse, téléphone et médecin traitant. Le sexe est requis pour l'identité ECG ; il n'est jamais déduit automatiquement. Des champs administratifs complémentaires restent disponibles dans le formulaire existant.
+2. Le secrétariat gère le rendez-vous et signale l'arrivée. L'annonce contient l'identifiant patient et l'identifiant du rendez-vous. Il n'y a pas d'export ECG depuis le secrétariat.
+3. La touche **A** affiche les patients arrivés aujourd'hui. Le médecin choisit explicitement le patient ; aucun choix automatique du premier nom. L'arrivée est réservée, puis l'identité est relue sur le NAS, le brouillon Word est créé et le fichier GDT est produit. La base locale est un cache, pas une nouvelle source d'identité.
+4. Le médecin dicte son raccourci Dragon pour le destinataire. **B** place le curseur à la formule d'appel puis au corps de la lettre. **C** insère « NOM Prénom, âge » à la position de saisie, après vérification de l'identité du document.
+5. **D** sauvegarde le brouillon, appelle le moteur OpenAI pour la correction, puis pour les annexes lorsqu'une demande est détectée. Les règles de gras Cabinet sont appliquées. Les documents DOCX/PDF sont enregistrés avant l'annonce au secrétariat. Toute erreur interrompt le traitement et est signalée.
+6. Le secrétariat ouvre la file, vérifie et imprime les courriers, enregistre les actes, imprime éventuellement la feuille de soins papier et propose un nouveau rendez-vous. Le journal utilise l'identifiant stable de la consultation pour empêcher un double enregistrement lors d'une reprise.
+
+Les macros Dragon à affecter sont celles du module `modPowerMicUnifie` : `Unifie_A_NouvelleLettre`, `Unifie_B_FormuleAppel`, `Unifie_C_InsererPatient`, `Unifie_D_Finaliser`. Les anciennes macros homonymes de `Normal.dotm` ne sont pas supprimées automatiquement.
+
+## États et reprises
+
+```mermaid
+stateDiagram-v2
+    [*] --> Arrives: arrivée au secrétariat
+    Arrives --> EnCours: sélection par le médecin
+    EnCours --> Pris: courrier publié
+    Pris --> AEnvoyer: événement de publication
+    AEnvoyer --> Traites: traitement au secrétariat
+```
+
+Le diagramme représente l'ordre logique ; les transitions utilisent plusieurs fichiers. Il n'existe pas de transaction unique englobant toutes les écritures NAS. Une interruption peut donc laisser un brouillon ou une réservation à reprendre. La commande de reprise affiche aussi les réservations interrompues. Ne pas déplacer manuellement un dossier `EnCours` tant que la consultation peut être ouverte sur un autre poste.
+
+Une publication possède son identifiant de révision. La consultation conserve son propre identifiant, préfixé par l'année du rendez-vous, car les numéros d'agenda peuvent recommencer chaque année. Une nouvelle révision d'un courrier ne doit pas créer une deuxième séance comptable.
+
+## Données et confidentialité technique
+
+Le cache SQLite local contient l'identité, le médecin traitant et les métadonnées du rendez-vous nécessaires à la file. Il est reconstruit à partir du NAS ; une panne NAS ne doit pas autoriser l'utilisation silencieuse d'une ancienne liste. Les lectures Excel produisent aussi des copies temporaires locales des classeurs, supprimées après lecture. L'architecture actuelle ne garantit donc pas l'absence de toute copie transitoire de données hors du NAS.
+
+La clé OpenAI reste locale : variable d'environnement `OPENAI_API_KEY`, ou fichier `%APPDATA%\CabinetCardio\openai.key`. Elle ne va ni dans le dépôt ni dans `config.ini`. Le transport unifié utilise `store:false` et ne journalise pas les corps des requêtes/réponses. Le masquage dirigé par la fiche patient et les contrôles de balises **ne constituent pas une anonymisation exhaustive** du texte libre.
+
+La génération reste soumise à la relecture du médecin : destinataire, identité, négations, doses, examens et indication. Le code ne peut pas certifier l'exactitude médicale d'une réponse générée.
+
+## Architecture conseillée pour la suite
+
+La priorité suivante est un petit service métier sur le Synology, avec une base serveur PostgreSQL ou MariaDB et des comptes distincts. Il deviendrait l'unique autorité pour patients, rendez-vous, consultations et écritures comptables. Word et Excel seraient des clients ; les fichiers de courrier resteraient sur le NAS. L'identifiant d'une publication et son événement de file seraient enregistrés dans la même transaction, avec reprise explicite des écritures de fichiers.
+
+La base SQLite resterait locale au médecin. Ne pas déplacer son fichier sur un partage SMB pour en faire une base multi-utilisateur : [les contraintes de SQLite/WAL](https://www.sqlite.org/wal.html) ne correspondent pas à ce fonctionnement.
+
+Il faut également unifier l'annuaire du médecin traitant et celui des spécialistes autour d'identifiants stables, extraire les anciennes branches VBA inutilisées, puis isoler des modules testables pour l'identité, les montants et les transitions d'état. Cette migration n'a pas été réalisée dans cet audit et ne doit pas écraser les bases existantes.

@@ -30,13 +30,25 @@ Public Function EcrireGdtPatient(ByVal pat As Object, _
 
     contenu = ConstruireGdt(pat)
     chemin = dossier & "\IMPORT.GDT"
-    modFichiers.EcrireTexteAnsi chemin, contenu
+    Dim tmp As String, numero As Long, description As String
+    tmp = dossier & "\" & modFichiers.IdUnique() & ".tmp"
+    On Error GoTo Echec
+    modFichiers.EcrireTexteAnsi tmp, contenu
+    modFichiers.RenommerAtomique tmp, chemin, True
     modLog.LogInfo "GDT ecrit pour " & pat("ID") & " -> " & chemin
     EcrireGdtPatient = chemin
+    Exit Function
+Echec:
+    numero = Err.Number: description = Err.Description
+    modFichiers.SupprimerTemporaire tmp
+    Err.Raise numero, "modGdt", description
 End Function
 
 Public Function ConstruireGdt(ByVal pat As Object) As String
     Dim lignes As Collection, l As Variant, total As Long, contenu As String
+    If Len(Trim$(CStr(pat("ID")))) = 0 Or Len(Trim$(CStr(pat("Nom")))) = 0 Or Len(Trim$(CStr(pat("Prenom")))) = 0 Then
+        Err.Raise vbObjectError + 805, "modGdt", "Identite patient incomplete."
+    End If
     Set lignes = New Collection
     lignes.Add LigneGdt("8000", "6302")
     lignes.Add "PLACEHOLDER"
@@ -66,27 +78,30 @@ Public Function ConstruireGdt(ByVal pat As Object) As String
 End Function
 
 Private Function SexeVersGdt(ByVal sexe As String) As String
-    sexe = UCase$(Trim$(sexe))
-    If sexe = "M" Or sexe = "1" Or sexe = "H" Then
-        SexeVersGdt = "1"
-    ElseIf sexe = "F" Or sexe = "2" Then
-        SexeVersGdt = "2"
-    Else
-        SexeVersGdt = ""
-    End If
+    Select Case modTexte.SexeNormalise(sexe)
+        Case "M": SexeVersGdt = "1"
+        Case "F": SexeVersGdt = "2"
+        Case Else: Err.Raise vbObjectError + 802, "modGdt", "Sexe patient non renseigne pour l ECG."
+    End Select
 End Function
-
 Private Function LigneGdt(ByVal champ As String, ByVal valeur As String) As String
+    Dim st As Object, retour As String, i As Long
+    If Len(champ & valeur) + 5 > 999 Then Err.Raise vbObjectError + 806, "modGdt", "Champ GDT trop long."
+    For i = 0 To 31
+        If InStr(valeur, Chr$(i)) > 0 Then Err.Raise vbObjectError + 807, "modGdt", "Caractere de controle interdit dans le GDT."
+    Next i
+    Set st = CreateObject("ADODB.Stream")
+    st.Type = 2: st.Charset = "windows-1252": st.Open
+    st.WriteText valeur
+    st.Position = 0
+    retour = st.ReadText
+    st.Close
+    If retour <> valeur Then Err.Raise vbObjectError + 808, "modGdt", "Un caractere de l identite ne peut pas etre transmis en CP1252."
     LigneGdt = Format$(Len(champ & valeur) + 5, "000") & champ & valeur
 End Function
-
 ' "01/01/1935" -> "01011935"
 Private Function DdnVersGdt(ByVal ddn As String) As String
-    Dim p() As String
-    p = Split(Trim$(ddn), "/")
-    If UBound(p) = 2 Then
-        DdnVersGdt = Format$(Val(p(0)), "00") & Format$(Val(p(1)), "00") & Format$(Val(p(2)), "0000")
-    Else
-        DdnVersGdt = ""
-    End If
+    If Not modTexte.DateFrValide(ddn) Then Err.Raise vbObjectError + 803, "modGdt", "Date de naissance invalide."
+    If modTexte.DateFr(ddn) > Date Then Err.Raise vbObjectError + 804, "modGdt", "Date de naissance future."
+    DdnVersGdt = Format$(modTexte.DateFr(ddn), "ddmmyyyy")
 End Function

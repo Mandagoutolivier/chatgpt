@@ -1,0 +1,71 @@
+# DECLENCHEURS DE DEMANDES COMPLEMENTAIRES - DDE-1
+# Une ligne par motif. * = texte variable/intermediaire.
+# Les comparaisons sont sans distinction de casse ni d'accents.
+je lui demande*
+je demande*
+je sollicite*
+je prescris*
+je lui prescris*
+prescription de*
+je complete par*
+je complete le bilan*par*
+je complete ce bilan*par*
+je completerai par*
+il va completer ce bilan par*
+il va completer le bilan par*
+il completera par*
+nous poursuivons les investigations en realisant*
+il va realiser*
+merci de realiser*
+il faut realiser*
+je propose*
+nous proposons*
+je preconise*
+nous preconisons*
+je recommande*
+nous recommandons*
+je prevois*
+nous prevoyons*
+je programme*
+nous programmons*
+je vais programmer*
+nous allons programmer*
+je souhaite realiser*
+je souhaite faire realiser*
+je vais lui faire realiser*
+nous allons realiser*
+sera complete par*
+nous completerons par*
+je l'adresse*pour*
+je l'adresse*
+je l'oriente*pour*
+je l'oriente*
+nous l'orientons*
+je le dirige vers*
+je la dirige vers*
+nous allons le diriger*
+nous allons la diriger*
+je vais le diriger*
+je vais la diriger*
+nous allons l'adresser*
+je vais l'adresser*
+je le confie*
+je la confie*
+nous le confions*
+nous la confions*
+je te laisse le soin de le diriger*
+je vous laisse le soin de le diriger*
+je programme une hospitalisation*
+je programme son hospitalisation*
+nous programmons une hospitalisation*
+je l hospitalise*
+nous allons l hospitaliser*
+une hospitalisation est programmee*
+une admission est programmee*
+je demande son hospitalisation*
+je propose une hospitalisation*
+je le fais hospitaliser*
+je la fais hospitaliser*
+je l adresse pour hospitalisation*
+je le dirige vers*pour hospitalisation*
+je la dirige vers*pour hospitalisation*

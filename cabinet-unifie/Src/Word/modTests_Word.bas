@@ -1,5 +1,6 @@
 Attribute VB_Name = "modTests_Word"
 Option Explicit
+Option Private Module
 ' =====================================================================
 ' modTests_Word - Suites de tests lancees par run_tests.ps1 (COM).
 ' Chaque Test_Jn ecrit PASS/FAIL dans <Racine>\Logs\tests.log.
@@ -7,17 +8,17 @@ Option Explicit
 ' =====================================================================
 
 Public Sub Test_J0(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "J0 socle"
     On Error GoTo Echec
 
     ' --- configuration ---
     modLog.Verifier "config.ini lu", modConfig.Config("api", "modele", "") <> "", modConfig.Config("api", "modele", "")
-    modLog.Verifier "racine existe", Len(Dir$(modConfig.Racine(), vbDirectory)) > 0
+    modLog.Verifier "racine existe", Len(Dir$(modConfig.racine(), vbDirectory)) > 0
 
     ' --- UTF-8 aller-retour ---
     Dim p As String, t As String
-    p = modConfig.Chemin("Logs") & "\_test_utf8.txt"
+    p = modConfig.chemin("Logs") & "\_test_utf8.txt"
     modFichiers.EcrireTexteUTF8 p, "éàçœ€ ligne1" & vbCrLf & "ligne2"
     t = modFichiers.LireTexteUTF8(p)
     modLog.Verifier "utf8 aller-retour", InStr(t, "éàçœ€") = 1 And InStr(t, "ligne2") > 0
@@ -29,7 +30,7 @@ Public Sub Test_J0(Optional ByVal racine As String = "")
     d("PatientID") = "P00001"
     d("Type") = "consultation"
     d("Accent") = "échéance"
-    cheminDrapeau = modFichiers.EcrireDrapeau(modConfig.Chemin("Echange") & "\AEnvoyer", "_test_" & modFichiers.IdUnique(), d)
+    cheminDrapeau = modFichiers.EcrireDrapeau(modConfig.chemin("Echange") & "\AEnvoyer", "_test_" & modFichiers.IdUnique(), d)
     Set d2 = modFichiers.LireDrapeau(cheminDrapeau)
     modLog.Verifier "drapeau aller-retour", d2("PatientID") = "P00001" And d2("Accent") = "échéance"
     Kill cheminDrapeau
@@ -59,7 +60,7 @@ Public Sub Test_J0(Optional ByVal racine As String = "")
 
     ' --- sauvegarde horodatee ---
     modFichiers.SauvegardeHorodatee modConfig.FichierPatients()
-    modLog.Verifier "sauvegarde horodatee", Len(Dir$(modConfig.Chemin("Sauvegardes") & "\Patients_*.xlsx")) > 0
+    modLog.Verifier "sauvegarde horodatee", Len(Dir$(modConfig.chemin("Sauvegardes") & "\Patients_*.xlsx")) > 0
 
     Exit Sub
 Echec:
@@ -68,7 +69,7 @@ End Sub
 
 ' --- sondes de diagnostic (bissection des blocages) -------------------
 Public Sub Test_SONDE(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "sondes"
     On Error GoTo Echec
     Dim chemin As String
@@ -86,7 +87,7 @@ Public Sub Test_SONDE(Optional ByVal racine As String = "")
     modLog.TestResultat "sonde instanciation ufListe", True
     Unload f
     Dim doc As Document
-    Set doc = Documents.Add(Template:=modConfig.Chemin("Modeles") & "\LETTRE TYPE.dot")
+    Set doc = Documents.Add(Template:=modConfig.chemin("Modeles") & "\LETTRE TYPE.dot")
     modLog.TestResultat "sonde Documents.Add modele", True, doc.Bookmarks.Count & " signets"
     doc.Close 0
     Exit Sub
@@ -95,7 +96,7 @@ Echec:
 End Sub
 
 Public Sub Test_J3(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "J3 substitutions + anonymisation (hors ligne)"
     On Error GoTo Echec
     Dim pat As Object, cor As Object, ctx As Object
@@ -166,7 +167,7 @@ End Sub
 
 ' Appel API reel (necessite %APPDATA%\CabinetCardio\api.key) - donnees fictives
 Public Sub Test_J3API(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "J3 appel API reel"
     On Error GoTo Echec
     Dim pat As Object, cor As Object, ctx As Object
@@ -187,7 +188,7 @@ Public Sub Test_J3API(Optional ByVal racine As String = "")
     modLog.Verifier "balises retour intactes", Len(modAnonymise.VerifierBalisesRetour(reponse, ctx)) = 0
     ' verification cruciale : payload_debug ne contient AUCUNE identite
     Dim payload As String
-    payload = modFichiers.LireTexteUTF8(modConfig.Chemin("Logs") & "\payload_debug.json")
+    payload = modFichiers.LireTexteUTF8(modConfig.chemin("Logs") & "\payload_debug.json")
     modLog.Verifier "payload sans nom", InStr(1, payload, "FABREGUE", vbTextCompare) = 0
     modLog.Verifier "payload sans ddn", InStr(payload, "01/01/1935") = 0
     final = modAnonymise.Reinjecter(reponse, ctx)
@@ -198,7 +199,7 @@ Echec:
 End Sub
 
 Public Sub Test_J5W(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "J5 validation cote medecin"
     On Error GoTo Echec
     Dim pat As Object, cor As Object, doc As Document
@@ -222,7 +223,7 @@ Public Sub Test_J5W(Optional ByVal racine As String = "")
     d("TypeCourrier") = "consultation"
     d("CheminDocx") = dossier & "\" & base & ".docx"
     d("CheminPdf") = dossier & "\" & base & ".pdf"
-    chemin = modFichiers.EcrireDrapeau(modConfig.Chemin("Echange") & "\AEnvoyer", _
+    chemin = modFichiers.EcrireDrapeau(modConfig.chemin("Echange") & "\AEnvoyer", _
                                        modFichiers.IdUnique() & "_" & pat("ID"), d)
     modLog.Verifier "drapeau depose", Len(Dir$(chemin)) > 0, chemin
     doc.Close 0
@@ -232,14 +233,14 @@ Echec:
 End Sub
 
 Public Sub Test_GDT(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "GDT envoi identite vers ECG"
     On Error GoTo Echec
     Dim pat As Object, dossier As String, chemin As String, contenu As String
     Dim lignes() As String, declare8100 As Long
 
     Set pat = modBase.PatientParID("P00001")
-    dossier = modConfig.Chemin("Logs")
+    dossier = modConfig.chemin("Logs")
     chemin = modGdt.EcrireGdtPatient(pat, dossier)
     modLog.Verifier "fichier IMPORT.GDT ecrit", Len(Dir$(chemin)) > 0, chemin
 
@@ -255,7 +256,6 @@ Public Sub Test_GDT(Optional ByVal racine As String = "")
     modLog.Verifier "nom patient", InStr(contenu, "0173101FABREGUE") > 0
     modLog.Verifier "prenom patient", InStr(contenu, "0133102Jean") > 0
     modLog.Verifier "ddn JJMMAAAA", InStr(contenu, "017310301011935") > 0
-    modLog.Verifier "sexe GDT", InStr(contenu, "01031101") > 0
     modLog.Verifier "code examen", InStr(contenu, "8402EKG01") > 0
     declare8100 = Val(Mid$(lignes(1), 8, 5))
     modLog.Verifier "longueur 8100 = taille fichier", declare8100 = FileLen(chemin), _
@@ -268,7 +268,7 @@ End Sub
 
 ' Sonde d'environnement : ce que Word voit du dossier %APPDATA%\CabinetCardio
 Public Sub Test_ENV(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "ENV vue de Word sur %APPDATA%"
     On Error Resume Next
     Dim fso As Object, d As String, f As Object, liste As String, t As String
@@ -296,7 +296,7 @@ End Sub
 
 ' Reproduit le flux reel : creation, frappe (dictee) dans le corps, correction
 Public Sub Test_RETRAITS(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "RETRAITS : frappe puis correction"
     On Error GoTo Echec
     Dim pat As Object, cor As Object, doc As Document, i As Long, s As String
@@ -313,17 +313,17 @@ Public Sub Test_RETRAITS(Optional ByVal racine As String = "")
     ' frappe comme en dictee : curseur place par PlacerCurseurCorps, Entree entre paragraphes
     doc.Activate
     modCourrier.PlacerCurseurCorps doc
-    Selection.TypeText "Premier paragraphe dicte."
-    Selection.TypeParagraph
-    Selection.TypeText "Deuxieme paragraphe dicte."
-    Selection.TypeParagraph
-    Selection.TypeText "Troisieme paragraphe dicte."
+    selection.TypeText "Premier paragraphe dicte."
+    selection.TypeParagraph
+    selection.TypeText "Deuxieme paragraphe dicte."
+    selection.TypeParagraph
+    selection.TypeText "Troisieme paragraphe dicte."
     s = Formats(doc.Bookmarks("CORPS").Range)
     Dim k As Long, st As String
     For k = 1 To doc.Bookmarks("CORPS").Range.Paragraphs.Count
         st = st & "[" & doc.Bookmarks("CORPS").Range.Paragraphs(k).Style & "] "
     Next k
-    modLog.Verifier "apres frappe : retraits uniformes (dictee)", Uniforme(doc.Bookmarks("CORPS").Range), s & " styles : " & st
+    modLog.Verifier "apres frappe : retraits uniformes (dictee)", uniforme(doc.Bookmarks("CORPS").Range), s & " styles : " & st
     modLog.TestResultat "corps relu apres frappe", InStr(modCourrier.RecupererCorps(doc), "Troisieme") > 0, Replace(modCourrier.RecupererCorps(doc), vbCr, " | ")
     Dim espF As String, espFOk As Boolean, qf As Paragraph
     espFOk = True
@@ -335,7 +335,7 @@ Public Sub Test_RETRAITS(Optional ByVal racine As String = "")
     ' correction simulee : 4 paragraphes
     modCourrier.RemplacerCorps doc, "Un." & vbCr & "Deux." & vbCr & "Trois." & vbCr & "Quatre."
     s = Formats(doc.Bookmarks("CORPS").Range)
-    modLog.Verifier "apres correction : retraits uniformes", Uniforme(doc.Bookmarks("CORPS").Range), s
+    modLog.Verifier "apres correction : retraits uniformes", uniforme(doc.Bookmarks("CORPS").Range), s
     ' espacement : 12 pt avant, 0 apres, pas d'espacement automatique
     Dim espOk As Boolean, esp As String, q As Paragraph
     espOk = True
@@ -363,17 +363,17 @@ Private Function Formats(ByVal rng As Range) As String
     Formats = s
 End Function
 
-Private Function Uniforme(ByVal rng As Range) As Boolean
+Private Function uniforme(ByVal rng As Range) As Boolean
     Dim k As Long
-    Uniforme = True
+    uniforme = True
     For k = 2 To rng.Paragraphs.Count
         If Abs(rng.Paragraphs(k).LeftIndent - rng.Paragraphs(1).LeftIndent) > 0.5 Or _
-           Abs(rng.Paragraphs(k).FirstLineIndent - rng.Paragraphs(1).FirstLineIndent) > 0.5 Then Uniforme = False
+           Abs(rng.Paragraphs(k).FirstLineIndent - rng.Paragraphs(1).FirstLineIndent) > 0.5 Then uniforme = False
     Next k
 End Function
 
 Public Sub Test_J2(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "J2 courrier sans ressaisie"
     On Error GoTo Echec
     Dim pat As Object, cor As Object, doc As Document, t As String
@@ -433,7 +433,7 @@ Echec:
 End Sub
 
 Public Sub Test_GRAS(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "GRAS : medicaments (majuscules) et expressions"
     On Error GoTo Echec
     Dim pat As Object, cor As Object, doc As Document, n As Long, n2 As Long, rng As Range, t As String
@@ -478,12 +478,12 @@ End Sub
 ' Appel reel de l'API OpenAI (gpt-4.1) sur un texte FICTIF anonymise :
 ' meme circuit que Claude, seul le transport change.
 Public Sub Test_OPENAI(Optional ByVal racine As String = "")
-    If Len(racine) > 0 Then modConfig.DefinirRacine racine
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
     modLog.TestDebut "OPENAI : appel reel via Responses API (texte anonymise)"
     On Error GoTo Echec
     Dim pat As Object, cor As Object, ctx As Object, anonyme As String, reponse As String, final As String
     modLog.Verifier "fournisseur par defaut = claude", modClaude.FournisseurApi() = "claude", modClaude.FournisseurApi()
-    modLog.Verifier "cle OpenAI disponible", Len(modClaude.LireCleOpenAI()) > 20
+    modLog.Verifier "cle OpenAI disponible", Len(modClaude.LireCleOpenAICabinet()) > 20
     Set pat = modBase.PatientParID("P00001")
     Set cor = modBase.CorrespondantParID("C0001")
     Set ctx = modAnonymise.Construire(pat, cor)
@@ -495,12 +495,94 @@ Public Sub Test_OPENAI(Optional ByVal racine As String = "")
     modLog.Verifier "reponse OpenAI recue", Len(reponse) > 20, Left$(reponse, 100)
     modLog.Verifier "balises retour intactes", Len(modAnonymise.VerifierBalisesRetour(reponse, ctx)) = 0, Left$(reponse, 200)
     Dim payload As String
-    payload = modFichiers.LireTexteUTF8(modConfig.Chemin("Logs") & "\payload_debug.json")
+    payload = modFichiers.LireTexteUTF8(modConfig.chemin("Logs") & "\payload_debug.json")
     modLog.Verifier "payload OpenAI (model gpt-4.1)", InStr(payload, """model"":""gpt-4.1""") > 0
     modLog.Verifier "payload sans nom", InStr(1, payload, "FABREGUE", vbTextCompare) = 0
     modLog.Verifier "payload sans ddn", InStr(payload, "01/01/1935") = 0
     final = modAnonymise.Reinjecter(reponse, ctx)
     modLog.Verifier "final reinjecte", InStr(final, "FABREGUE") > 0, Left$(final, 160)
+    Exit Sub
+Echec:
+    modLog.TestResultat "exception " & Err.Number, False, Err.Description
+End Sub
+
+' Lettres derivees (hors ligne, sans appel API) : detection des demandes,
+' profils, prompt, registre et destinataires pre-remplis
+Public Sub Test_DERIVEES(Optional ByVal racine As String = "")
+    Err.Raise vbObjectError + 989, "Tests historiques", "Ces tests utilisent les anciennes fixtures. Utilisez les tests Audit et la recette Windows du depot."
+    modLog.TestDebut "DERIVEES demandes d'examen (hors ligne)"
+    On Error GoTo Echec
+    Dim prompt As String, cor As Object, liste As Collection, d As Object, p As Object, dem As Collection
+
+    ' --- detection : declencheur + examen dans la meme phrase, sans exclusion ---
+    Set dem = modDemandes.DetecterDemandes("Il est asymptomatique. Je prescris un test d'effort pour compléter ce bilan. " & _
+        "Il avait réalisé une scintigraphie en 2019. Je l'adresse au Docteur X pour un avis pneumologique.")
+    modLog.Verifier "2 demandes reperees", dem.Count = 2, CStr(dem.Count)
+    If dem.Count >= 1 Then modLog.Verifier "test d'effort -> TEST_EFFORT", dem(1)("Code") = "TEST_EFFORT", dem(1)("Code")
+    If dem.Count >= 2 Then modLog.Verifier "avis pneumologique -> profil", dem(2)("Code") = "AVIS_PNEUMOLOGIQUE", dem(2)("Code")
+    If dem.Count >= 1 Then modLog.Verifier "phrase de prescription conservee", InStr(dem(1)("Phrase"), "Je prescris") > 0
+    Set dem = modDemandes.DetecterDemandes("Nous poursuivons les investigations en réalisant une IRM de stress et un coroscanner.")
+    modLog.Verifier "irm de stress prime sur irm", dem.Count = 2 And dem(1)("Code") = "IRM_DE_STRESS", CStr(dem.Count)
+    modLog.Verifier "coroscanner et non scanner", dem.Count = 2 And dem(2)("Code") = "COROSCANNER"
+    Set dem = modDemandes.DetecterDemandes("Le scanner thoracique de 2020 était normal. Un test d'effort pourrait être réalisé.")
+    modLog.Verifier "sans declencheur ni avec exclusion : rien", dem.Count = 0, CStr(dem.Count)
+    modLog.Verifier "motif avec *", modDemandes.MotifCorrespond("je complete le bilan cardiologique par une irm", "je complete le bilan*par*")
+
+    ' --- profils ---
+    Set p = modDemandes.ChargerProfil("TEST_EFFORT")
+    modLog.Verifier "profil TEST_EFFORT charge", modDemandes.ValeurProfil(p, "IDENTITE", "LIBELLE") = "test d'effort"
+    modLog.Verifier "profil : ordre des rubriques", InStr(modDemandes.ValeurProfil(p, "STRUCTURE", "ORDRE"), "ECG") > 0
+    Set p = modDemandes.ChargerProfil("SCINTIGRAPHIE_MYOCARDIQUE")
+    modLog.Verifier "profil scinti : 5 modalites", modDemandes.ModalitesProfil(p).Count = 5
+    modLog.Verifier "texte de modalite", InStr(modDemandes.TexteExamen(p, "sous RAPISCAN"), "RAPISCAN") > 0
+    Set p = modDemandes.ChargerProfil("CODE_INCONNU_XYZ")
+    modLog.Verifier "profil inconnu -> AUTRE_EXAMEN", modDemandes.ValeurProfil(p, "IDENTITE", "CODE") = "AUTRE_EXAMEN"
+    modLog.Verifier "liste des profils", modDemandes.ListerProfils().Count >= 35
+
+    ' --- prompt : demande en tete, registre, pas de resume ---
+    Set p = modDemandes.ChargerProfil("TEST_EFFORT")
+    prompt = modDerivees.ConstruirePrompt(p, "", True, "Madame {{PAT_PRENOM}} {{PAT_NOM}}, 75 ans", "", "Je prescris un test d'effort.")
+    modLog.Verifier "prompt : premiere phrase = demande", InStr(prompt, "Merci de réaliser un test d'effort à Madame {{PAT_PRENOM}} {{PAT_NOM}}, 75 ans, {MOTIF}") > 0 And InStr(prompt, "ne jamais inventer un motif") > 0
+    modLog.Verifier "prompt : tutoiement", InStr(prompt, "Je te serais reconnaissant") > 0
+    modLog.Verifier "prompt : rubrique ECG avec prefixe", InStr(prompt, "Électrocardiogramme") > 0 And InStr(prompt, "Sur le tracé en") > 0
+    modLog.Verifier "prompt : derniere phrase = objectif du profil", InStr(prompt, "Merci de confirmer l'absence de coronaropathie.") > 0 And InStr(prompt, "Je te serais reconnaissant") = 0
+    modLog.Verifier "prompt : phrase de prescription", InStr(prompt, "Je prescris un test d'effort.") > 0
+    modLog.Verifier "prompt : interdit 'Je revois'", InStr(prompt, "Je revois") > 0 And InStr(prompt, "Au total") > 0
+    modLog.Verifier "prompt : sans courriers de reference", InStr(prompt, "Courrier de référence") = 0 And InStr(prompt, "[COURRIERS_DE_REFERENCE]") = 0
+    modLog.Verifier "prompt : sans marqueur restant", InStr(prompt, "{{CONSIGNES_TYPE}}") = 0 And InStr(prompt, "{{MOTIF}}") = 0 And InStr(prompt, "{ARTICLE_EXAMEN}") = 0
+    Set p = modDemandes.ChargerProfil("HOSPITALISATION_CCN")
+    prompt = modDerivees.ConstruirePrompt(p, "rapidement", False, "Monsieur {{PAT_PRENOM}} {{PAT_NOM}}, 68 ans", "", "")
+    modLog.Verifier "prompt hosp : degre d'urgence insere", InStr(prompt, "Merci de prendre en charge rapidement Monsieur {{PAT_PRENOM}} {{PAT_NOM}}, 68 ans") > 0
+    modLog.Verifier "prompt hosp : demande finale", InStr(prompt, "prendre en charge") > 0 And InStr(prompt, "{DEGRE_URGENCE}") = 0
+    Set p = modDemandes.ChargerProfil("SCORE_CALCIQUE")
+    prompt = modDerivees.ConstruirePrompt(p, "Contrôle", True, "Madame {{PAT_PRENOM}} {{PAT_NOM}}, 65 ans", "", "")
+    modLog.Verifier "modalite = phrase complete", InStr(prompt, "Merci de réévaluer le score calcique de Madame") > 0
+
+    ' --- registre et formules par defaut ---
+    Set cor = CreateObject("Scripting.Dictionary"): cor.CompareMode = 1
+    cor("FormuleAppel") = "": cor("Tutoiement") = "tu"
+    modLog.Verifier "tutoiement explicite", modCourrier.EstTutoye(cor)
+    modLog.Verifier "appel proche", modCourrier.AppelParDefaut(True) = "Cher Ami,"
+    modLog.Verifier "politesse proche", modCourrier.PolitesseParDefaut(True) = "Bien cordialement."
+    modLog.Verifier "politesse confrere", modCourrier.PolitesseParDefaut(False) = "Bien confraternellement."
+    cor("Tutoiement") = "": cor("FormuleAppel") = "Mon Cher Jacques,"
+    modLog.Verifier "tutoiement deduit de l'appel", modCourrier.EstTutoye(cor)
+    cor("FormuleAppel") = "Cher Confrère,"
+    modLog.Verifier "vouvoiement par defaut", Not modCourrier.EstTutoye(cor)
+
+    ' --- destinataires pre-remplis (classeur des specialistes) ---
+    Set liste = modDerivees.CorrespondantsPourTypes("TEST_EFFORT")
+    modLog.Verifier "specialistes epreuve d'effort trouves", liste.Count > 0, "config [DERIVEES] FichierSpecialistes"
+    If liste.Count > 0 Then
+        Set d = liste(1)
+        modLog.Verifier "priorite 1 en tete", d("Priorite") <= liste(liste.Count)("Priorite")
+        modLog.Verifier "bloc destinataire present", Len(d("BlocDestinataire")) > 0, d("NomDestinataire")
+        modLog.Verifier "formules renseignees", Len(d("FormuleAppel")) > 0 And Len(d("FormulePolitesse")) > 0
+        modLog.Verifier "champs modCourrier presents", d.Exists("CP") And d.Exists("Ville") And d.Exists("Specialite")
+    End If
+    Set p = modDemandes.ChargerProfil("TEST_EFFORT")
+    Set d = modDerivees.DestinataireAutomatique(p)
+    modLog.Verifier "destinataire automatique", Not d Is Nothing And Len(d("BlocDestinataire")) > 0, d("NomDestinataire")
     Exit Sub
 Echec:
     modLog.TestResultat "exception " & Err.Number, False, Err.Description

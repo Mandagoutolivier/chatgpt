@@ -22,18 +22,20 @@ End Function
 Public Sub SynchroniserAttentes()
     Dim dossier As String, f As Variant, d As Object, sql As String, auj As String
     dossier = modConfig.Chemin("Echange") & "\Arrives"
+    If Not modFichiers.DossierExiste(dossier) Then Err.Raise vbObjectError + 972, "modAttenteLocale", "File NAS inaccessible. Aucune selection locale autorisee."
     auj = Format$(Date, "dd/mm/yyyy")
     sql = "PRAGMA journal_mode=WAL;" & vbLf & _
-          "CREATE TABLE IF NOT EXISTS attentes (" & _
-          "patient_id TEXT PRIMARY KEY, nom TEXT NOT NULL, prenom TEXT NOT NULL," & _
-          "ddn TEXT NOT NULL, sexe TEXT, med_traitant_id TEXT, rdv_id TEXT," & _
+          "CREATE TABLE IF NOT EXISTS attentes_v2 (" & _
+          "patient_id TEXT NOT NULL, nom TEXT NOT NULL, prenom TEXT NOT NULL," & _
+          "ddn TEXT NOT NULL, sexe TEXT, med_traitant_id TEXT, rdv_id TEXT PRIMARY KEY," & _
           "date_rdv TEXT, heure_rdv TEXT, heure_arrivee TEXT, statut TEXT," & _
           "source_nas TEXT NOT NULL, synchronise_le TEXT NOT NULL);" & vbLf & _
-          "DELETE FROM attentes;" & vbLf & "BEGIN;" & vbLf
+          "BEGIN IMMEDIATE;" & vbLf & "DELETE FROM attentes_v2;" & vbLf
     For Each f In modFichiers.ListerFichiers(dossier, ".txt")
         Set d = modFichiers.LireDrapeau(CStr(f))
         If Valeur(d, "DateArrivee") = auj And Valeur(d, "Statut") = "Arrive" Then
-            sql = sql & "INSERT OR REPLACE INTO attentes VALUES(" & _
+            If Len(Valeur(d, "PatientID")) = 0 Or Len(Valeur(d, "RdvID")) = 0 Then Err.Raise vbObjectError + 973, "modAttenteLocale", "Arrivee sans identifiant."
+            sql = sql & "INSERT INTO attentes_v2 VALUES(" & _
                 Q(Valeur(d, "PatientID")) & "," & Q(Valeur(d, "Nom")) & "," & _
                 Q(Valeur(d, "Prenom")) & "," & Q(Valeur(d, "DDN")) & "," & _
                 Q(Valeur(d, "Sexe")) & "," & Q(Valeur(d, "MedTraitantID")) & "," & _
@@ -42,7 +44,7 @@ Public Sub SynchroniserAttentes()
                 Q("Arrive") & "," & Q(CStr(f)) & "," & Q(Format$(Now, "yyyy-mm-dd hh:nn:ss")) & ");" & vbLf
         End If
     Next f
-    sql = sql & "COMMIT;" & vbLf
+    sql = sql & "COMMIT;" & vbLf & "DROP TABLE IF EXISTS attentes;" & vbLf
     ExecuterSql sql, False
 End Sub
 
@@ -50,8 +52,8 @@ Public Function ChoisirAttente() As Object
     Dim sortie As String, lignes() As String, champs() As String, i As Long
     Dim col As New Collection, d As Object, f As ufListe
     SynchroniserAttentes
-    sortie = ExecuterSql("SELECT patient_id,nom,prenom,ddn,sexe,med_traitant_id,rdv_id,date_rdv,heure_rdv,heure_arrivee,source_nas FROM attentes ORDER BY heure_arrivee,heure_rdv;", True)
-    If Len(Trim$(sortie)) = 0 Then Exit Function
+    sortie = ExecuterSql("SELECT patient_id,nom,prenom,ddn,sexe,med_traitant_id,rdv_id,date_rdv,heure_rdv,heure_arrivee,source_nas FROM attentes_v2 ORDER BY heure_arrivee,heure_rdv;", True)
+    If Len(Trim$(sortie)) = 0 Then MsgBox "Aucun patient arrive en attente aujourd hui.", vbInformation, "Cabinet": Exit Function
     lignes = Split(Replace(sortie, vbCr, ""), vbLf)
     For i = LBound(lignes) To UBound(lignes)
         If Len(lignes(i)) > 0 Then
@@ -67,7 +69,7 @@ Public Function ChoisirAttente() As Object
             End If
         End If
     Next i
-    If col.Count = 1 Then Set ChoisirAttente = col(1): Exit Function
+    If col.Count = 0 Then Exit Function
     Set f = New ufListe
     f.Configurer "Patients arrives", col, Array("HeureArrivee", "Patient", "DDN"), "50 pt;200 pt;70 pt"
     f.Show vbModal
@@ -76,36 +78,91 @@ Public Function ChoisirAttente() As Object
 End Function
 
 Public Sub ConsommerAttente(ByVal attente As Object)
-    On Error Resume Next
-    Dim fso As Object, source As String, dest As String
-    source = attente("SourceNas")
+    Dim source As String, dest As String, dossier As String, fso As Object
     Set fso = CreateObject("Scripting.FileSystemObject")
-    dest = fso.GetParentFolderName(source) & "\Pris"
-    modFichiers.EnsureDossier dest
-    fso.MoveFile source, dest & "\" & fso.GetFileName(source)
-    ExecuterSql "DELETE FROM attentes WHERE patient_id=" & Q(attente("PatientID")) & ";", False
+    dossier = modConfig.Chemin("Echange") & "\Arrives"
+    source = CStr(attente("SourceNas"))
+    If StrComp(fso.GetParentFolderName(source), dossier, vbTextCompare) <> 0 Then Err.Raise vbObjectError + 974, "modAttenteLocale", "Chemin d arrivee inattendu."
+    modFichiers.EnsureDossier dossier & "\EnCours"
+    dest = dossier & "\EnCours\" & fso.GetFileName(source)
+    ' Renommage sans remplacement : un seul poste peut reclamer cette arrivee.
+    modFichiers.RenommerAtomique source, dest
+    attente("ReservationNas") = dest
+    ' La file NAS fait foi. Un echec du cache sera repare au rafraichissement suivant.
+    On Error Resume Next
+    ExecuterSql "DELETE FROM attentes_v2 WHERE rdv_id=" & Q(CStr(attente("RdvID"))) & ";", False
+    On Error GoTo 0
 End Sub
-
 Private Function ExecuterSql(ByVal sql As String, ByVal capturer As Boolean) As String
-    Dim fSql As String, fOut As String, cmd As String, sh As Object, rc As Long, qte As String
+    Dim fSql As String, fOut As String, fErr As String, cmd As String, sh As Object, rc As Long, qte As String
+    Dim numero As Long, description As String, exe As String, db As String
+    exe = SqliteExe(): db = FichierDb()
+    VerifierCheminCommande exe: VerifierCheminCommande db
     qte = Chr$(34)
-    fSql = DossierLocal() & "\commande.sql": fOut = DossierLocal() & "\sortie.txt"
-    modFichiers.EcrireTexteUTF8 fSql, sql
-    cmd = "cmd.exe /d /s /c " & qte & qte & SqliteExe() & qte & _
-          " -batch -separator " & qte & Chr$(31) & qte & " " & qte & FichierDb() & qte & _
-          " < " & qte & fSql & qte
-    If capturer Then cmd = cmd & " > " & qte & fOut & qte
-    cmd = cmd & qte
+    fSql = DossierLocal() & "\" & modFichiers.IdUnique() & ".sql"
+    fOut = fSql & ".out": fErr = fSql & ".err"
+    On Error GoTo Echec
+    modFichiers.EcrireTexteUTF8 fSql, ".bail on" & vbLf & ".timeout 5000" & vbLf & sql
+    cmd = "cmd.exe /d /v:off /s /c " & qte & qte & exe & qte & _
+          " -batch -bail -separator " & qte & Chr$(31) & qte & " " & qte & db & qte & _
+          " < " & qte & fSql & qte & " > " & qte & fOut & qte & " 2> " & qte & fErr & qte & qte
     Set sh = CreateObject("WScript.Shell")
     rc = sh.Run(cmd, 0, True)
-    If rc <> 0 Then Err.Raise vbObjectError + 971, "modAttenteLocale", "Erreur SQLite (code " & rc & ")."
-    If capturer And modFichiers.FichierExiste(fOut) Then ExecuterSql = modFichiers.LireTexteUTF8(fOut)
+    If rc <> 0 Then Err.Raise vbObjectError + 971, "modAttenteLocale", "Erreur SQLite (code " & rc & "). La selection est interrompue."
+    If capturer Then ExecuterSql = modFichiers.LireTexteUTF8(fOut)
+Sortie:
+    modFichiers.SupprimerTemporaire fSql
+    modFichiers.SupprimerTemporaire fOut
+    modFichiers.SupprimerTemporaire fErr
+    If numero <> 0 Then Err.Raise numero, "modAttenteLocale.ExecuterSql", description
+    Exit Function
+Echec:
+    numero = Err.Number: description = Err.Description
+    Resume Sortie
 End Function
-
 Private Function Q(ByVal valeur As String) As String
+    Dim i As Long
+    For i = 0 To 31
+        If InStr(valeur, Chr$(i)) > 0 Then Err.Raise vbObjectError + 975, "modAttenteLocale", "Caractere de controle interdit dans une arrivee."
+    Next i
     Q = "'" & Replace(valeur, "'", "''") & "'"
 End Function
-
 Private Function Valeur(ByVal d As Object, ByVal cle As String) As String
     If d.Exists(cle) Then Valeur = CStr(d(cle)) Else Valeur = ""
 End Function
+
+Private Sub VerifierCheminCommande(ByVal chemin As String)
+    Dim c As Variant
+    For Each c In Array("%", "!", "&", "|", "<", ">", "^", Chr$(34), vbCr, vbLf)
+        If InStr(chemin, CStr(c)) > 0 Then Err.Raise vbObjectError + 976, "modAttenteLocale", "Chemin Windows incompatible avec l appel SQLite."
+    Next c
+    If Left$(chemin, 2) = "\\" Then Err.Raise vbObjectError + 977, "modAttenteLocale", "SQLite doit etre local au poste."
+End Sub
+
+Public Sub LibererReservation(ByVal attente As Object)
+    If attente Is Nothing Then Exit Sub
+    If Not attente.Exists("ReservationNas") Then Exit Sub
+    If modFichiers.FichierExiste(CStr(attente("ReservationNas"))) Then
+        modFichiers.RenommerAtomique CStr(attente("ReservationNas")), CStr(attente("SourceNas"))
+    End If
+End Sub
+
+Public Sub EnregistrerBrouillon(ByVal attente As Object, ByVal cheminBrouillon As String)
+    Dim d As Object, cle As Variant, texte As String, tmp As String, cible As String
+    Dim numero As Long, description As String
+    cible = CStr(attente("ReservationNas"))
+    Set d = modFichiers.LireDrapeau(cible)
+    d("CheminBrouillon") = cheminBrouillon
+    For Each cle In d.Keys
+        texte = texte & cle & "=" & Replace(Replace(CStr(d(cle)), vbCr, " "), vbLf, " ") & vbCrLf
+    Next cle
+    tmp = cible & "." & modFichiers.IdUnique() & ".tmp"
+    On Error GoTo Echec
+    modFichiers.EcrireTexteUTF8 tmp, texte
+    modFichiers.RenommerAtomique tmp, cible, True
+    Exit Sub
+Echec:
+    numero = Err.Number: description = Err.Description
+    modFichiers.SupprimerTemporaire tmp
+    Err.Raise numero, "modAttenteLocale.EnregistrerBrouillon", description
+End Sub

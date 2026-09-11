@@ -1,41 +1,68 @@
 Attribute VB_Name = "modPowerMicUnifie"
 Option Explicit
+Private mOccupe As Boolean
 
-' Points d'entree uniques a affecter aux quatre touches du PowerMic.
 Public Sub Unifie_A_NouvelleLettre()
+    If mOccupe Or modProdRapide.PR_EnCours() Then Exit Sub
+    mOccupe = True
     On Error GoTo Erreur
-    Dim attente As Object, pat As Object, cor As Object, doc As Document
+    Dim attente As Object, pat As Object, doc As Document, sauvegarde As Boolean
     Set attente = modAttenteLocale.ChoisirAttente()
-    If attente Is Nothing Then
-        Cabinet_A_NouvelleLettre
-        Exit Sub
-    End If
-    Set pat = modBase.PatientParID(attente("PatientID"))
-    If pat Is Nothing Then Err.Raise vbObjectError + 980, , "Patient absent de la base NAS."
-    If Len(pat("MedTraitantID")) > 0 Then Set cor = modBase.CorrespondantParID(pat("MedTraitantID"))
-    If cor Is Nothing Then
-        Set doc = modCourrier.CreerCourrierRapidePour(pat)
-    Else
-        Set doc = modCourrier.CreerCourrierPour(pat, cor)
-    End If
-    doc.Variables("RdvID") = attente("RdvID")
-    modGdt.EcrireGdtPatient pat
+    If attente Is Nothing Then GoTo Sortie
+    Set pat = modBase.PatientParID(CStr(attente("PatientID")), True)
+    If pat Is Nothing Then Err.Raise vbObjectError + 980, "modPowerMicUnifie", "Patient absent de la base NAS."
     modAttenteLocale.ConsommerAttente attente
+    ' Le destinataire est dicte avec le raccourci Dragon, comme demande.
+    Set doc = modCourrier.CreerCourrierRapidePour(pat)
+    modIntegrationUnifie.FixerVariable doc, "RdvID", CStr(attente("RdvID"))
+    modIntegrationUnifie.FixerVariable doc, "ConsultationID", CStr(Year(modTexte.DateFr(CStr(attente("DateRdv"))))) & "_" & CStr(attente("RdvID"))
+    modIntegrationUnifie.FixerVariable doc, "AnneeAgenda", CStr(Year(modTexte.DateFr(CStr(attente("DateRdv")))))
+    modIntegrationUnifie.FixerVariable doc, "ReservationNas", CStr(attente("ReservationNas"))
+    modIntegrationUnifie.InitialiserPatientProd doc
+    modIntegrationUnifie.SauvegarderBrouillon doc
+    sauvegarde = True
+    modAttenteLocale.EnregistrerBrouillon attente, doc.FullName
+    modGdt.EcrireGdtPatient pat
     doc.Activate
     modCourrier.AllerDestinataire
+Sortie:
+    mOccupe = False
     Exit Sub
 Erreur:
-    MsgBox "Ouverture du courrier impossible : " & Err.Description, vbExclamation, "Cabinet unifie"
+    Dim description As String
+    description = Err.Description
+    On Error Resume Next
+    If Not sauvegarde Then
+        If Not doc Is Nothing Then doc.Close wdDoNotSaveChanges
+        modAttenteLocale.LibererReservation attente
+    End If
+    On Error GoTo 0
+    mOccupe = False
+    MsgBox "Ouverture interrompue : " & description & IIf(sauvegarde, vbCrLf & "Le brouillon reste ouvert et enregistre sur le NAS.", ""), vbExclamation, "Cabinet"
 End Sub
 
 Public Sub Unifie_B_FormuleAppel()
-    Cabinet_B_FormuleAppel
+    modCourrier.AllerAppel
 End Sub
 
 Public Sub Unifie_C_InsererPatient()
-    Cabinet_P_Patient
+    On Error GoTo Erreur
+    Dim pat As Object
+    Set pat = modIntegrationUnifie.PatientVerifie(ActiveDocument)
+    Selection.TypeText modCourrier.TexteIdentitePatient(pat)
+    Exit Sub
+Erreur:
+    MsgBox "Insertion du patient impossible : " & Err.Description, vbExclamation, "Cabinet"
 End Sub
-
 Public Sub Unifie_D_Finaliser()
-    PR_CorrigerToutEnUnClic
+    If mOccupe Or modProdRapide.PR_EnCours() Then Exit Sub
+    mOccupe = True
+    On Error GoTo Erreur
+    modProdRapide.PR_CorrigerToutEnUnClic
+Sortie:
+    mOccupe = False
+    Exit Sub
+Erreur:
+    MsgBox "Finalisation interrompue : " & Err.Description, vbExclamation, "Cabinet"
+    Resume Sortie
 End Sub

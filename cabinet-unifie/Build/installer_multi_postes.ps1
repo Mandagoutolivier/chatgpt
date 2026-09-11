@@ -1,194 +1,159 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)]
-    [ValidateSet('Domicile','CabinetSecretariat','CabinetMedecin')]
-    [string]$Profil,
-
+    [Parameter(Mandatory=$true)][ValidateSet('Domicile','CabinetSecretariat','CabinetMedecin')][string]$Profil,
+    [ValidateSet('Preparation','Installation')][string]$Mode = 'Preparation',
     [string]$RacineNas = '\\DS224\CabinetCardio',
     [string]$DossierGdt = 'C:\Mandagout',
     [string]$DossierSources = (Join-Path (Split-Path $PSScriptRoot -Parent) 'ModelesSource'),
     [string]$SqliteExe = '',
+    [string]$SqliteSha256 = '',
     [switch]$ConserverModelesConstruits
 )
+. (Join-Path $PSScriptRoot 'outils_construction.ps1')
+if ($env:OS -ne 'Windows_NT') { throw 'Ce script necessite Windows avec Word et Excel installes.' }
+$root = Split-Path $PSScriptRoot -Parent
+$medecin = $Profil -in @('Domicile','CabinetMedecin')
+$secretariat = $Profil -in @('Domicile','CabinetSecretariat')
+if ($RacineNas -notmatch '^\\\\[^\\]+\\[^\\]+') { throw 'Utilisez le chemin UNC du Synology pour RacineNas.' }
+if (Get-Process WINWORD,EXCEL -ErrorAction SilentlyContinue) { throw 'Fermez completement Word et Excel.' }
+if (-not (Test-Path -LiteralPath $RacineNas -PathType Container)) { throw "NAS inaccessible : $RacineNas. A domicile, connectez le VPN Cabinet Freebox Pro." }
+$local = Join-Path $env:APPDATA 'CabinetCardio'
+$identifiant = (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0,8)
+$stage = Join-Path $local ('Versions\' + $identifiant)
+$backupDir = Join-Path $local ('Sauvegardes\' + $identifiant)
+[void][IO.Directory]::CreateDirectory($stage)
+[void][IO.Directory]::CreateDirectory($backupDir)
+$log = Join-Path $backupDir 'installation.log'
+$changes = New-Object 'System.Collections.Generic.List[object]'
+$lock = $null; $transcript = $false
+$script:wordStartup = $null
 
-$ErrorActionPreference = 'Stop'
-Set-StrictMode -Version 2.0
-[System.Threading.Thread]::CurrentThread.CurrentCulture = [Globalization.CultureInfo]::GetCultureInfo('fr-FR')
-
-$racinePaquet = Split-Path $PSScriptRoot -Parent
-$installerWord = $Profil -in @('Domicile','CabinetMedecin')
-$installerSecretariat = $Profil -in @('Domicile','CabinetSecretariat')
-$horodatage = Get-Date -Format 'yyyyMMdd-HHmmss'
-$dossierLocal = Join-Path $env:APPDATA 'CabinetCardio'
-$dossierSauvegarde = Join-Path $dossierLocal ("Sauvegardes\" + $horodatage)
-$dossierTravail = Join-Path $env:TEMP ("CabinetCardio-Installation-" + [guid]::NewGuid().ToString('N'))
-$journal = Join-Path $dossierLocal ("installation-" + $horodatage + '.log')
-
-New-Item -ItemType Directory -Force -Path $dossierLocal,$dossierSauvegarde,$dossierTravail | Out-Null
-Start-Transcript -Path $journal -Force | Out-Null
-
-function Etape([string]$texte) { Write-Host ''; Write-Host ("=== " + $texte) -ForegroundColor Cyan }
-function Ok([string]$texte) { Write-Host ("  OK  " + $texte) -ForegroundColor Green }
-function Sauvegarder-SiPresent([string]$chemin) {
-    if (Test-Path $chemin) {
-        Copy-Item $chemin (Join-Path $dossierSauvegarde ([IO.Path]::GetFileName($chemin))) -Force
-        Ok "sauvegarde de $chemin"
+function Memoriser-Fichier([string]$Destination) {
+    $backup = $null
+    if ([IO.File]::Exists($Destination)) {
+        $backup = Join-Path $backupDir ([guid]::NewGuid().ToString('N') + '.bak')
+        [IO.File]::Copy($Destination,$backup,$false)
     }
+    $changes.Add([pscustomobject]@{destination=$Destination;backup=$backup})
+    $changes | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $backupDir 'restauration.json') -Encoding UTF8
 }
-function Trouver-Source([string[]]$noms) {
-    foreach ($nom in $noms) {
-        $candidat = Join-Path $DossierSources $nom
-        if (Test-Path $candidat) { return (Resolve-Path $candidat).Path }
-    }
-    throw "Source absente dans $DossierSources : $($noms -join ' ou ')"
+function Installer-Fichier([string]$Source,[string]$Destination) {
+    Memoriser-Fichier $Destination
+    [void][IO.Directory]::CreateDirectory((Split-Path $Destination -Parent))
+    [IO.File]::Copy($Source,$Destination,$true)
+    if ((Get-FileHash -LiteralPath $Source).Hash -ne (Get-FileHash -LiteralPath $Destination).Hash) { throw "Verification de copie echouee : $Destination" }
 }
-function Tester-Office([string]$progId) {
-    $application = $null
-    try {
-        $application = New-Object -ComObject $progId
-        $application.Quit()
-        Ok "$progId disponible"
-    } finally {
-        if ($null -ne $application) { try { [Runtime.InteropServices.Marshal]::FinalReleaseComObject($application) | Out-Null } catch {} }
-    }
+function Ecrire-Reglage([string]$Destination,[string]$Texte) {
+    Memoriser-Fichier $Destination
+    [IO.File]::WriteAllText($Destination,$Texte,(New-Object Text.UTF8Encoding($false)))
 }
-function Obtenir-SqliteOfficiel() {
-    Etape 'Telechargement de SQLite depuis sqlite.org'
-    $page = (Invoke-WebRequest -UseBasicParsing -Uri 'https://sqlite.org/download.html').Content
-    $ligneProduit = ($page -split "`n" | Where-Object {
-        $_ -match 'PRODUCT,[0-9.]+,[0-9]{4}/sqlite-tools-win-x64-[0-9]+\.zip,'
-    } | Select-Object -First 1)
-    if ([string]::IsNullOrWhiteSpace($ligneProduit)) {
-        throw 'Impossible de trouver le paquet Windows x64 dans la page officielle SQLite.'
-    }
-    if ($ligneProduit -notmatch 'PRODUCT,[0-9.]+,(?<url>[0-9]{4}/sqlite-tools-win-x64-[0-9]+\.zip),') {
-        throw 'L’adresse du paquet SQLite n’a pas pu etre extraite.'
-    }
-    $url = 'https://sqlite.org/' + $Matches['url']
-    $zipSqlite = Join-Path $dossierTravail 'sqlite-tools.zip'
-    $extraction = Join-Path $dossierTravail 'sqlite-tools'
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $zipSqlite
-    Expand-Archive -Path $zipSqlite -DestinationPath $extraction -Force
-    $exe = Get-ChildItem $extraction -Recurse -Filter sqlite3.exe | Select-Object -First 1
-    if ($null -eq $exe) { throw 'Le paquet officiel SQLite ne contient pas sqlite3.exe.' }
-    Ok "SQLite telecharge depuis $url"
-    return $exe.FullName
+function Obtenir-Sqlite {
+    if (-not [Environment]::Is64BitOperatingSystem) { throw 'Le paquet SQLite fourni est x64. Fournissez un sqlite3.exe compatible avec ce Windows.' }
+    $dep = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'sqlite.lock.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    $archive = Join-Path $stage 'sqlite-tools.zip'
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -UseBasicParsing -Uri $dep.url -OutFile $archive
+    if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $dep.sha256) { throw 'Archive SQLite differente de la version verifiee.' }
+    $folder = Join-Path $stage 'sqlite-download'
+    Expand-Archive -LiteralPath $archive -DestinationPath $folder
+    $files = @(Get-ChildItem -LiteralPath $folder -Recurse -Filter sqlite3.exe)
+    if ($files.Count -ne 1) { throw 'Archive SQLite inattendue.' }
+    return $files[0].FullName
 }
-
-try {
-    Etape "Controles prealables — profil $Profil"
-    if (Get-Process WINWORD,EXCEL -ErrorAction SilentlyContinue) {
-        throw 'Fermez completement Word et Excel, puis relancez le script.'
-    }
-    if (-not (Test-Path $RacineNas)) {
-        if ($Profil -eq 'Domicile') {
-            throw "NAS inaccessible : $RacineNas. Connectez d'abord le VPN Cabinet Freebox Pro."
+function Tester-Office {
+    foreach ($name in @('Word.Application','Excel.Application')) {
+        $app = $null
+        try {
+            $app=New-Object -ComObject $name
+            $app.AutomationSecurity=3
+            if ($name -eq 'Word.Application') { $script:wordStartup=[string]$app.Options.DefaultFilePath(8) }
+            $app.Quit()
+        } finally {
+            if ($null -ne $app) { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($app) }
         }
-        throw "NAS inaccessible : $RacineNas. Verifiez le reseau et le partage Synology."
     }
-    $testEcriture = Join-Path $RacineNas ('.test-install-' + [guid]::NewGuid().ToString('N') + '.tmp')
-    try {
-        [IO.File]::WriteAllText($testEcriture, 'test', [Text.Encoding]::ASCII)
-        [IO.File]::Delete($testEcriture)
-        Ok "lecture/ecriture NAS : $RacineNas"
-    } catch { throw "Le NAS est lisible mais non inscriptible : $($_.Exception.Message)" }
-    if ($installerWord) { Tester-Office 'Word.Application' }
-    if ($installerSecretariat) { Tester-Office 'Excel.Application' }
-
-    Etape 'Protection des donnees et preparation du NAS'
-    # Aucun fichier de base existant n'est remplace. Les dossiers manquants
-    # sont crees ; une copie datee de la configuration est prise si elle existe.
-    foreach ($relatif in @('Base','Actes','Patients','Config','Modeles','Modeles\Deploy',
-                            'Echange','Echange\Arrives','Echange\Arrives\Pris',
-                            'Echange\AEnvoyer','Echange\Traites','Sauvegardes','Logs')) {
-        New-Item -ItemType Directory -Force -Path (Join-Path $RacineNas $relatif) | Out-Null
-    }
-    $configNas = Join-Path $RacineNas 'Config\config.ini'
-    if (Test-Path $configNas) {
-        Copy-Item $configNas (Join-Path $RacineNas ("Sauvegardes\config-avant-installation-$horodatage.ini")) -Force
-        Ok 'configuration NAS sauvegardee'
-    } else {
-        $configDefaut = Join-Path $racinePaquet 'Src\ConfigDefaut\config.ini'
-        if (-not (Test-Path $configDefaut)) { throw "Configuration initiale absente : $configDefaut" }
-        Copy-Item $configDefaut $configNas
-        Ok 'configuration NAS initialisee'
-    }
-    $RacineNas | Out-File (Join-Path $dossierLocal 'chemin.txt') -Encoding ASCII -Force
-    New-Item -ItemType Directory -Force -Path $DossierGdt | Out-Null
-    Ok "chemin.txt -> $RacineNas"
-    Ok "dossier GDT local : $DossierGdt"
-
-    if ($installerWord) {
-        Etape 'Construction et installation de la partie medecin'
-        $prod6 = Trouver-Source @('ModeleCourrierChatGPT_PROD(6).dotm','ModeleCourrierChatGPT_PROD6.dotm')
-        $cabinet1 = Trouver-Source @('Cabinet(1).dotm','Cabinet1.dotm')
-        $modeleConstruit = Join-Path $dossierTravail 'CabinetUnifie_TEST.dotm'
+}
+try {
+    $lock = [IO.File]::Open((Join-Path $local 'installation.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+    Start-Transcript -LiteralPath $log | Out-Null; $transcript=$true
+    # Les deux applications sont requises dans tous les profils : Word lit les
+    # bases avec Excel ; Excel utilise Word pour la feuille de soins.
+    Tester-Office
+    if ($medecin) {
+        if ([string]::IsNullOrWhiteSpace($SqliteExe)) { $SqliteExe=Obtenir-Sqlite }
+        & (Join-Path $PSScriptRoot 'installer_sqlite_medecin.ps1') -SqliteExe $SqliteExe -Destination (Join-Path $stage 'sqlite3.exe') -Sha256 $SqliteSha256
         & (Join-Path $PSScriptRoot 'construire_modele_unifie.ps1') `
-            -Prod6 $prod6 -Cabinet1 $cabinet1 -Sortie $modeleConstruit -RacineSources $racinePaquet
-        if (-not (Test-Path $modeleConstruit)) { throw 'Le constructeur Word n’a produit aucun modele.' }
-
-        $startupWord = Join-Path $env:APPDATA 'Microsoft\Word\STARTUP'
-        $modeleInstalle = Join-Path $startupWord 'CabinetUnifie.dotm'
-        New-Item -ItemType Directory -Force -Path $startupWord | Out-Null
-        Sauvegarder-SiPresent $modeleInstalle
-        Copy-Item $modeleConstruit $modeleInstalle -Force
-        Ok "modele medecin installe : $modeleInstalle"
-
-        if ([string]::IsNullOrWhiteSpace($SqliteExe)) {
-            $sourceSqlite = Join-Path $DossierSources 'sqlite3.exe'
-            if (Test-Path $sourceSqlite) { $SqliteExe = $sourceSqlite }
-            else {
-                $commandeSqlite = Get-Command sqlite3.exe -ErrorAction SilentlyContinue
-                if ($null -ne $commandeSqlite) { $SqliteExe = $commandeSqlite.Source }
+            -Prod6 (Join-Path $DossierSources 'ModeleCourrierChatGPT_PROD(6).dotm') `
+            -Cabinet1 (Join-Path $DossierSources 'Cabinet(1).dotm') `
+            -Sortie (Join-Path $stage 'CabinetUnifie.dotm') -RacineSources $root
+    }
+    if ($secretariat) {
+        & (Join-Path $PSScriptRoot 'construire_cabinet_secretariat.ps1') `
+            -CabinetXlsm (Join-Path $DossierSources 'Cabinet.xlsm') -Sortie (Join-Path $stage 'Cabinet.xlsm') -RacineSources $root
+    }
+    if ($Mode -eq 'Preparation') {
+        Write-Host "Preparation terminee : $stage"
+        Write-Host 'Aucun complement actif remplace. Effectuez la recette Word/Excel, puis utilisez -Mode Installation.'
+        return
+    }
+    # Tous les binaires sont prets avant de modifier une installation active.
+    if ($secretariat) { & (Join-Path $PSScriptRoot 'initialiser_nas.ps1') -RacineNas $RacineNas -RacineSources $root }
+    foreach ($required in @('Base\Patients.xlsx','Config\config.ini','Config\Gras_Medicaments.xlsx','Config\Gras_Expressions.xlsx','Echange\Arrives','Echange\AEnvoyer','Modeles\LETTRE TYPE.dot','Base\base_travail_correspondants_v1.xlsx','Config\DDE\declencheurs_demandes.txt','Config\DDE\examens_complementaires.txt','Config\DDE\exclusions_demandes.txt')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $RacineNas $required))) { throw "Ressource NAS absente : $required. Installez le secretariat en premier." }
+    }
+    Ecrire-Reglage (Join-Path $local 'chemin.txt') ($RacineNas.TrimEnd('\') + "`r`n")
+    $posteIni = "[POSTE]`r`nProfil=$Profil`r`n"
+    if ($medecin) {
+        if ($DossierGdt -notmatch '^[A-Za-z]:\\' -or $DossierGdt -match '[\r\n]') { throw 'DossierGdt doit etre un chemin local absolu, par exemple C:\Mandagout.' }
+        [void][IO.Directory]::CreateDirectory($DossierGdt)
+        $posteIni += "[ECG]`r`nDossierGdt=$DossierGdt`r`n"
+    }
+    # Conserver les autres reglages du poste (imprimante, etc.) lors d'une mise a jour.
+    $postePath=Join-Path $local 'poste.ini'
+    if (Test-Path -LiteralPath $postePath) {
+        $ancien=[IO.File]::ReadAllText($postePath,[Text.Encoding]::UTF8)
+        $posteIni = $ancien + "`r`n" + $posteIni
+    }
+    Ecrire-Reglage $postePath $posteIni
+    if ($medecin) {
+        Installer-Fichier (Join-Path $stage 'sqlite3.exe') (Join-Path $local 'Tools\sqlite3.exe')
+        $startup=$script:wordStartup
+        if ([string]::IsNullOrWhiteSpace($startup)) { throw 'Word ne fournit pas de dossier de demarrage.' }
+        [void][IO.Directory]::CreateDirectory($startup)
+        foreach ($old in Get-ChildItem -LiteralPath $startup -File -Filter '*.dotm') {
+            if ($old.Name -eq 'Cabinet.dotm' -or $old.Name -like 'ModeleCourrierChatGPT*.dotm') {
+                Memoriser-Fichier $old.FullName
+                [IO.File]::Delete($old.FullName)
             }
         }
-        if ([string]::IsNullOrWhiteSpace($SqliteExe) -or -not (Test-Path $SqliteExe)) { $SqliteExe = Obtenir-SqliteOfficiel }
-        & (Join-Path $PSScriptRoot 'installer_sqlite_medecin.ps1') -SqliteExe $SqliteExe
+        Installer-Fichier (Join-Path $stage 'CabinetUnifie.dotm') (Join-Path $startup 'CabinetUnifie.dotm')
     }
-
-    if ($installerSecretariat) {
-        Etape 'Construction et installation de la partie secretariat'
-        $cabinetXlsm = Trouver-Source @('Cabinet.xlsm')
-        $excelConstruit = Join-Path $dossierTravail 'CabinetSecretariat_TEST.xlsm'
-        & (Join-Path $PSScriptRoot 'construire_cabinet_secretariat.ps1') `
-            -CabinetXlsm $cabinetXlsm -Sortie $excelConstruit -RacineSources $racinePaquet
-        if (-not (Test-Path $excelConstruit)) { throw 'Le constructeur Excel n’a produit aucun classeur.' }
-
-        $dossierExcel = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'CabinetCardio'
-        $excelInstalle = Join-Path $dossierExcel 'Cabinet.xlsm'
-        New-Item -ItemType Directory -Force -Path $dossierExcel | Out-Null
-        Sauvegarder-SiPresent $excelInstalle
-        Copy-Item $excelConstruit $excelInstalle -Force
-        $bureau = [Environment]::GetFolderPath('Desktop')
-        $raccourci = Join-Path $bureau 'Cabinet Cardio.lnk'
-        $wsh = New-Object -ComObject WScript.Shell
-        $lien = $wsh.CreateShortcut($raccourci)
-        $lien.TargetPath = $excelInstalle
-        $lien.WorkingDirectory = $dossierExcel
-        $lien.Save()
-        Ok "application secretariat installee : $excelInstalle"
+    if ($secretariat) {
+        $destination=Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'CabinetCardio\Cabinet.xlsm'
+        Installer-Fichier (Join-Path $stage 'Cabinet.xlsm') $destination
+        $shortcut=Join-Path ([Environment]::GetFolderPath('Desktop')) 'Cabinet Cardio.lnk'
+        Memoriser-Fichier $shortcut
+        $shell=New-Object -ComObject WScript.Shell
+        $link=$shell.CreateShortcut($shortcut)
+        $link.TargetPath=$destination; $link.WorkingDirectory=Split-Path $destination -Parent; $link.Save()
     }
-
-    Etape 'Verification finale'
-    if ($installerWord -and -not (Test-Path (Join-Path $env:APPDATA 'Microsoft\Word\STARTUP\CabinetUnifie.dotm'))) {
-        throw 'Modele Word absent apres installation.'
+    Write-Host "Installation terminee : $Profil. Sauvegardes et journal : $backupDir"
+    Write-Host 'Dragon : affectez A/B/C/D aux quatre macros Unifie_*. Normal.dotm conserve ses macros historiques.'
+} catch {
+    $cause=$_
+    $rollbackErrors=New-Object 'System.Collections.Generic.List[string]'
+    for ($i=$changes.Count-1; $i -ge 0; $i--) {
+        $item=$changes[$i]
+        try {
+            if ($item.backup) { [IO.File]::Copy($item.backup,$item.destination,$true) }
+            elseif ([IO.File]::Exists($item.destination)) { [IO.File]::Delete($item.destination) }
+        } catch { $rollbackErrors.Add($item.destination) }
     }
-    if ($installerSecretariat -and -not (Test-Path (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'CabinetCardio\Cabinet.xlsm'))) {
-        throw 'Application secretariat absente apres installation.'
-    }
-    if ($ConserverModelesConstruits) {
-        $destinationTests = Join-Path $dossierLocal ("ModelesConstruits\" + $horodatage)
-        New-Item -ItemType Directory -Force -Path $destinationTests | Out-Null
-        Copy-Item (Join-Path $dossierTravail '*') $destinationTests -Force
-        Ok "copies de test conservees : $destinationTests"
-    }
-    Write-Host ''
-    Write-Host "INSTALLATION TERMINEE — $Profil" -ForegroundColor Green
-    Write-Host "Sauvegardes locales : $dossierSauvegarde"
-    Write-Host "Journal : $journal"
-    Write-Host 'Avant production : compiler les projets VBA et tester sur un patient fictif.' -ForegroundColor Yellow
-}
-finally {
-    Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
-    if (Test-Path $dossierTravail) { Remove-Item $dossierTravail -Recurse -Force -ErrorAction SilentlyContinue }
+    if ($rollbackErrors.Count) { Write-Warning ("Restauration locale incomplete : " + ($rollbackErrors -join ', ')) }
+    Write-Warning "Installation interrompue. Les ressources NAS deja creees et les sauvegardes sont conservees. Journal : $log"
+    throw $cause
+} finally {
+    if ($transcript) { Stop-Transcript | Out-Null }
+    if ($null -ne $lock) { $lock.Dispose() }
+    # Les modeles construits sont toujours conserves pour la recette et le diagnostic.
 }
