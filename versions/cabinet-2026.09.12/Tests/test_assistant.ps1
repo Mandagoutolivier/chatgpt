@@ -81,7 +81,7 @@ try {
         Verifier ($errors.Count -eq 0) 'syntaxe du lanceur autonome'
         $cmd=[IO.File]::ReadAllText((Join-Path $repo 'Installateur/Demarrer_Installation_Cabinet.cmd'))
         $marker=[regex]::Match($cmd,'(?m)^# CABINET_POWERSHELL_PAYLOAD_V1\r?$')
-        Verifier ($marker.Success -and $cmd.Substring($marker.Index+$marker.Length).Trim() -ceq [IO.File]::ReadAllText($standalone).Trim()) 'CMD contient exactement le PowerShell auditable'
+        Verifier ($marker.Success -and $cmd.Substring($marker.Index+$marker.Length).Replace("`r`n","`n").Trim() -ceq [IO.File]::ReadAllText($standalone).Replace("`r`n","`n").Trim()) 'CMD contient exactement le PowerShell auditable'
     }
     Write-Output "$count controles de l assistant reussis."
 } finally { Remove-Item -LiteralPath $tmp -Recurse -Force }

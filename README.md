@@ -1,3 +1,7 @@
+## Installation en un fichier
+
+Télécharger **[Demarrer_Installation_Cabinet.cmd](Installateur/Demarrer_Installation_Cabinet.cmd)**, puis double-cliquer : téléchargement du dépôt privé, vérification, choix domicile/secrétariat/cabinet, préparation et activation guidée. Le serveur Synology doit être disponible. Le lanceur ouvre Office pour la compilation et attend la confirmation des essais avant activation. [Mode d'emploi](Installateur/README.md).
+
 ## Nouvelle version dédiée
 
 La [version 2026.09.12 avec service NAS](versions/cabinet-2026.09.12/README.md) reprend les suites de l’audit et fournit un [installateur à trois choix](versions/cabinet-2026.09.12/Installer.ps1) : domicile, secrétariat et cabinet médecin. Voir son guide et sa recette Windows avant activation. Le dossier ci-dessous conserve la livraison précédente.
