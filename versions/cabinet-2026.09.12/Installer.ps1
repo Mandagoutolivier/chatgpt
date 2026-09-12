@@ -2,7 +2,7 @@
 param(
     [ValidateSet('Domicile','Secretariat','Cabinet')][string]$Profil,
     [ValidateSet('Preparation','Installation')][string]$Mode='Preparation',
-    [string]$RacineNas='\\DS224\CabinetCardio',
+    [string]$RacineNas='',
     [string]$UrlService='',
     [string]$DossierPrepare='',
     [string]$DossierGdt='C:\Mandagout',
@@ -10,6 +10,7 @@ param(
     [string]$FichierJeton=''
 )
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'Build\outils_assistant.ps1')
 if (-not $Profil) {
     Write-Host 'Installation Cabinet Cardio - version 2026.09.12'
     Write-Host '1 - Domicile : secretariat et medecin sur ce PC'
@@ -17,6 +18,10 @@ if (-not $Profil) {
     Write-Host '3 - Cabinet : poste medecin, Word, Dragon et ECG'
     do { $choice=Read-Host 'Votre choix (1, 2 ou 3)' } until ($choice -in @('1','2','3'))
     $Profil=@{'1'='Domicile';'2'='Secretariat';'3'='Cabinet'}[$choice]
+}
+if (-not $RacineNas) {
+    $RacineNas=Choisir-RacineNasAssistant '' '' (Join-Path $env:APPDATA 'CabinetCardio\chemin.txt')
+    if (-not $RacineNas) { Write-Host 'Installation en pause.';return }
 }
 $profiles=@{Domicile='Domicile';Secretariat='CabinetSecretariat';Cabinet='CabinetMedecin'}
 $arguments=@{Profil=$profiles[$Profil];Mode=$Mode;RacineNas=$RacineNas;DossierGdt=$DossierGdt}

@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory=$true)][ValidateSet('Domicile','CabinetSecretariat','CabinetMedecin')][string]$Profil,
     [ValidateSet('Preparation','Installation')][string]$Mode = 'Preparation',
-    [string]$RacineNas = '\\DS224\CabinetCardio',
+    [Parameter(Mandatory=$true)][string]$RacineNas,
     [string]$DossierGdt = 'C:\Mandagout',
     [string]$DossierSources = (Join-Path (Split-Path $PSScriptRoot -Parent) 'ModelesSource'),
     [string]$SqliteExe = '',

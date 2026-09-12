@@ -140,3 +140,96 @@ function Actualiser-CompilationAssistant($Etat) {
         }
     }
 }
+
+
+function Normaliser-CheminNasAssistant([string]$Chemin) {
+    $value=$Chemin.Trim().Trim('"').TrimEnd('\')
+    if ($value -notmatch '^\\\\[^\\]+\\[^\\]+(?:\\[^\\]+)*$' -or $value -match '[<>:"|?*\x00-\x1f]') {
+        throw 'Saisissez un chemin reseau complet : \\serveur\partage\dossier. Une lettre comme Z: ne suffit pas.'
+    }
+    foreach ($part in $value.Substring(2).Split('\')) {
+        if ($part -in @('.','..') -or $part -match '[. ]$') { throw 'Chemin reseau invalide.' }
+    }
+    return $value
+}
+
+function Tester-DossierCodeAssistant([string]$Dossier) {
+    foreach ($marker in @('.git','Build\manifest.json','Installer.ps1','ModelesSource')) {
+        if (Test-Path -LiteralPath (Join-Path $Dossier $marker)) { return $true }
+    }
+    return $false
+}
+
+function Choisir-RacineNasAssistant([string]$Demandee,[string]$Memorisee,[string]$FichierChemin) {
+    $candidate=$Demandee
+    if (-not $candidate) { $candidate=$Memorisee }
+    if (-not $candidate -and (Test-Path -LiteralPath $FichierChemin -PathType Leaf)) {
+        $candidate=([IO.File]::ReadAllText($FichierChemin,[Text.Encoding]::UTF8)).Trim()
+    }
+    Write-Host ''
+    Write-Host 'DOSSIER DES DONNEES SUR LE NAS'
+    Write-Host 'Choisissez le dossier de donnees commun aux postes, ou un dossier neuf pour une nouvelle installation.'
+    Write-Host 'Un dossier contenant le depot GitHub ne constitue pas une base patients.'
+    Write-Host 'Tous les postes devront acceder aux memes donnees avec leurs comptes NAS respectifs.'
+    while ($true) {
+        if ($candidate) { Write-Host ('Chemin propose ou saisi : '+$candidate) }
+        Write-Host 'B = parcourir le reseau ; Q = reprendre plus tard.'
+        $answer=Read-Host 'Chemin UNC complet, B, Q ou Entree pour conserver le chemin affiche'
+        if ($answer -eq 'Q') { return $null }
+        if ($answer -eq 'B') {
+            Add-Type -AssemblyName System.Windows.Forms
+            $picker=New-Object Windows.Forms.FolderBrowserDialog
+            try {
+                $picker.Description='Dossier des donnees du cabinet sur le NAS (pas le dossier du code GitHub)'
+                $picker.ShowNewFolderButton=$true
+                $picker.SelectedPath='\\DS224'
+                if ($candidate -and (Test-Path -LiteralPath $candidate -PathType Container)) { $picker.SelectedPath=$candidate }
+                if ($picker.ShowDialog() -ne [Windows.Forms.DialogResult]::OK) { continue }
+                $candidate=$picker.SelectedPath
+            } finally { $picker.Dispose() }
+        } elseif ($answer) { $candidate=$answer }
+        if (-not $candidate) { Write-Host 'Aucun dossier n a encore ete choisi.';continue }
+        try { $candidate=Normaliser-CheminNasAssistant $candidate }
+        catch { Write-Host $_.Exception.Message;continue }
+        if (-not (Test-Path -LiteralPath $candidate -PathType Container)) {
+            # Creer un sous-dossier seulement dans un parent existant, jamais un partage SMB.
+            $parent=$candidate.Substring(0,$candidate.LastIndexOf('\'))
+            if ($parent -match '^\\\\[^\\]+\\[^\\]+' -and (Test-Path -LiteralPath $parent -PathType Container)) {
+                Write-Host ('Ce dossier n existe pas : '+$candidate)
+                Write-Host 'Une creation prepare un emplacement neuf ; elle ne deplace ni ne retrouve vos anciennes bases.'
+                $creation=Read-Host 'Tapez CREER pour creer ce dossier, ou Entree pour choisir un autre chemin'
+                if ($creation -ne 'CREER') { continue }
+                try { Creer-DossierNasAssistant $candidate }
+                catch { Write-Host ('Creation impossible : '+$_.Exception.Message);continue }
+            } else {
+                Write-Host ('Dossier inaccessible : '+$candidate)
+                Write-Host 'Verifiez le partage existant et la connexion au NAS. A domicile, connectez le VPN Cabinet Freebox Pro.'
+                continue
+            }
+        }
+        if (Tester-DossierCodeAssistant $candidate) { Write-Host 'Ce dossier contient du code de deploiement. Choisissez le dossier des donnees, ou un sous-dossier neuf distinct.';continue }
+        if ($candidate -match '^\\\\[^\\]+\\homes?(?:\\|$)') {
+            Write-Host 'Attention : le dossier home depend du compte NAS. Verifiez que les comptes des deux postes accedent au MEME dossier physique.'
+            $shared=Read-Host 'Tapez COMMUN si cet acces commun est verifie, sinon Entree pour choisir un autre dossier'
+            if ($shared -ne 'COMMUN') { continue }
+        }
+        try { Tester-EcritureNasAssistant $candidate }
+        catch { Write-Host ('Ecriture impossible dans ce dossier : '+$_.Exception.Message);continue }
+        Write-Host ('Dossier NAS retenu : '+$candidate)
+        return $candidate
+    }
+}
+
+
+function Creer-DossierNasAssistant([string]$Dossier) {
+    [void][IO.Directory]::CreateDirectory($Dossier)
+}
+
+function Tester-EcritureNasAssistant([string]$Dossier) {
+    $probe=Join-Path $Dossier ('.cabinet-ecriture-'+[guid]::NewGuid().ToString('N')+'.tmp')
+    $stream=$null;$created=$false
+    try {
+        $stream=[IO.File]::Open($probe,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+        $created=$true;$stream.WriteByte(0)
+    } finally { if ($null -ne $stream) { $stream.Dispose() };if ($created) { [IO.File]::Delete($probe) } }
+}

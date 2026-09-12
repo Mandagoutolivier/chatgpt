@@ -6,6 +6,10 @@ Télécharger **Demarrer_Installation_Cabinet.cmd** avec le bouton « Download r
 2. Choisir **1 Domicile**, **2 Secrétariat**, **3 Cabinet médecin**.
 3. Suivre les indications pour le NAS, la compilation Office et les essais. Après validation, l'activation se poursuit automatiquement, avec sauvegarde de l'installation locale précédente.
 
+Le lanceur demande maintenant le **dossier réel des données sur le NAS**. Il ne suppose plus l'existence de `\\DS224\CabinetCardio`. Vous pouvez saisir son chemin UNC ou taper **B** pour parcourir le réseau. Un chemin déjà configuré est proposé, puis vérifié. Pour un emplacement neuf, saisir un sous-dossier dans un partage existant et confirmer par **CREER** ; cela ne crée pas de partage DSM et ne migre pas les anciennes bases.
+
+Les dossiers contenant le code GitHub ne doivent pas être choisis comme dossier des données. Avec `home`, vérifier que les comptes NAS des deux postes accèdent réellement au même dossier : ce nom peut désigner un dossier personnel différent selon le compte connecté. Le lanceur demande **COMMUN** pour confirmer cette vérification.
+
 Le même fichier fonctionne sur les trois postes. Utiliser la session Windows habituelle, sans « Exécuter en tant qu'administrateur ». Windows, Word et Excel de bureau sont nécessaires. À domicile, le VPN doit permettre l'accès au NAS. Le service NAS doit déjà être déployé ; son adresse HTTPS et le jeton du compte du poste sont demandés à l'activation.
 
 La compilation dans Word/Excel et les essais réels nécessitent votre intervention. Le script ouvre les projets et le guide, recueille les confirmations, puis poursuit jusqu'à l'activation ; il ne certifie pas un essai non réalisé. **PAUSE** conserve la préparation pour une reprise avec le même profil. Les données partagées restent sur le NAS.

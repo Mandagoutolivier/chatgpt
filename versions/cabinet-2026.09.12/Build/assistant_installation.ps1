@@ -20,20 +20,19 @@ try {
     $sourceHash=Empreinte-SourcesAssistant $root
     # Les chemins de source sont immuables apres telechargement ; un nouveau paquet commence une nouvelle preparation.
     if ($null -eq $state -or $state.racineSources -ne $root -or $state.manifeste -ne $sourceHash) {
-        $state=[pscustomobject]@{profil=$Profil;racineSources=$root;manifeste=$sourceHash;racineNas='';dossierPrepare='';phase='nouveau';wordCompile=$false;excelCompile=$false;wordHash='';excelHash='';recette=$false;dossierGdt=$DossierGdt}
+        $nasConserve='';if ($null -ne $state) { $nasConserve=$state.racineNas }
+        $state=[pscustomobject]@{profil=$Profil;racineSources=$root;manifeste=$sourceHash;racineNas=$nasConserve;dossierPrepare='';phase='nouveau';wordCompile=$false;excelCompile=$false;wordHash='';excelHash='';recette=$false;dossierGdt=$DossierGdt}
         Ecrire-EtatAssistant $statePath $state
     }
     if (Test-Path -LiteralPath $journal) { Attendre-FermetureOffice;Restaurer-AccesVbaAssistant $journal }
     if ($state.phase -eq 'installe') { Write-Host "Le profil $Profil a deja ete installe par ce lanceur. Dossier : $($state.dossierPrepare)";return }
-    if (-not $RacineNas) { $RacineNas=$state.racineNas }
-    if (-not $RacineNas) { $RacineNas='\\DS224\CabinetCardio' }
-    while ($RacineNas -notmatch '^\\\\[^\\]+\\[^\\]+' -or -not (Test-Path -LiteralPath $RacineNas -PathType Container)) {
-        Write-Host "Partage NAS inaccessible : $RacineNas"
-        Write-Host 'A domicile, connectez Cabinet Freebox Pro. Le partage doit deja exister sur le Synology.'
-        Start-Process -FilePath explorer.exe -ArgumentList '\\DS224'
-        $answer=Read-Host 'Entree pour reessayer ; autre chemin UNC pour le corriger ; Q pour reprendre plus tard'
-        if ($answer -eq 'Q') { Write-Host 'Installation en pause.';return }
-        if ($answer) { $RacineNas=$answer }
+    $ancienNas=$state.racineNas
+    $RacineNas=Choisir-RacineNasAssistant $RacineNas $ancienNas (Join-Path (Split-Path $local -Parent) 'chemin.txt')
+    if (-not $RacineNas) { Write-Host 'Installation en pause.';return }
+    if ($ancienNas -and $ancienNas -ne $RacineNas) {
+        # Les essais d une autre racine ne valident pas le nouvel environnement.
+        $state.recette=$false
+        if ($state.phase -eq 'valide') { $state.phase='compile' }
     }
     $state.racineNas=$RacineNas;Ecrire-EtatAssistant $statePath $state
     Attendre-FermetureOffice
