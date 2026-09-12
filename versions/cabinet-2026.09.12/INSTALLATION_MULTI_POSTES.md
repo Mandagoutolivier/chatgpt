@@ -1,6 +1,20 @@
 # Installer les trois profils
 
-## Préparer le Synology et télécharger
+## Lanceur autonome conseillé
+
+Télécharger **[Demarrer_Installation_Cabinet.cmd](../../Installateur/Demarrer_Installation_Cabinet.cmd)** avec le bouton de téléchargement du fichier GitHub, ou utiliser la pièce jointe fournie dans la conversation. Un seul fichier suffit. Le lancer dans la session Windows habituelle, sans élévation administrateur.
+
+Le lanceur ouvre le navigateur pour télécharger une version précise du dépôt privé, repère le ZIP dans Téléchargements (ou ouvre un sélecteur), extrait la version, vérifie les SHA-256 et débloque ses fichiers. Votre navigateur doit être connecté à GitHub avec le compte autorisé ; en cas de page 404, se connecter puis rouvrir le lien affiché. Aucun jeton GitHub n'est demandé. Git et Python ne sont pas requis sur le PC.
+
+Il affiche les trois profils, contrôle le partage NAS, autorise temporairement l'accès au projet VBA si les stratégies du poste le permettent, construit les fichiers, ouvre les projets à compiler puis le guide de recette. Après vos confirmations, il valide les mêmes fichiers et les active avec sauvegarde. La configuration d'accès VBA initiale est restaurée. Il n'active pas globalement les macros.
+
+**Deux interventions restent nécessaires :** dans chaque éditeur Office ouvert, choisir **Débogage > Compiler**, puis confirmer le résultat dans la console ; réaliser les essais requis et saisir **RECETTE** seulement lorsqu'ils ont réussi. Le lanceur ne déclare pas ces essais réussis à votre place. Saisir **PAUSE** pour conserver la préparation. Relancer le même fichier avec le même profil reprend le parcours ; un binaire modifié invalide ses confirmations.
+
+Le service Synology et le VPN doivent déjà être configurés : ce lanceur installe les clients Windows, pas le serveur DSM. L'adresse HTTPS et le jeton NAS seront demandés à l'activation. Le déploiement NAS, les réglages Dragon/ECG et le calage de l'imprimante restent décrits ci-dessous.
+
+Les fichiers téléchargés restent dans `%LOCALAPPDATA%\CabinetCardio\Installation\Sources`. L'état de reprise est dans `%APPDATA%\CabinetCardio\Assistant`. Après un arrêt brutal, relancer le fichier pour restaurer aussi le réglage Office temporaire. Si le cache est déclaré altéré, le renommer dans l'Explorateur avant de relancer pour télécharger une nouvelle copie ; ne pas modifier les empreintes du lanceur.
+
+## Installation depuis le dépôt complet
 
 1. Déployer le service selon [INSTALLATION_NAS.md](Serveur/INSTALLATION_NAS.md). Pour les essais, utiliser un partage et une base distincts contenant seulement des données fictives.
 2. Depuis le dépôt privé `Mandagoutolivier/chatgpt`, télécharger le ZIP, l'extraire sur le PC, puis ouvrir `versions/cabinet-2026.09.12`. Conserver toute son arborescence.
@@ -9,7 +23,7 @@
 
 ## Choisir le poste
 
-Double-cliquer `Installer.cmd` : **1 domicile, 2 secrétariat, 3 cabinet médecin**. Le mode par défaut prépare les fichiers et affiche le dossier obtenu. Les anciens compléments restent actifs jusqu'à l'activation.
+Double-cliquer `Installer.cmd` ouvre maintenant le même assistant complet : **1 domicile, 2 secrétariat, 3 cabinet médecin**. Les anciens compléments restent actifs jusqu'à l'activation. Les commandes PowerShell ci-dessous conservent le mode manuel de préparation.
 
 Équivalents PowerShell, depuis le dossier de version :
 

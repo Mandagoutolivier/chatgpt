@@ -34,6 +34,10 @@ Effectuer cette recette sur un partage et un service d'essai avec données ficti
 | Deux imprimantes/postes | Calage local indépendant ; essai papier vérifié |
 | Sauvegarde, contrôle et restauration sur volumes neufs | Base et fichiers récupérés, droits corrects, rapprochement puis lecture d'échantillons réussis |
 
-Après compilation et essais, fermer les applications et lancer `Build/valider_preparation.ps1` avec les commutateurs correspondant au profil, comme indiqué dans le guide d'installation. Il compare le code des binaires rouverts à la source et fige leurs empreintes ; il ne remplace pas les essais du tableau.
+Avec le lanceur autonome, fermer les applications après les essais et saisir **RECETTE** dans sa console. Il exécute la validation et l'activation sans commande à recopier. Pour tester le modèle Word, utiliser **Fichier > Ouvrir** sur le `.dotm` préparé ; un double-clic dans l'Explorateur crée un nouveau document. Les macros des fichiers ouverts par le constructeur sont désactivées : fermer puis rouvrir le fichier pour les essais, en respectant les autorisations Office du poste.
+
+Sur une installation neuve, les essais en réseau exigent auparavant un environnement d'essai configuré (service, partage, compte et configuration locale du client). Choisir **PAUSE** si cet environnement n'est pas disponible ; le lanceur ne crée pas un serveur de test sur le PC et ne confond pas essai et production.
+
+En mode manuel, après compilation et essais, fermer les applications et lancer `Build/valider_preparation.ps1` avec les commutateurs correspondant au profil, comme indiqué dans le guide d'installation. Il compare le code des binaires rouverts à la source et fige leurs empreintes ; il ne remplace pas les essais du tableau.
 
 Les essais de l'API externe se font avec des textes fictifs. Le corpus doit couvrir : absence d'annexe, une annexe, plusieurs annexes vers le même spécialiste, homonyme, identité absente, négation, dose décimale, unités, examen seulement évoqué et examen effectivement demandé. La décision médicale de demander un examen doit rester celle du médecin.

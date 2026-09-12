@@ -9,7 +9,8 @@ param(
     [string]$SqliteSha256 = '',
     [string]$DossierPrepare = '',
     [string]$UrlService = '',
-    [string]$FichierJeton = ''
+    [string]$FichierJeton = '',
+    [switch]$RedemanderConnexion
 )
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
 . (Join-Path $PSScriptRoot 'outils_installation.ps1')
@@ -61,12 +62,21 @@ function Ecrire-Reglage([string]$Destination,[string]$Texte) {
 function Installer-ConnexionService {
     $urlPath=Join-Path $local 'service.url';$tokenPath=Join-Path $local 'service.token'
     if ([string]::IsNullOrWhiteSpace($UrlService) -and (Test-Path -LiteralPath $urlPath)) { $script:UrlService=[IO.File]::ReadAllText($urlPath).Trim() }
+    if ($RedemanderConnexion -and $UrlService) {
+        $nouvelle=Read-Host ('Adresse HTTPS du service Synology [Entree : '+$UrlService+']')
+        if ($nouvelle) { $script:UrlService=$nouvelle }
+    }
     if ([string]::IsNullOrWhiteSpace($UrlService)) { $script:UrlService=Read-Host 'Adresse HTTPS du service Synology' }
     $uri=$null
     if (-not [Uri]::TryCreate($UrlService,[UriKind]::Absolute,[ref]$uri) -or $uri.Scheme -ne 'https' -or $uri.UserInfo) { throw 'Une adresse HTTPS sans identifiant dans l URL est requise.' }
     $token=''
+    $reutiliser=(Test-Path -LiteralPath $tokenPath)
+    if ($RedemanderConnexion -and $reutiliser -and -not $FichierJeton) {
+        do { $choixJeton=Read-Host 'Conserver le jeton NAS deja enregistre ? OUI / NON' } until ($choixJeton -in @('OUI','NON'))
+        $reutiliser=($choixJeton -eq 'OUI')
+    }
     if ($FichierJeton) { $token=[IO.File]::ReadAllText((Resolve-Path -LiteralPath $FichierJeton).Path).Trim() }
-    elseif (Test-Path -LiteralPath $tokenPath) { $token=[IO.File]::ReadAllText($tokenPath).Trim() }
+    elseif ($reutiliser) { $token=[IO.File]::ReadAllText($tokenPath).Trim() }
     else {
         $secure=Read-Host 'Jeton de ce poste fourni lors de la creation du compte NAS' -AsSecureString
         $ptr=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
@@ -131,6 +141,7 @@ try {
         Ecrire-Preparation $stage $Profil $root
         Write-Host "Preparation terminee : $stage"
         Write-Host 'Aucun complement actif remplace. Effectuez la recette Word/Excel, puis utilisez -Mode Installation.'
+        Write-Output ([pscustomobject]@{DossierPrepare=$stage;Profil=$Profil;Mode='Preparation'})
         return
     }
     # Tous les binaires sont prets avant de modifier une installation active.

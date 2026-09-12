@@ -1,7 +1,7 @@
 name: Cabinet NAS 2026.09.12
 on:
   push:
-    paths: ['versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
+    paths: ['Installateur/**', 'versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -38,3 +38,16 @@ jobs:
         run: |
           ./versions/cabinet-2026.09.12/Tests/test_construction.ps1
           ./versions/cabinet-2026.09.12/Tests/test_installation.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_assistant.ps1
+
+  installateur-windows:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: PowerShell Windows 5.1 - controles hors Office
+        shell: powershell
+        run: |
+          ./versions/cabinet-2026.09.12/Tests/test_construction.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_installation.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_assistant.ps1
