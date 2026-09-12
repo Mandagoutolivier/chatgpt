@@ -28,12 +28,13 @@ Les défauts déjà corrigés par l'audit précédent sont repris : import Unico
 
 | Vérification | Résultat local |
 |---|---|
-| Sources VBA déclarées, doublons publics, appels qualifiés, équilibre des procédures | Aucun défaut détecté par le contrôle statique ; détails/empreintes dans `Tests/inventaire_sources.json` |
+| Sources VBA déclarées, doublons publics, appels qualifiés, équilibre des procédures | 66 fichiers VBA, 15 399 lignes uniques, 73 composants ; aucun défaut détecté par le contrôle statique ; détails/empreintes dans `Tests/inventaire_sources.json` |
 | PowerShell 7.6.6 sous Linux, parsing des scripts et conservation OOXML | 34 contrôles réussis |
 | Préparation/activation : profil, source modifiée, binaire modifié, dépendance absente | 5 contrôles réussis |
 | Cache SQLite | 4 tests réussis |
 | Python : règles, API, transactions, migration, conservation des fichiers | 36 tests réussis avec moteur PostgreSQL PGlite ; 1 test de concurrence réservé à PostgreSQL natif |
 | Ressources de migration fournies | Simulation sans erreur ; aucune fiche patient dans le jeu initial ; un alias ancien ambigu signalé |
+| CI GitHub PostgreSQL 17.11 natif, commit `08db5da` | **37 tests serveur réussis**, dont concurrence ; 4 tests SQLite et 39 contrôles PowerShell réussis — [exécution 34677038738](https://github.com/Mandagoutolivier/chatgpt/actions/runs/34677038738) |
 | Compilation/réouverture Office, PowerShell Windows 5.1, NAS réel, Dragon, ECG, impression | Non exécutés ici |
 
 PGlite expose PostgreSQL via un adaptateur socket, avec une connexion interne multiplexée : il ne démontre pas la concurrence d'un serveur natif. Le test concerné est exécuté dans le workflow GitHub `.github/workflows/cabinet-2026-09-12.yml` avec PostgreSQL 17.11. La preuve de son résultat est l'exécution GitHub liée au commit, pas la simple présence du workflow. Les avertissements de dépréciation du client de test HTTP n'affectent pas les assertions mais restent à suivre lors de la prochaine mise à jour des dépendances.

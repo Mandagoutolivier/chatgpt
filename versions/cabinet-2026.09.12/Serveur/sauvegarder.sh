@@ -4,7 +4,8 @@ set -eu
 cd "$(dirname "$0")"
 stamp="cabinet-$(date -u +%Y%m%dT%H%M%SZ)-$$"
 docker compose stop api
-trap 'docker compose start api >/dev/null' EXIT HUP INT TERM
+trap 'docker compose start api >/dev/null' EXIT
+trap 'exit 130' HUP INT TERM
 docker compose run --rm -T maintenance sh -eu -c '
     umask 077
     export PGPASSWORD="$(cat /run/secrets/admin_password)"

@@ -105,7 +105,7 @@ docker compose up -d api
 docker compose exec -T api python -m cabinet.admin reconcilier
 ```
 
-Le rapprochement signale les archives manquantes, fichiers non référencés et consultations en cours, sans supprimer ni libérer automatiquement. Vérifier le nouveau chemin UNC dans les métadonnées avant de basculer : une restauration vers un autre nom de partage nécessite de maintenir l'ancien alias UNC, ou une migration explicite des chemins. Ne pas improviser un remplacement global dans les données.
+Le rapprochement signale les archives manquantes ou altérées, fichiers non référencés et consultations en cours, sans supprimer ni libérer automatiquement. Vérifier le nouveau chemin UNC dans les métadonnées avant de basculer : une restauration vers un autre nom de partage nécessite de maintenir l'ancien alias UNC, ou une migration explicite des chemins. Ne pas improviser un remplacement global dans les données.
 
 ## Limites d'exploitation
 

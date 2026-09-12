@@ -1,0 +1,14 @@
+{
+  "version": "2026.09.12",
+  "commit_test_postgresql_natif": "08db5da8b4bfb0afa9c232d8c4bb2477d354b530",
+  "github_run": "https://github.com/Mandagoutolivier/chatgpt/actions/runs/34677038738",
+  "postgresql_natif": "17.11",
+  "tests_serveur": 37,
+  "tests_sqlite": 4,
+  "controles_powershell": 39,
+  "composants_vba": 73,
+  "sources_vba_uniques": 66,
+  "lignes_vba_uniques": 15399,
+  "compilation_office_executee": false,
+  "recette_materiel_executee": false
+}

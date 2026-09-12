@@ -25,14 +25,18 @@ def main():
             db.execute('UPDATE comptes SET actif=false WHERE identifiant=%s',(args.identifiant,))
             print('Compte desactive.')
         elif args.action=='reconcilier':
-            referenced=set();missing=[]
+            referenced=set();missing=[];altered=[]
             for row in db.execute('SELECT id,donnees FROM publications'):
                 for key in ('CheminDocx','CheminPdf'):
                     path=service.documents.resoudre(row['donnees'][key]);referenced.add(path)
                     if not path.is_file():missing.append({'publication':row['id'],'type':key})
+                    else:
+                        expected=row['donnees'].get('sha_docx' if key=='CheminDocx' else 'sha_pdf')
+                        with path.open('rb') as f:actual=hashlib.file_digest(f,'sha256').hexdigest()
+                        if actual!=expected:altered.append({'publication':row['id'],'type':key})
             orphan=[p.name for p in service.documents.objects.glob('*') if p.is_file() and p not in referenced]
             pending=db.execute("SELECT id,etat FROM consultations WHERE etat='encours' ORDER BY modifie_le").fetchall()
-            print(json.dumps({'archives_manquantes':missing,'fichiers_non_references':orphan,
+            print(json.dumps({'archives_manquantes':missing,'archives_alterees':altered,'fichiers_non_references':orphan,
                               'consultations_en_cours':pending,'suppression_effectuee':False},ensure_ascii=False,indent=2))
 
 if __name__=='__main__':main()
