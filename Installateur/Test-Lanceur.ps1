@@ -6,7 +6,7 @@ if (-not (Test-Path -LiteralPath $cmdPath)) { Write-Host 'Lanceur pas encore ass
 $source=[IO.File]::ReadAllText($cmdPath)
 $marker=[regex]::Match($source,'(?m)^# CABINET_POWERSHELL_PAYLOAD_V1\r?$')
 if (-not $marker.Success) { throw 'Marqueur du payload absent.' }
-$header=$source.Substring(0,$marker.Index+$marker.Length)
+$header=$source.Substring(0,$marker.Index+$marker.Length).TrimEnd([char[]]@("`r","`n"))
 $payload=@'
 [IO.File]::WriteAllText($env:CABINET_TEST_PROOF,'OK')
 exit 17
