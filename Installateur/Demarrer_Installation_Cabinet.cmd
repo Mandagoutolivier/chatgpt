@@ -90,20 +90,20 @@ function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$C
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='e5ef7a9a93267b232681d83794ee7d78ba104a39'
+$Commit='395e39b106cabdb01925ea2e34e0d480d74c8368'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
   "AUDIT.md": "d28f2a32618dea4ab44bf848879a848ab55e0788cc723346bc2570a2e35517a9",
-  "Build/assistant_installation.ps1": "088cb8249a3873d41917ebda252870004107654b1d0b9f7f7536c36fb93693d1",
+  "Build/assistant_installation.ps1": "d7be691963c57e092a3dd627edb28d57a34cc33d91490d90444dee226e989b06",
   "Build/construire_cabinet_secretariat.ps1": "a4e271f3c26a5dab8ce53120b07d4201a61f6dd484275f032206ec6528da8645",
   "Build/construire_modele_unifie.ps1": "63b1a4c28f0d50bd29294950914bbc9514b78ee9020ee4c796487f07d594680b",
   "Build/donnees_initiales.json": "2c6a672f018d9db815c4f3fcdc91892db9b9a43bb3c7477bc83f49cb4b23b790",
   "Build/initialiser_nas.ps1": "4598eac4dc1a80addb0aefd486f109d82087000c64912abea66c854bc6f507f1",
-  "Build/installer_multi_postes.ps1": "3f565ff50dbc13fef7fa8c95890a67e5f54240e80c88bd74ad10f1c5fb13f377",
+  "Build/installer_multi_postes.ps1": "ce4243c2b52cf346ea9e494506d2d9c6b9d59c2d72b412b0b54883bae8bbfea1",
   "Build/installer_sqlite_medecin.ps1": "0d6221fa88894d767fdad5d8a6eb290a52c27830629b5557fc73eed52673ebc7",
   "Build/manifest.json": "0b2384ffe12c10ee35c13fa5875777e5239f7551f1ece24fb8c522ebd4413f71",
-  "Build/outils_assistant.ps1": "2a49c4b095000c89cb5b375319a835bd39c1cc234a75303926fb8a78277e7e08",
+  "Build/outils_assistant.ps1": "4bddbf7fc4899d16eca967694269d1db9f14a935177d35310ed0f2faa9839582",
   "Build/outils_construction.ps1": "2fe847faa5a4be2af45ff73ecd31e984b5c405dafcd478fc9fc6ee22d57650e1",
   "Build/outils_installation.ps1": "daa32259aca3c5266f2f6114eb6be008efcf02a31bcd5ee95b862fee0178e793",
   "Build/outils_telechargement.ps1": "a20c18c69d5bbd823a72d036d047cd20505985440529fe03dbd9323ecf74d705",
@@ -122,10 +122,10 @@ $Empreintes=@'
   "DonneesInitiales/Config/cerfa_positions.txt": "f09aece2ca125f32bb303bbbd16b9dbdc20e006807d0977d5fa95bdeb95a9876",
   "DonneesInitiales/Config/substitutions.txt": "80f82f0cf411b94c10368c3458703a6ad44e779778d3741d2008717f5692078a",
   "DonneesInitiales/Modeles/LETTRE TYPE.dot": "56c0ff3cb8167cb6746fda4ca772dee83d1e49a9480ead4f94017681c5dd55ed",
-  "INSTALLATION_MULTI_POSTES.md": "5bccbc8fa2433236722af83e0b022ea80b1f8eb18cfb988031704986d06a27dd",
+  "INSTALLATION_MULTI_POSTES.md": "1d8855ec78ccda2d315cf29cb5813d10c959b55c193d7f28655684d0242f309d",
   "INTEGRATION_UNIFIEE.md": "b94a76904d32c45d663428074997b3855794df76a16b389e008beabd03ffb4f0",
   "Installer.cmd": "8074b6ad7a2734a6c962b3641aeb2199cb611e1c9325c84aa3e8635576830efb",
-  "Installer.ps1": "eda45c955011bbcb5f52b1e325d7a853bd38ce9623cd9e1ab6dfabefaa889d99",
+  "Installer.ps1": "eb6dd013e1d1c624116613e19e3ff7a787890f16a0b07e3ff42e25fd8e121b8b",
   "ModelesSource/Cabinet(1).dotm": "493ed179d97ec4f15cafe39e44f9a6d2c0ce56a42927cf0fd4acafd860dabdb5",
   "ModelesSource/Cabinet.xlsm": "714e9458066bd28b8b6e6f6e9f65b2d673d3285c1915b57216e780d5e75f04ff",
   "ModelesSource/ModeleCourrierChatGPT_PROD(6).dotm": "a8ccb702e8defc9fce19b9afb968c4f7cd5b25d59da562dba172bc6b51b85524",
@@ -229,6 +229,7 @@ $Empreintes=@'
   "Tests/nettoyage_sources.json": "f3b54768aca28e41878d9bd36a147d7f2f7da5815609e85576d2a03986c5e07d",
   "Tests/schema_reponse_api.json": "fbf5f9805faa23b77cdffe368bdd737e320665c58b75a528a268f69ac06665f4",
   "Tests/test_assistant.ps1": "11cc4bb1293777569a72537d23a203dbc70da60f191ae37fc9650b9b728bc2f6",
+  "Tests/test_choix_nas.ps1": "54dd2afe5dde485758abdb0dc8064f00bf5e6a7b87689fe41e8deebd65201c0c",
   "Tests/test_construction.ps1": "4718fae561570b4d477c7a990cd24aec3cdd5535cc288d406cc2d545cd1b145e",
   "Tests/test_installation.ps1": "9b56f991c5949918038f04535259b800f8f293866f309fa9dbc37fcf12b44617",
   "Tests/test_sqlite.py": "b72e003154f16caf168fbd660a0e68c676196ec52eca3c496cefac603c11368d",
