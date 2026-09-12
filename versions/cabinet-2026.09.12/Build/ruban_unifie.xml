@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+  <ribbon><tabs><tab id="cabUnifie" label="Cabinet">
+    <group id="cabCourriers" label="Consultation">
+      <button id="cabNouveau" label="A · Patient arrivé" onAction="Ruban_Action" size="large" imageMso="FileNew"/>
+      <button id="cabPatient" label="C · Insérer identité" onAction="Ruban_Action"/>
+      <button id="cabCorriger" label="D · Corriger / transmettre" onAction="Ruban_Action" size="large" imageMso="FileSave"/>
+      <button id="cabReprendre" label="Reprendre un brouillon" onAction="Ruban_Action"/>
+      <button id="cabEcg" label="Envoyer à l’ECG" onAction="Ruban_Action"/>
+    </group>
+    <group id="cabDictionnaires" label="Mise en gras">
+      <button id="cabGras" label="Appliquer le gras" onAction="Ruban_Action"/>
+      <button id="cabMedicaments" label="Médicaments" onAction="Ruban_Action"/>
+      <button id="cabExpressions" label="Expressions" onAction="Ruban_Action"/>
+    </group>
+    <group id="cabAssistance" label="Aide"><button id="cabAide" label="Commandes" onAction="Ruban_Action"/></group>
+  </tab></tabs></ribbon>
+</customUI>

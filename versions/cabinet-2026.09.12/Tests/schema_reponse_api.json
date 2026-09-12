@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "properties": {
+    "corps_courrier": {
+      "type": "string"
+    },
+    "demandes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cle_destination": {
+            "type": "string"
+          },
+          "corps": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cle_destination",
+          "corps"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "corps_courrier",
+    "demandes"
+  ],
+  "additionalProperties": false
+}

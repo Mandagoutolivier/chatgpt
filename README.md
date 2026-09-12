@@ -1,3 +1,7 @@
+## Nouvelle version dédiée
+
+La [version 2026.09.12 avec service NAS](versions/cabinet-2026.09.12/README.md) reprend les suites de l’audit et fournit un [installateur à trois choix](versions/cabinet-2026.09.12/Installer.ps1) : domicile, secrétariat et cabinet médecin. Voir son guide et sa recette Windows avant activation. Le dossier ci-dessous conserve la livraison précédente.
+
 # Cabinet Cardio — Word, Excel, Synology
 
 Version de travail **2026.09-audit1**, issue de la revue du dépôt du 11 septembre 2026.

@@ -1,0 +1,21 @@
+# Positions d'impression sur la feuille de soins pre-imprimee (cerfa S3110).
+# Format : CHAMP;x_mm;y_mm;largeur_mm;taille_police
+# Origine = coin superieur gauche de la feuille. A CALER sur votre liasse :
+# 1) bouton "Calage imprimante CERFA" (imprime des croix de repere),
+# 2) ajustez les positions ci-dessous d'apres le scan de votre liasse (jalon J6).
+ASSURE_NOM;25;42;95;10
+ASSURE_NIR;118;36;85;11
+ASSURE_DDN;118;46;45;10
+DATE1;22;168;20;9
+CODE1;48;168;35;9
+MONTANT1;150;168;28;9
+DATE2;22;176;20;9
+CODE2;48;176;35;9
+MONTANT2;150;176;28;9
+DATE3;22;184;20;9
+CODE3;48;184;35;9
+MONTANT3;150;184;28;9
+DATE4;22;192;20;9
+CODE4;48;192;35;9
+MONTANT4;150;192;28;9
+TOTAL;150;208;28;10

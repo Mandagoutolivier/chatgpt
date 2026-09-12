@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:17.11-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cabinet
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin_password
+    secrets: [admin_password, db_password]
+    volumes:
+      - ./init-db.sh:/docker-entrypoint-initdb.d/10-cabinet.sh:ro
+      - ${CABINET_DB_VOLUME:?Renseigner le dossier LOCAL du NAS}:/var/lib/postgresql/data
+      - ${CABINET_BACKUP_VOLUME:?Renseigner le dossier de sauvegarde}:/backups
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d cabinet]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  api:
+    build:
+      context: ..
+      dockerfile: Serveur/Dockerfile
+    restart: unless-stopped
+    user: ${CABINET_UID:-1026}:${CABINET_GID:-100}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      CABINET_UNC: ${CABINET_UNC:?Chemin UNC du partage CabinetCardio}
+      CABINET_DATA: /data
+      TZ: Europe/Paris
+    secrets: [db_password]
+    volumes:
+      - ${CABINET_DATA_VOLUME:?Renseigner le chemin LOCAL du partage NAS}:/data
+    ports:
+      - 127.0.0.1:8765:8765
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+  maintenance:
+    image: postgres:17.11-bookworm
+    profiles: [maintenance]
+    environment:
+      PGHOST: db
+      PGUSER: postgres
+      PGDATABASE: cabinet
+    secrets: [admin_password]
+    volumes:
+      - ${CABINET_DATA_VOLUME}:/data:ro
+      - ${CABINET_BACKUP_VOLUME}:/backups
+secrets:
+  admin_password:
+    file: ./secrets/admin_password.txt
+  db_password:
+    file: ./secrets/db_password.txt

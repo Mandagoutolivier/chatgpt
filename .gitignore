@@ -18,3 +18,10 @@ cabinet-unifie/Echange/
 cabinet-unifie/Logs/
 cabinet-unifie/Sauvegardes/
 cabinet-unifie/Versions/
+**/Serveur/secrets/
+**/Serveur/.env
+**/__pycache__/
+**/.pytest_cache/
+**/*.pyc
+**/preparation.json
+**/recette-office.json

@@ -1,0 +1,37 @@
+# Substitutions appliquees au courrier dicte AVANT la correction par l'IA.
+# Format : texte cherché|remplacement     (remplacement littéral)
+#          MAJ|mot                        (met le mot en MAJUSCULES partout)
+# Les lignes commençant par # sont ignorées.
+# Reprises des macros Word historiques du cabinet :
+zéro |0,
+mm de mercure|mmHg
+millimètres de mercure|mmHg
+par minute|/min
+battements/min|/min
+# Médicaments cardiologiques usuels en majuscules (complétez librement) :
+MAJ|Kardégic
+MAJ|Eliquis
+MAJ|Xarelto
+MAJ|Pradaxa
+MAJ|Préviscan
+MAJ|Coumadine
+MAJ|Tahor
+MAJ|Crestor
+MAJ|Ezetrol
+MAJ|Corvasal
+MAJ|Aldactone
+MAJ|Lasilix
+MAJ|Temerit
+MAJ|Cardensiel
+MAJ|Sectral
+MAJ|Coversyl
+MAJ|Triatec
+MAJ|Amlor
+MAJ|Loxen
+MAJ|Isoptine
+MAJ|Cordarone
+MAJ|Flécaïne
+MAJ|Procoralan
+MAJ|Entresto
+MAJ|Forxiga
+MAJ|Jardiance

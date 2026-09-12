@@ -1,0 +1,377 @@
+{
+  "word": [
+    {
+      "name": "ThisDocument",
+      "kind": "document",
+      "path": "Src/Prod6/ThisDocument.cls"
+    },
+    {
+      "name": "frmCTDestination",
+      "kind": "form",
+      "path": "Src/Prod6/frmCTDestination.vba"
+    },
+    {
+      "name": "modAnonymisation",
+      "kind": "module",
+      "path": "Src/Prod6/modAnonymisation.bas"
+    },
+    {
+      "name": "modBaseCorrespondants",
+      "kind": "module",
+      "path": "Src/Prod6/modBaseCorrespondants.bas"
+    },
+    {
+      "name": "modDemandesAnnexes",
+      "kind": "module",
+      "path": "Src/Prod6/modDemandesAnnexes.bas"
+    },
+    {
+      "name": "modDestinations",
+      "kind": "module",
+      "path": "Src/Prod6/modDestinations.bas"
+    },
+    {
+      "name": "modCommandesDDERAC",
+      "kind": "module",
+      "path": "Src/Prod6/modCommandesDDERAC.bas"
+    },
+    {
+      "name": "modDetectionDemandesDico",
+      "kind": "module",
+      "path": "Src/Prod6/modDetectionDemandesDico.bas"
+    },
+    {
+      "name": "modEnregistrementCorrespondants",
+      "kind": "module",
+      "path": "Src/Prod6/modEnregistrementCorrespondants.bas"
+    },
+    {
+      "name": "modGenerationDemandes",
+      "kind": "module",
+      "path": "Src/Prod6/modGenerationDemandes.bas"
+    },
+    {
+      "name": "modGlobals",
+      "kind": "module",
+      "path": "Src/Prod6/modGlobals.bas"
+    },
+    {
+      "name": "modInsertion",
+      "kind": "module",
+      "path": "Src/Prod6/modInsertion.bas"
+    },
+    {
+      "name": "modLettresComplementairesModele",
+      "kind": "module",
+      "path": "Src/Prod6/modLettresComplementairesModele.bas"
+    },
+    {
+      "name": "modMiseEnPageFinale",
+      "kind": "module",
+      "path": "Src/Prod6/modMiseEnPageFinale.bas"
+    },
+    {
+      "name": "modNormalisationGrasLocal",
+      "kind": "module",
+      "path": "Src/Prod6/modNormalisationGrasLocal.bas"
+    },
+    {
+      "name": "modOpenAI_v22_corrige",
+      "kind": "module",
+      "path": "Src/Prod6/modOpenAI_v22_corrige.bas"
+    },
+    {
+      "name": "modProdRapide",
+      "kind": "module",
+      "path": "Src/Prod6/modProdRapide.bas"
+    },
+    {
+      "name": "modPrompts",
+      "kind": "module",
+      "path": "Src/Prod6/modPrompts.bas"
+    },
+    {
+      "name": "modSaisieCorrespondants",
+      "kind": "module",
+      "path": "Src/Prod6/modSaisieCorrespondants.bas"
+    },
+    {
+      "name": "modSaisieStructures",
+      "kind": "module",
+      "path": "Src/Prod6/modSaisieStructures.bas"
+    },
+    {
+      "name": "modSortieDragon",
+      "kind": "module",
+      "path": "Src/Prod6/modSortieDragon.bas"
+    },
+    {
+      "name": "modUtilitaires",
+      "kind": "module",
+      "path": "Src/Prod6/modUtilitaires.bas"
+    },
+    {
+      "name": "modAnonymise",
+      "kind": "module",
+      "path": "Src/Word/modAnonymise.bas"
+    },
+    {
+      "name": "modBase",
+      "kind": "module",
+      "path": "Src/Word/modBase.bas"
+    },
+    {
+      "name": "modApiConfiguration",
+      "kind": "module",
+      "path": "Src/Word/modApiConfiguration.bas"
+    },
+    {
+      "name": "modConfig",
+      "kind": "module",
+      "path": "Src/Commun/modConfig.bas"
+    },
+    {
+      "name": "modCourrier",
+      "kind": "module",
+      "path": "Src/Word/modCourrier.bas"
+    },
+    {
+      "name": "modDemandes",
+      "kind": "module",
+      "path": "Src/Word/modDemandes.bas"
+    },
+    {
+      "name": "modDerivees",
+      "kind": "module",
+      "path": "Src/Word/modDerivees.bas"
+    },
+    {
+      "name": "modEcg",
+      "kind": "module",
+      "path": "Src/Word/modEcg.bas"
+    },
+    {
+      "name": "modFichiers",
+      "kind": "module",
+      "path": "Src/Commun/modFichiers.bas"
+    },
+    {
+      "name": "modGdt",
+      "kind": "module",
+      "path": "Src/Commun/modGdt.bas"
+    },
+    {
+      "name": "modGras",
+      "kind": "module",
+      "path": "Src/Word/modGras.bas"
+    },
+    {
+      "name": "modJson",
+      "kind": "module",
+      "path": "Src/Commun/modJson.bas"
+    },
+    {
+      "name": "modLog",
+      "kind": "module",
+      "path": "Src/Commun/modLog.bas"
+    },
+    {
+      "name": "modPatient",
+      "kind": "module",
+      "path": "Src/Word/modPatient.bas"
+    },
+    {
+      "name": "modPowerMic",
+      "kind": "module",
+      "path": "Src/Word/modPowerMic.bas"
+    },
+    {
+      "name": "modRaccourcis",
+      "kind": "module",
+      "path": "Src/Word/modRaccourcis.bas"
+    },
+    {
+      "name": "modRuban",
+      "kind": "module",
+      "path": "Src/Word/modRuban.bas"
+    },
+    {
+      "name": "modSchemas",
+      "kind": "module",
+      "path": "Src/Word/modSchemas.bas"
+    },
+    {
+      "name": "modSubstitutions",
+      "kind": "module",
+      "path": "Src/Word/modSubstitutions.bas"
+    },
+    {
+      "name": "modTexte",
+      "kind": "module",
+      "path": "Src/Commun/modTexte.bas"
+    },
+    {
+      "name": "modValidation",
+      "kind": "module",
+      "path": "Src/Word/modValidation.bas"
+    },
+    {
+      "name": "ufListe",
+      "kind": "form",
+      "path": "Src/Word/ufListe.vba"
+    },
+    {
+      "name": "ufProgression",
+      "kind": "form",
+      "path": "Src/Word/ufProgression.vba"
+    },
+    {
+      "name": "modAttenteLocale",
+      "kind": "module",
+      "path": "Src/Integration/modAttenteLocale.bas"
+    },
+    {
+      "name": "modIntegrationUnifie",
+      "kind": "module",
+      "path": "Src/Integration/modIntegrationUnifie.bas"
+    },
+    {
+      "name": "modPowerMicUnifie",
+      "kind": "module",
+      "path": "Src/Integration/modPowerMicUnifie.bas"
+    },
+    {
+      "name": "modAuditTests",
+      "kind": "module",
+      "path": "Src/Integration/modAuditTests.bas"
+    },
+    {
+      "name": "modServiceNas",
+      "kind": "module",
+      "path": "Src/Commun/modServiceNas.bas"
+    },
+    {
+      "name": "modControleCourrier",
+      "kind": "module",
+      "path": "Src/Integration/modControleCourrier.bas"
+    }
+  ],
+  "excel": [
+    {
+      "name": "Feuil1",
+      "kind": "document",
+      "path": "Src/Excel/Feuil1.cls"
+    },
+    {
+      "name": "ThisWorkbook",
+      "kind": "document",
+      "path": "Src/Excel/ThisWorkbook.cls"
+    },
+    {
+      "name": "modActes",
+      "kind": "module",
+      "path": "Src/Excel/modActes.bas"
+    },
+    {
+      "name": "modAgenda",
+      "kind": "module",
+      "path": "Src/Excel/modAgenda.bas"
+    },
+    {
+      "name": "modAgendaVue",
+      "kind": "module",
+      "path": "Src/Excel/modAgendaVue.bas"
+    },
+    {
+      "name": "modBaseIO",
+      "kind": "module",
+      "path": "Src/Excel/modBaseIO.bas"
+    },
+    {
+      "name": "modCerfaPrint",
+      "kind": "module",
+      "path": "Src/Excel/modCerfaPrint.bas"
+    },
+    {
+      "name": "modConfig",
+      "kind": "module",
+      "path": "Src/Commun/modConfig.bas"
+    },
+    {
+      "name": "modEchange",
+      "kind": "module",
+      "path": "Src/Excel/modEchange.bas"
+    },
+    {
+      "name": "modFichiers",
+      "kind": "module",
+      "path": "Src/Commun/modFichiers.bas"
+    },
+    {
+      "name": "modGdt",
+      "kind": "module",
+      "path": "Src/Commun/modGdt.bas"
+    },
+    {
+      "name": "modJournal",
+      "kind": "module",
+      "path": "Src/Excel/modJournal.bas"
+    },
+    {
+      "name": "modJson",
+      "kind": "module",
+      "path": "Src/Commun/modJson.bas"
+    },
+    {
+      "name": "modLog",
+      "kind": "module",
+      "path": "Src/Commun/modLog.bas"
+    },
+    {
+      "name": "modTexte",
+      "kind": "module",
+      "path": "Src/Commun/modTexte.bas"
+    },
+    {
+      "name": "modUI",
+      "kind": "module",
+      "path": "Src/Excel/modUI.bas"
+    },
+    {
+      "name": "ufChoixActe",
+      "kind": "form",
+      "path": "Src/Excel/ufChoixActe.vba"
+    },
+    {
+      "name": "ufCorrespEdit",
+      "kind": "form",
+      "path": "Src/Excel/ufCorrespEdit.vba"
+    },
+    {
+      "name": "ufListe",
+      "kind": "form",
+      "path": "Src/Excel/ufListe.vba"
+    },
+    {
+      "name": "ufPatientEdit",
+      "kind": "form",
+      "path": "Src/Excel/ufPatientEdit.vba"
+    },
+    {
+      "name": "ufRdvEdit",
+      "kind": "form",
+      "path": "Src/Excel/ufRdvEdit.vba"
+    },
+    {
+      "name": "modServiceNas",
+      "kind": "module",
+      "path": "Src/Commun/modServiceNas.bas"
+    }
+  ],
+  "models": {
+    "Cabinet.xlsm": "714e9458066bd28b8b6e6f6e9f65b2d673d3285c1915b57216e780d5e75f04ff",
+    "ModeleCourrierChatGPT_PROD(6).dotm": "a8ccb702e8defc9fce19b9afb968c4f7cd5b25d59da562dba172bc6b51b85524",
+    "Cabinet(1).dotm": "493ed179d97ec4f15cafe39e44f9a6d2c0ce56a42927cf0fd4acafd860dabdb5"
+  },
+  "source_commit": "44ff5bb74a20f93a81b81de0d61d75c8370aef50"
+}
