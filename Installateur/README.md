@@ -41,3 +41,11 @@ L'affectation à `ActiveVBProject` a été supprimée : cette propriété est do
 Si l'affichage automatique échoue, utiliser **Alt+F11**, puis **Ctrl+R**, sélectionner le module indiqué dans le fichier préparé et choisir **Débogage > Compiler**. Répondre **OUI** uniquement après compilation sans erreur, sinon **NON**. Un refus d'accès VBA, un module absent ou un échec d'enregistrement reste bloquant. Le repli manuel n'active pas les macros et ne valide aucun essai à votre place.
 
 Télécharger le lanceur nouvellement publié, fermer Word et Excel, puis reprendre le même profil et la même racine NAS. Un nouveau paquet crée une nouvelle préparation et redemande les validations. Les contrôles automatiques simulent les objets Office ; les compilations et essais réels doivent toujours être effectués sur le poste.
+
+## Word fermé avant la réponse OUI : erreur RPC 0x800706BA
+
+Fermer Word et Excel **avant de lancer l'installation**. Pendant la compilation guidée, au contraire, **laisser l'application et le fichier ouverts** : choisir Débogage > Compiler, revenir à la console avec **Alt+Tab**, puis répondre **OUI** si la compilation est sans erreur. L'assistant doit encore enregistrer le fichier ; il ferme ensuite lui-même l'application. La même consigne s'applique à Excel.
+
+Le code `0x800706BA` pendant cet enregistrement peut correspondre à une application fermée ou arrêtée. Le journal seul ne permet pas de distinguer une fermeture volontaire d'un plantage. Le nouveau lanceur propose **R** pour rouvrir le même fichier préparé et refaire la compilation, ou **Q** pour mettre en pause. Il ne réutilise jamais le OUI de la tentative interrompue. Il exige que l'enregistrement réussisse et qu'Office confirme l'état enregistré. Les erreurs autres que les déconnexions reconnues restent bloquantes.
+
+Avec le lanceur `17c84b9`, une fermeture volontaire se résout déjà en relançant le même fichier, en conservant le profil, puis en laissant Word et Excel ouverts pendant leurs confirmations respectives. Le correctif de reprise ne répare pas un éventuel plantage d'Office ; si l'erreur revient avec l'application laissée ouverte, relever si celle-ci a disparu ou affiche une boîte de dialogue.

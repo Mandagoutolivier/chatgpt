@@ -104,7 +104,37 @@ function Autoriser-AccesVbaAssistant([string]$Journal) {
     }
 }
 
+function Tester-DeconnexionOfficeAssistant([Exception]$Exception) {
+    # PowerShell enveloppe les erreurs COM dans plusieurs InnerException.
+    # Classer par HRESULT uniquement, sans dependance a la langue du message.
+    $current=$Exception
+    for ($depth=0;$depth -lt 16 -and $null -ne $current;$depth++) {
+        if ($current.HResult.ToString('X8') -in @('800706BA','80010108','80010006','80010007','80010012')) { return $true }
+        $current=$current.InnerException
+    }
+    return $false
+}
+
 function Compiler-ProjetAssistant([string]$Fichier,[ValidateSet('Word','Excel')][string]$Hote) {
+    while ($true) {
+        try { return (Compiler-ProjetAssistantUneTentative $Fichier $Hote) }
+        catch {
+            if (-not (Tester-DeconnexionOfficeAssistant $_.Exception)) { throw }
+            $erreurCom=$_.Exception
+            Write-Host ''
+            Write-Host "$Hote ne repond plus au lanceur. L application a pu etre fermee ou s arreter."
+            Write-Host ('Detail : '+$erreurCom.Message)
+            Write-Host 'La compilation et l enregistrement ne sont pas confirmes pour cette tentative.'
+            Write-Host 'R rouvre le meme fichier prepare et redemande la compilation. Q conserve la preparation pour plus tard.'
+            do { $choice=Read-Host 'R = reprendre la compilation ; Q = mettre en pause' } until ($choice -in @('R','Q'))
+            if ($choice -eq 'Q') { throw [InvalidOperationException]::new("Compilation $Hote en pause ; preparation conservee, aucune validation de cette tentative.",$erreurCom) }
+            $processName=if ($Hote -eq 'Word') { 'WINWORD' } else { 'EXCEL' }
+            Attendre-FermetureOffice -Noms @($processName)
+        }
+    }
+}
+
+function Compiler-ProjetAssistantUneTentative([string]$Fichier,[ValidateSet('Word','Excel')][string]$Hote) {
     # Office ne fournit pas de compilateur VBA en ligne de commande documente.
     # Ouvrir le bon projet et faire confirmer la commande native, sans SendKeys.
     $app=$null;$document=$null;$project=$null;$components=$null;$component=$null;$code=$null;$pane=$null;$vbe=$null;$window=$null
@@ -139,20 +169,27 @@ function Compiler-ProjetAssistant([string]$Fichier,[ValidateSet('Word','Excel')]
             Write-Host "Dans $Hote, appuyez sur Alt+F11, puis Ctrl+R pour afficher les projets."
         }
         Write-Host 'Dans l editeur VBA, selectionnez le module indique sous le fichier a compiler.'
-        Write-Host 'Choisissez Debogage > Compiler, puis revenez dans cette fenetre.'
+        Write-Host 'Choisissez Debogage > Compiler.'
+        Write-Host "LAISSEZ $Hote ET LE FICHIER OUVERTS. Revenez dans cette console avec Alt+Tab."
+        Write-Host "Apres votre OUI, le lanceur enregistrera le fichier puis fermera $Hote lui-meme."
         Write-Host 'Si une erreur apparait, notez-la et repondez NON.'
         do { $answer=Read-Host "Compilation $Hote sans erreur ? OUI / NON" } until ($answer -in @('OUI','NON'))
         if ($answer -ne 'OUI') { throw "Compilation $Hote non validee. La preparation est conservee ; aucune activation." }
+        if (-not [string]::Equals([string]$document.FullName,$Fichier,[StringComparison]::OrdinalIgnoreCase)) {
+            throw 'Le fichier ouvert a change de nom ou de dossier. Reprendre la compilation du fichier prepare.'
+        }
         [void]$document.Save()
+        if (-not $document.Saved) { throw 'Office ne confirme pas l enregistrement du fichier prepare.' }
         return $true
     } catch {
-        throw ("Compilation $Hote interrompue pour $Fichier : "+$_.Exception.Message)
+        throw [InvalidOperationException]::new(("Compilation $Hote interrompue pour $Fichier : "+$_.Exception.Message),$_.Exception)
     } finally {
         if ($null -ne $document) { try { [void]$document.Close($false) } catch {} }
         if ($null -ne $app) { try { [void]$app.Quit() } catch {} }
         foreach ($comObject in @($window,$vbe,$pane,$code,$component,$components,$project,$document,$app)) {
             if ($null -ne $comObject -and [Runtime.InteropServices.Marshal]::IsComObject($comObject)) {
-                [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($comObject)
+                # Un objet deja deconnecte ne doit pas masquer l erreur initiale lors du nettoyage.
+                try { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($comObject) } catch {}
             }
         }
     }
