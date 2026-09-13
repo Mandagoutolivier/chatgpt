@@ -6,6 +6,14 @@ on:
 permissions:
   contents: read
 jobs:
+  image-permissions-nas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Image construite depuis des sources restrictives, execution sans root
+        run: bash versions/cabinet-2026.09.12/Tests/test_image_permissions.sh
+
   metier-postgresql:
     runs-on: ubuntu-latest
     timeout-minutes: 12
