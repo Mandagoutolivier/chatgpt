@@ -21,3 +21,9 @@ Détails : [guide des trois postes](../versions/cabinet-2026.09.12/INSTALLATION_
 ## Maintenance du lanceur
 
 `generer_lanceur.py COMMIT` assemble `outils_telechargement.ps1`, le modèle et les empreintes des fichiers locaux de `versions/cabinet-2026.09.12`. Le commit indiqué doit contenir exactement ces fichiers. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. Les contrôles GitHub Actions testent l'extraction, le refus des fichiers altérés, la reprise et la syntaxe sur PowerShell 5.1 et 7. Ils ne remplacent pas une exécution sous Word/Excel.
+
+## Word ou Excel encore actif
+
+Le lanceur laisse cinq secondes aux processus Office pour terminer leur fermeture. Si Word ou Excel reste actif, il affiche son nom, son PID et sa session Windows, puis attend **Entrée** après fermeture ou **Q** pour reprendre plus tard. Enregistrer les documents avant de fermer les applications. Le lanceur ne termine jamais un processus de force.
+
+Si aucune fenêtre Office n'est visible, consulter le Gestionnaire des tâches. Un redémarrage du PC, après enregistrement et fermeture des applications, peut libérer un processus resté actif ; relancer alors le même profil avant d'ouvrir Word ou Excel. La ligne de version affichée au démarrage permet de vérifier quelle copie du lanceur est utilisée. En cas d'échec persistant, transmettre le message et la ligne « Étape » affichée.

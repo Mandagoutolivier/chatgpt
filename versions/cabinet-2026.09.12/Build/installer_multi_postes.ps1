@@ -19,7 +19,8 @@ $root = Split-Path $PSScriptRoot -Parent
 $medecin = $Profil -in @('Domicile','CabinetMedecin')
 $secretariat = $Profil -in @('Domicile','CabinetSecretariat')
 if ($RacineNas -notmatch '^\\\\[^\\]+\\[^\\]+') { throw 'Utilisez le chemin UNC du Synology pour RacineNas.' }
-if (Get-Process WINWORD,EXCEL -ErrorAction SilentlyContinue) { throw 'Fermez completement Word et Excel.' }
+. (Join-Path $PSScriptRoot 'outils_assistant.ps1')
+Attendre-FermetureOffice
 if (-not (Test-Path -LiteralPath $RacineNas -PathType Container)) { throw "NAS inaccessible : $RacineNas. A domicile, connectez le VPN Cabinet Freebox Pro." }
 $local = Join-Path $env:APPDATA 'CabinetCardio'
 $identifiant = (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0,8)
@@ -125,6 +126,8 @@ try {
     Start-Transcript -LiteralPath $log | Out-Null; $transcript=$true
     # Les constructeurs utilisent Office ; Excel utilise Word pour la feuille de soins.
     Tester-Office
+    # Les applications creees pour verifier Office doivent etre vraiment fermees avant les constructeurs.
+    Attendre-FermetureOffice
     if ($Mode -eq 'Preparation' -and $medecin) {
         if ([string]::IsNullOrWhiteSpace($SqliteExe)) { $SqliteExe=Obtenir-Sqlite }
         & (Join-Path $PSScriptRoot 'installer_sqlite_medecin.ps1') -SqliteExe $SqliteExe -Destination (Join-Path $stage 'sqlite3.exe') -Sha256 $SqliteSha256

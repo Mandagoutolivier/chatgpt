@@ -10,7 +10,8 @@ Verifier-ModeleSource $CabinetXlsm 'Cabinet.xlsm' $manifest
 $CabinetXlsm = (Resolve-Path -LiteralPath $CabinetXlsm).Path
 $Sortie = [IO.Path]::GetFullPath($Sortie)
 if ($Sortie -eq $CabinetXlsm) { throw 'La sortie doit etre distincte du classeur source.' }
-if (Get-Process EXCEL -ErrorAction SilentlyContinue) { throw 'Fermez completement Excel.' }
+. (Join-Path $PSScriptRoot 'outils_assistant.ps1')
+Attendre-FermetureOffice -Noms 'EXCEL'
 $tmp = Join-Path ([IO.Path]::GetTempPath()) ('CabinetExcel-' + [guid]::NewGuid().ToString('N'))
 [void][IO.Directory]::CreateDirectory($tmp)
 $built = Join-Path $tmp 'Cabinet.xlsm'

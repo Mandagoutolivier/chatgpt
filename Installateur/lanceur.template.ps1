@@ -7,7 +7,7 @@ $Empreintes=@'
 $bootLock=$null
 try {
     if ($env:OS -ne 'Windows_NT') { throw 'Ce lanceur necessite Windows.' }
-    Write-Host 'Cabinet Cardio - installation guidee'
+    Write-Host ('Cabinet Cardio - installation guidee - version '+$Commit.Substring(0,7))
     Write-Host 'Utilisez votre session Windows habituelle, sans Executer en tant qu administrateur.'
     $cache=Join-Path $env:LOCALAPPDATA 'CabinetCardio\Installation\Sources'
     [void][IO.Directory]::CreateDirectory($cache)
@@ -57,11 +57,15 @@ try {
     # Le deblocage porte uniquement sur les fichiers verifies ; aucune politique globale n est modifiee.
     Get-ChildItem -LiteralPath $package -Recurse -File | Unblock-File
     $bootLock.Dispose();$bootLock=$null
+    Write-Host ('Sources utilisees : '+$package)
     & (Join-Path $package 'Build\assistant_installation.ps1')
     exit 0
 } catch {
     Write-Host ''
     Write-Host ('Installation interrompue : '+$_.Exception.Message) -ForegroundColor Red
-    Write-Host 'Relancez ce meme fichier apres correction. Le dossier prepare est conserve.'
+    if ($_.InvocationInfo -and $_.InvocationInfo.ScriptName) {
+        Write-Host ('Etape : '+[IO.Path]::GetFileName($_.InvocationInfo.ScriptName)+' ; ligne '+$_.InvocationInfo.ScriptLineNumber)
+    }
+    Write-Host 'Relancez ce meme fichier apres correction. Les eventuels fichiers deja prepares sont conserves.'
     exit 1
 } finally { if ($null -ne $bootLock) { $bootLock.Dispose() } }

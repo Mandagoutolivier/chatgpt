@@ -8,7 +8,8 @@ param(
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
 . (Join-Path $PSScriptRoot 'outils_installation.ps1')
 if ($env:OS -ne 'Windows_NT') { throw 'Validation Office requise sur Windows.' }
-if (Get-Process WINWORD,EXCEL -ErrorAction SilentlyContinue) { throw 'Fermez Word et Excel apres compilation et recette.' }
+. (Join-Path $PSScriptRoot 'outils_assistant.ps1')
+Attendre-FermetureOffice
 $root=Split-Path $PSScriptRoot -Parent
 $stage=(Resolve-Path -LiteralPath $DossierPrepare).Path
 $receipt=Get-Content -LiteralPath (Join-Path $stage 'preparation.json') -Raw -Encoding UTF8 | ConvertFrom-Json

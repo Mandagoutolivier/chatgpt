@@ -13,7 +13,8 @@ $Prod6 = (Resolve-Path -LiteralPath $Prod6).Path
 $Cabinet1 = (Resolve-Path -LiteralPath $Cabinet1).Path
 $Sortie = [IO.Path]::GetFullPath($Sortie)
 if ($Sortie -in @($Prod6,$Cabinet1)) { throw 'La sortie doit etre distincte des modeles sources.' }
-if (Get-Process WINWORD -ErrorAction SilentlyContinue) { throw 'Fermez completement Word.' }
+. (Join-Path $PSScriptRoot 'outils_assistant.ps1')
+Attendre-FermetureOffice -Noms 'WINWORD'
 $tmp = Join-Path ([IO.Path]::GetTempPath()) ('CabinetBuild-' + [guid]::NewGuid().ToString('N'))
 [void][IO.Directory]::CreateDirectory($tmp)
 $built = Join-Path $tmp 'CabinetUnifie.dotm'

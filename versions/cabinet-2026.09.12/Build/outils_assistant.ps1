@@ -26,10 +26,28 @@ function Choisir-ProfilAssistant {
 }
 
 function Attendre-FermetureOffice {
-    while (Get-Process WINWORD,EXCEL -ErrorAction SilentlyContinue) {
-        Write-Host 'Enregistrez vos documents et fermez toutes les fenetres Word et Excel.'
-        $choice=Read-Host 'Entree pour verifier a nouveau ; Q pour reprendre plus tard'
+    param(
+        [ValidateSet('WINWORD','EXCEL')][string[]]$Noms=@('WINWORD','EXCEL'),
+        [ValidateRange(0,30)][int]$DelaiSecondes=5
+    )
+    $running=@(Get-Process -Name $Noms -ErrorAction SilentlyContinue)
+    if ($running.Count -eq 0) { return }
+    Write-Host 'Attente de la fermeture complete des processus Office...'
+    # Quit() peut revenir avant la disparition du processus. Laisser ce delai avant de solliciter l operateur.
+    for ($i=0;$i -lt ($DelaiSecondes*4) -and $running.Count -gt 0;$i++) {
+        Start-Sleep -Milliseconds 250
+        $running=@(Get-Process -Name $Noms -ErrorAction SilentlyContinue)
+    }
+    while ($running.Count -gt 0) {
+        Write-Host 'Enregistrez vos documents et fermez Word et Excel, y compris les fenetres reduites.'
+        foreach ($process in $running) {
+            Write-Host ('Encore actif : '+$process.ProcessName+' ; PID '+$process.Id+' ; session Windows '+$process.SessionId)
+        }
+        Write-Host 'Si aucune fenetre n est visible, ouvrez le Gestionnaire des taches pour verifier les processus indiques.'
+        Write-Host 'Le lanceur ne force aucune fermeture et ne supprime aucun document.'
+        $choice=Read-Host 'Entree apres fermeture pour continuer ; Q pour reprendre plus tard'
         if ($choice -eq 'Q') { throw 'Installation en pause. Relancez le meme fichier pour reprendre.' }
+        $running=@(Get-Process -Name $Noms -ErrorAction SilentlyContinue)
     }
 }
 
@@ -63,7 +81,9 @@ function Autoriser-AccesVbaAssistant([string]$Journal) {
             $app=New-Object -ComObject ($hostName+'.Application')
             $version=[string]$app.Version
         } finally {
-            if ($null -ne $app) { $app.Quit();[void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($app) }
+            if ($null -ne $app) {
+                try { $app.Quit() } finally { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($app) }
+            }
         }
         if ($version -notmatch '^\d+\.\d+$') { throw 'Version Office inattendue.' }
         $policies=@()
