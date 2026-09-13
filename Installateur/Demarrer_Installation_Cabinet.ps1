@@ -63,28 +63,28 @@ function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$C
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='395e39b106cabdb01925ea2e34e0d480d74c8368'
+$Commit='31fc9a4fa3d17ad4993f29133ec02078ad994959'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
   "AUDIT.md": "d28f2a32618dea4ab44bf848879a848ab55e0788cc723346bc2570a2e35517a9",
   "Build/assistant_installation.ps1": "d7be691963c57e092a3dd627edb28d57a34cc33d91490d90444dee226e989b06",
-  "Build/construire_cabinet_secretariat.ps1": "a4e271f3c26a5dab8ce53120b07d4201a61f6dd484275f032206ec6528da8645",
-  "Build/construire_modele_unifie.ps1": "63b1a4c28f0d50bd29294950914bbc9514b78ee9020ee4c796487f07d594680b",
+  "Build/construire_cabinet_secretariat.ps1": "96b468cbb32f309cb28728416ad0b8853266388fc2770954de4bacbb12da2da4",
+  "Build/construire_modele_unifie.ps1": "03a3ba9f0e44c8713d4deab6c5e1a84169a24a8063bed475263c09494f85c44b",
   "Build/donnees_initiales.json": "2c6a672f018d9db815c4f3fcdc91892db9b9a43bb3c7477bc83f49cb4b23b790",
   "Build/initialiser_nas.ps1": "4598eac4dc1a80addb0aefd486f109d82087000c64912abea66c854bc6f507f1",
-  "Build/installer_multi_postes.ps1": "ce4243c2b52cf346ea9e494506d2d9c6b9d59c2d72b412b0b54883bae8bbfea1",
+  "Build/installer_multi_postes.ps1": "1c1675568434656116291bdd0a36592764b577e86e5e39316abd85b9f84c16d9",
   "Build/installer_sqlite_medecin.ps1": "0d6221fa88894d767fdad5d8a6eb290a52c27830629b5557fc73eed52673ebc7",
-  "Build/manifest.json": "0b2384ffe12c10ee35c13fa5875777e5239f7551f1ece24fb8c522ebd4413f71",
-  "Build/outils_assistant.ps1": "4bddbf7fc4899d16eca967694269d1db9f14a935177d35310ed0f2faa9839582",
-  "Build/outils_construction.ps1": "2fe847faa5a4be2af45ff73ecd31e984b5c405dafcd478fc9fc6ee22d57650e1",
+  "Build/manifest.json": "7100344ca659bfe3a85bafd47c292cba5bfbf237c05a79650cf3132e07a6f9f6",
+  "Build/outils_assistant.ps1": "0aecf1f34171b74f9ef484114d60b5cc61b991f73c334257e95da8eb47068a48",
+  "Build/outils_construction.ps1": "cd519c89b5a0da498001abe5efdcd1300c3f68c53ded8d26e60e75fa3de65409",
   "Build/outils_installation.ps1": "daa32259aca3c5266f2f6114eb6be008efcf02a31bcd5ee95b862fee0178e793",
   "Build/outils_telechargement.ps1": "a20c18c69d5bbd823a72d036d047cd20505985440529fe03dbd9323ecf74d705",
   "Build/restaurer_poste.ps1": "055022fe8b814f2d2f2cf0950d952608a91b97621833d0e464b3ee16527e0127",
   "Build/ruban_unifie.xml": "23440d0ff03843e9f40f7e02d62a4addbdbeed85a558ff85674e8bf40e429978",
   "Build/schemas.json": "9b6c70a98f9129de98bf9aa1f1f6714b714e1610352801e0d806ab7254f3d0d4",
   "Build/sqlite.lock.json": "fb253313df37c7dace2cda37ef2bdb59111fe19e39720155a64647e0b1759326",
-  "Build/valider_preparation.ps1": "923deb54a89d041f86cf3a39a492c2c6fde738ebff55fe7eb6fcfe372caa617a",
+  "Build/valider_preparation.ps1": "a1171e4487193323675e2dca771a919d2c0ce6ae26edd9bd6e3112744bf30cb4",
   "DonneesInitiales/Base/base_travail_correspondants_v1.xlsx": "233baf23b5094a42901b9ca06e83b6904354f5b24a19c7d0b89b339253ff2922",
   "DonneesInitiales/Config/DDE/declencheurs_demandes.txt": "430fb6e84a5e6137bb4707f6336a2453db47792460d400f58ecd8c76245a2f2d",
   "DonneesInitiales/Config/DDE/examens_complementaires.txt": "b5b753eec87a7aac522701922da5bb4d358d4da51c49d6cc8aa8e710562bbfe0",
@@ -136,6 +136,7 @@ $Empreintes=@'
   "Src/Commun/modTexte.bas": "505d95a246a545e914b13e121f907d61b23d635a8fa95c24b308c1d4f43e3726",
   "Src/ConfigDefaut/config.ini": "690c45fd11a297c48cbf9ed992842000ef0794d9986b6e132ab2ad37e4904358",
   "Src/Excel/Feuil1.cls": "8b6d1fc4f872634510d7a8323acaeca8b89024c115aac0c3e7c5dcfd25331905",
+  "Src/Excel/FeuilAgenda.cls": "52f6239f0b04aea0e6b65e6cb30459592791d31b99ee490bb75ffe067d10fd63",
   "Src/Excel/ThisWorkbook.cls": "8a39e77a2c2842d1eda5907a62a7f0cebfa380b1d35abdb0593bbda426bbadb1",
   "Src/Excel/modActes.bas": "f7e03c810c5cd63997497fee15ca10d98b45fcc7ad2d10321deae4fef94e70e0",
   "Src/Excel/modAgenda.bas": "ad6db082342afaa3becad334e94da6d3b414d607e9bd056ca63e7cf450cb2926",
@@ -198,12 +199,14 @@ $Empreintes=@'
   "Src/Word/ufListe.vba": "fd55bbfcc0c18450f1d5ff2739aaa5f266c2b52d40b7fbcee5358c520c683113",
   "Src/Word/ufProgression.vba": "49b383108d2e7c85f27b4f4aadd438c0251042e412cc36c06a60adb7a611f6b2",
   "Tests/audit_statique.py": "71989526985a724ad4f6c070a1497145c4bd0a6c49856411e8653ac9e9e6d17b",
-  "Tests/inventaire_sources.json": "9f38d3321368eea89974991631095f006a8ef7921d7bf8148939a0d606418e4b",
+  "Tests/inventaire_sources.json": "eba0aa1db04e586b164752ff77b616d29a5cb6c4ee4f321fe5abb64ccb0cd271",
   "Tests/nettoyage_sources.json": "f3b54768aca28e41878d9bd36a147d7f2f7da5815609e85576d2a03986c5e07d",
   "Tests/schema_reponse_api.json": "fbf5f9805faa23b77cdffe368bdd737e320665c58b75a528a268f69ac06665f4",
   "Tests/test_assistant.ps1": "11cc4bb1293777569a72537d23a203dbc70da60f191ae37fc9650b9b728bc2f6",
+  "Tests/test_attente_office.ps1": "1859e958edd9d74ce5b3d27d8d8faa976bf5576e5138d9a3fa6ac608f53b7677",
   "Tests/test_choix_nas.ps1": "54dd2afe5dde485758abdb0dc8064f00bf5e6a7b87689fe41e8deebd65201c0c",
   "Tests/test_construction.ps1": "4718fae561570b4d477c7a990cd24aec3cdd5535cc288d406cc2d545cd1b145e",
+  "Tests/test_feuilles_excel.ps1": "4d552b64e4a44913daa035af1ee346e2c7d9ac3f1b1d8c9218f1eef82a21c48a",
   "Tests/test_installation.ps1": "9b56f991c5949918038f04535259b800f8f293866f309fa9dbc37fcf12b44617",
   "Tests/test_sqlite.py": "b72e003154f16caf168fbd660a0e68c676196ec52eca3c496cefac603c11368d",
   "Tests/verification_livraison.json": "824c011534ea20fa09f6cf299ab28b7b7498fc67ce1fc158270e849992196486"
@@ -212,7 +215,7 @@ $Empreintes=@'
 $bootLock=$null
 try {
     if ($env:OS -ne 'Windows_NT') { throw 'Ce lanceur necessite Windows.' }
-    Write-Host 'Cabinet Cardio - installation guidee'
+    Write-Host ('Cabinet Cardio - installation guidee - version '+$Commit.Substring(0,7))
     Write-Host 'Utilisez votre session Windows habituelle, sans Executer en tant qu administrateur.'
     $cache=Join-Path $env:LOCALAPPDATA 'CabinetCardio\Installation\Sources'
     [void][IO.Directory]::CreateDirectory($cache)
@@ -262,11 +265,15 @@ try {
     # Le deblocage porte uniquement sur les fichiers verifies ; aucune politique globale n est modifiee.
     Get-ChildItem -LiteralPath $package -Recurse -File | Unblock-File
     $bootLock.Dispose();$bootLock=$null
+    Write-Host ('Sources utilisees : '+$package)
     & (Join-Path $package 'Build\assistant_installation.ps1')
     exit 0
 } catch {
     Write-Host ''
     Write-Host ('Installation interrompue : '+$_.Exception.Message) -ForegroundColor Red
-    Write-Host 'Relancez ce meme fichier apres correction. Le dossier prepare est conserve.'
+    if ($_.InvocationInfo -and $_.InvocationInfo.ScriptName) {
+        Write-Host ('Etape : '+[IO.Path]::GetFileName($_.InvocationInfo.ScriptName)+' ; ligne '+$_.InvocationInfo.ScriptLineNumber)
+    }
+    Write-Host 'Relancez ce meme fichier apres correction. Les eventuels fichiers deja prepares sont conserves.'
     exit 1
 } finally { if ($null -ne $bootLock) { $bootLock.Dispose() } }
