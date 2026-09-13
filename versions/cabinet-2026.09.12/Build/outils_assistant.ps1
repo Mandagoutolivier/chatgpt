@@ -107,27 +107,54 @@ function Autoriser-AccesVbaAssistant([string]$Journal) {
 function Compiler-ProjetAssistant([string]$Fichier,[ValidateSet('Word','Excel')][string]$Hote) {
     # Office ne fournit pas de compilateur VBA en ligne de commande documente.
     # Ouvrir le bon projet et faire confirmer la commande native, sans SendKeys.
-    $app=$null;$document=$null
+    $app=$null;$document=$null;$project=$null;$components=$null;$component=$null;$code=$null;$pane=$null;$vbe=$null;$window=$null
     try {
+        Write-Host "Preparation de la compilation $Hote : $Fichier"
         $app=New-Object -ComObject ($Hote+'.Application')
         $app.AutomationSecurity=3
         if ($Hote -eq 'Word') { $document=$app.Documents.Open($Fichier,$false,$false) }
         else { $app.EnableEvents=$false;$document=$app.Workbooks.Open($Fichier,0,$false) }
         $app.Visible=$true
-        $app.VBE.ActiveVBProject=$document.VBProject
-        $app.VBE.MainWindow.Visible=$true
+        # ActiveVBProject est en lecture seule dans le modele VBA documente.
+        # Le volet de code appartient au document prepare, jamais au projet actif par defaut.
+        $project=$document.VBProject
+        if ($null -eq $project) { throw 'Projet VBA inaccessible pour le fichier prepare.' }
+        $components=$project.VBComponents
+        $moduleName=if ($Hote -eq 'Word') { 'ThisDocument' } else { 'ThisWorkbook' }
+        $component=$components.Item($moduleName)
+        $code=$component.CodeModule
+        if ($null -eq $code) { throw "Module de code introuvable : $moduleName" }
         Write-Host ''
-        Write-Host "Dans $Hote, le projet du fichier prepare est ouvert."
+        Write-Host ('Fichier a compiler : '+$document.FullName)
+        Write-Host ('Projet VBA : '+$project.Name+' ; module : '+$moduleName)
+        try {
+            $pane=$code.CodePane
+            [void]$pane.Show()
+            $vbe=$app.VBE
+            $window=$vbe.MainWindow
+            $window.Visible=$true
+        } catch {
+            # Un echec d affichage n est ni un succes de compilation ni un refus d acces au projet.
+            Write-Host ('Affichage automatique de l editeur indisponible : '+$_.Exception.Message)
+            Write-Host "Dans $Hote, appuyez sur Alt+F11, puis Ctrl+R pour afficher les projets."
+        }
+        Write-Host 'Dans l editeur VBA, selectionnez le module indique sous le fichier a compiler.'
         Write-Host 'Choisissez Debogage > Compiler, puis revenez dans cette fenetre.'
         Write-Host 'Si une erreur apparait, notez-la et repondez NON.'
         do { $answer=Read-Host "Compilation $Hote sans erreur ? OUI / NON" } until ($answer -in @('OUI','NON'))
         if ($answer -ne 'OUI') { throw "Compilation $Hote non validee. La preparation est conservee ; aucune activation." }
-        $document.Save()
+        [void]$document.Save()
         return $true
+    } catch {
+        throw ("Compilation $Hote interrompue pour $Fichier : "+$_.Exception.Message)
     } finally {
-        if ($null -ne $document) { try { $document.Close($false) } catch {} }
-        if ($null -ne $app) { try { $app.Quit() } catch {}
-            [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($app) }
+        if ($null -ne $document) { try { [void]$document.Close($false) } catch {} }
+        if ($null -ne $app) { try { [void]$app.Quit() } catch {} }
+        foreach ($comObject in @($window,$vbe,$pane,$code,$component,$components,$project,$document,$app)) {
+            if ($null -ne $comObject -and [Runtime.InteropServices.Marshal]::IsComObject($comObject)) {
+                [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($comObject)
+            }
+        }
     }
 }
 

@@ -42,6 +42,7 @@ jobs:
           ./versions/cabinet-2026.09.12/Tests/test_choix_nas.ps1
           ./versions/cabinet-2026.09.12/Tests/test_attente_office.ps1
           ./versions/cabinet-2026.09.12/Tests/test_feuilles_excel.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_compilation_office.ps1
 
   installateur-windows:
     runs-on: windows-latest
@@ -57,6 +58,7 @@ jobs:
           ./versions/cabinet-2026.09.12/Tests/test_choix_nas.ps1
           ./versions/cabinet-2026.09.12/Tests/test_attente_office.ps1
           ./versions/cabinet-2026.09.12/Tests/test_feuilles_excel.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_compilation_office.ps1
 
       - name: Lanceur CMD autonome, sans Office ni telechargement
         shell: powershell

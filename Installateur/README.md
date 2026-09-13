@@ -33,3 +33,11 @@ Si aucune fenêtre Office n'est visible, consulter le Gestionnaire des tâches. 
 Le classeur source contient les feuilles **Accueil** et **Agenda**. Le constructeur associe désormais chacune à son module déclaré, à partir du nom de la feuille, y compris si Excel lui attribue automatiquement `Feuil2` ou `Sheet2`. La feuille Agenda est conservée. Les autres modules document non déclarés restent refusés.
 
 Après cet échec, télécharger le nouveau lanceur et relancer le même profil. Le modèle Word déjà préparé reste dans son ancien dossier ; la nouvelle version construit une nouvelle préparation complète. Ne pas supprimer une feuille ni enlever le contrôle du constructeur pour poursuivre. La correction inclut la validation des modules VBA vides et l'attente guidée de fermeture d'Office.
+
+## Correction « ActiveVBProject » après la compilation Word
+
+L'affectation à `ActiveVBProject` a été supprimée : cette propriété est documentée en lecture seule dans le [modèle VBA Microsoft](https://learn.microsoft.com/en-us/office/vba/language/reference/visual-basic-add-in-model/properties-visual-basic-add-in-model#activevbproject). L'assistant affiche désormais le volet de code de `ThisDocument` dans le modèle Word préparé, puis celui de `ThisWorkbook` dans le classeur Excel préparé. Il indique le fichier complet et le projet à compiler. Une erreur mentionne désormais aussi Word ou Excel et le fichier concerné.
+
+Si l'affichage automatique échoue, utiliser **Alt+F11**, puis **Ctrl+R**, sélectionner le module indiqué dans le fichier préparé et choisir **Débogage > Compiler**. Répondre **OUI** uniquement après compilation sans erreur, sinon **NON**. Un refus d'accès VBA, un module absent ou un échec d'enregistrement reste bloquant. Le repli manuel n'active pas les macros et ne valide aucun essai à votre place.
+
+Télécharger le lanceur nouvellement publié, fermer Word et Excel, puis reprendre le même profil et la même racine NAS. Un nouveau paquet crée une nouvelle préparation et redemande les validations. Les contrôles automatiques simulent les objets Office ; les compilations et essais réels doivent toujours être effectués sur le poste.
