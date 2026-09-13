@@ -74,3 +74,7 @@ jobs:
         shell: powershell
         run: |
           if (Test-Path ./Installateur/Test-Lanceur.ps1) { ./Installateur/Test-Lanceur.ps1 }
+
+      - name: Configuration de recette et restauration des reglages
+        shell: powershell
+        run: ./Installateur/Test-ConfigurerRecette.ps1
