@@ -63,7 +63,7 @@ function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$C
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='31fc9a4fa3d17ad4993f29133ec02078ad994959'
+$Commit='17c84b98374f54c076930583796e50602458d294'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -76,7 +76,7 @@ $Empreintes=@'
   "Build/installer_multi_postes.ps1": "1c1675568434656116291bdd0a36592764b577e86e5e39316abd85b9f84c16d9",
   "Build/installer_sqlite_medecin.ps1": "0d6221fa88894d767fdad5d8a6eb290a52c27830629b5557fc73eed52673ebc7",
   "Build/manifest.json": "7100344ca659bfe3a85bafd47c292cba5bfbf237c05a79650cf3132e07a6f9f6",
-  "Build/outils_assistant.ps1": "0aecf1f34171b74f9ef484114d60b5cc61b991f73c334257e95da8eb47068a48",
+  "Build/outils_assistant.ps1": "9a0ec95e35c8edc97fb0699f1089047c5e61b6cde4ac265af7594c942d9c4d14",
   "Build/outils_construction.ps1": "cd519c89b5a0da498001abe5efdcd1300c3f68c53ded8d26e60e75fa3de65409",
   "Build/outils_installation.ps1": "daa32259aca3c5266f2f6114eb6be008efcf02a31bcd5ee95b862fee0178e793",
   "Build/outils_telechargement.ps1": "a20c18c69d5bbd823a72d036d047cd20505985440529fe03dbd9323ecf74d705",
@@ -205,6 +205,7 @@ $Empreintes=@'
   "Tests/test_assistant.ps1": "11cc4bb1293777569a72537d23a203dbc70da60f191ae37fc9650b9b728bc2f6",
   "Tests/test_attente_office.ps1": "1859e958edd9d74ce5b3d27d8d8faa976bf5576e5138d9a3fa6ac608f53b7677",
   "Tests/test_choix_nas.ps1": "54dd2afe5dde485758abdb0dc8064f00bf5e6a7b87689fe41e8deebd65201c0c",
+  "Tests/test_compilation_office.ps1": "c68d77a01099469accd941a56a1cd16e84880a536fa647af78372e2334023ee1",
   "Tests/test_construction.ps1": "4718fae561570b4d477c7a990cd24aec3cdd5535cc288d406cc2d545cd1b145e",
   "Tests/test_feuilles_excel.ps1": "4d552b64e4a44913daa035af1ee346e2c7d9ac3f1b1d8c9218f1eef82a21c48a",
   "Tests/test_installation.ps1": "9b56f991c5949918038f04535259b800f8f293866f309fa9dbc37fcf12b44617",
