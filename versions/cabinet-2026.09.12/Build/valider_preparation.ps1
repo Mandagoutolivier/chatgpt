@@ -35,7 +35,7 @@ foreach ($hostName in @('word','excel')) {
         }
         foreach ($item in $manifest.$hostName) {
             $component=$document.VBProject.VBComponents.Item($item.name)
-            $code=$component.CodeModule.Lines(1,$component.CodeModule.CountOfLines)
+            $code=Lire-ModuleVba $component.CodeModule
             $expected=Lire-CodeVba (Join-Path $root $item.path)
             if ($code.Replace("`r`n","`n").Trim() -ne $expected.Replace("`r`n","`n").Trim()) { throw "Source Office differente : $($item.name)" }
         }

@@ -365,6 +365,13 @@
   },
   {
     "host": "excel",
+    "module": "FeuilAgenda",
+    "source": "Src/Excel/FeuilAgenda.cls",
+    "lines": 10,
+    "sha256": "52f6239f0b04aea0e6b65e6cb30459592791d31b99ee490bb75ffe067d10fd63"
+  },
+  {
+    "host": "excel",
     "module": "ThisWorkbook",
     "source": "Src/Excel/ThisWorkbook.cls",
     "lines": 28,

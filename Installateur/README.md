@@ -27,3 +27,9 @@ Détails : [guide des trois postes](../versions/cabinet-2026.09.12/INSTALLATION_
 Le lanceur laisse cinq secondes aux processus Office pour terminer leur fermeture. Si Word ou Excel reste actif, il affiche son nom, son PID et sa session Windows, puis attend **Entrée** après fermeture ou **Q** pour reprendre plus tard. Enregistrer les documents avant de fermer les applications. Le lanceur ne termine jamais un processus de force.
 
 Si aucune fenêtre Office n'est visible, consulter le Gestionnaire des tâches. Un redémarrage du PC, après enregistrement et fermeture des applications, peut libérer un processus resté actif ; relancer alors le même profil avant d'ouvrir Word ou Excel. La ligne de version affichée au démarrage permet de vérifier quelle copie du lanceur est utilisée. En cas d'échec persistant, transmettre le message et la ligne « Étape » affichée.
+
+## Correction « Module document inattendu : Feuil2 »
+
+Le classeur source contient les feuilles **Accueil** et **Agenda**. Le constructeur associe désormais chacune à son module déclaré, à partir du nom de la feuille, y compris si Excel lui attribue automatiquement `Feuil2` ou `Sheet2`. La feuille Agenda est conservée. Les autres modules document non déclarés restent refusés.
+
+Après cet échec, télécharger le nouveau lanceur et relancer le même profil. Le modèle Word déjà préparé reste dans son ancien dossier ; la nouvelle version construit une nouvelle préparation complète. Ne pas supprimer une feuille ni enlever le contrôle du constructeur pour poursuivre. La correction inclut la validation des modules VBA vides et l'attente guidée de fermeture d'Office.

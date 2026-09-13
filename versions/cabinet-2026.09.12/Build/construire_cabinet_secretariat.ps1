@@ -22,6 +22,7 @@ try {
     $excel.Visible = $false; $excel.DisplayAlerts = $false
     $excel.AutomationSecurity = 3; $excel.EnableEvents = $false
     $wb = $excel.Workbooks.Open($built, 0, $false)
+    Lier-FeuillesVba $wb $manifest.excel
     Installer-SourcesVba $wb.VBProject $manifest.excel $RacineSources
     $ws=$wb.Worksheets.Item(1)
     $top=80

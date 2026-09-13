@@ -20,6 +20,34 @@ function Lire-CodeVba([string]$Chemin) {
     return ($lines -join "`r`n")
 }
 
+function Lier-FeuillesVba($Classeur, $Entrees) {
+    # Le CodeName automatique d une feuille sans code peut dependre de la langue d Excel.
+    # Identifier la feuille par son nom dans le classeur source verifie, puis fixer le nom du composant.
+    $bindings=New-Object 'System.Collections.Generic.List[object]'
+    foreach ($entry in $Entrees) {
+        if ($entry.kind -ne 'document' -or $null -eq $entry.PSObject.Properties['sheet']) { continue }
+        try { $sheet=$Classeur.Worksheets.Item([string]$entry.sheet) }
+        catch { throw "Feuille Excel absente du modele : $($entry.sheet)" }
+        $current=[string]$sheet.CodeName
+        $component=$null
+        foreach ($candidate in $Classeur.VBProject.VBComponents) {
+            if ($candidate.Name -eq $current) { $component=$candidate }
+            if ($candidate.Name -eq $entry.name -and $candidate.Name -ne $current) {
+                throw "Nom VBA deja utilise par un autre composant : $($entry.name)"
+            }
+        }
+        if ($null -eq $component -or $component.Type -ne 100) { throw "Module de feuille Excel introuvable : $($entry.sheet)" }
+        $bindings.Add([pscustomobject]@{component=$component;name=$entry.name})
+    }
+    foreach ($binding in $bindings) { $binding.component.Name=$binding.name }
+}
+
+function Lire-ModuleVba($Module) {
+    $count=[int]$Module.CountOfLines
+    if ($count -eq 0) { return '' }
+    return [string]$Module.Lines(1,$count)
+}
+
 function Installer-SourcesVba($Projet, $Entrees, [string]$Racine) {
     if ($Projet.Protection -ne 0) { throw 'Le projet VBA est verrouille : utilisez les modeles sources non proteges.' }
     foreach ($entry in $Entrees) {

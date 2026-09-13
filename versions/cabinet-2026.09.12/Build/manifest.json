@@ -260,7 +260,14 @@
     {
       "name": "Feuil1",
       "kind": "document",
-      "path": "Src/Excel/Feuil1.cls"
+      "path": "Src/Excel/Feuil1.cls",
+      "sheet": "Accueil"
+    },
+    {
+      "name": "FeuilAgenda",
+      "kind": "document",
+      "path": "Src/Excel/FeuilAgenda.cls",
+      "sheet": "Agenda"
     },
     {
       "name": "ThisWorkbook",
