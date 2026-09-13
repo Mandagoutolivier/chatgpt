@@ -49,6 +49,8 @@ En cas d'exception pendant les écritures, le script tente de rétablir tous les
 
 ## Après configuration
 
+Le fichier `service.url` doit contenir l'adresse seule, sans retour à la ligne. Le lecteur VBA 17c84b9 utilise `Trim$`, qui ne supprime pas CR/LF. Le script de recette corrigé écrit désormais cette forme exacte ; l'installateur de la branche de correction est corrigé également. Un ancien lanceur 17c84b9 utilisé ensuite pour l'activation réintroduira sa fin de ligne : normaliser à nouveau `service.url` après cette activation, sans modifier le cache des sources ni les binaires compilés.
+
 Effectuer les essais applicables du guide `versions/cabinet-2026.09.12/RECETTE_WINDOWS.md` avec des identités fictives. Pour le modèle Word préparé, commencer par **Fichier > Ouvrir**, et non un double-clic qui crée un document dérivé. L'accès HTTP authentifié ne démontre pas encore le fonctionnement du transport WinHTTP utilisé par VBA, de Dragon, de l'ECG ou de l'impression.
 
 Le nouveau dossier GDT évite d'envoyer les identités fictives dans `C:\Mandagout`. Le test d'import dans Resting12Lead demandera de sélectionner explicitement ce dossier de test dans son interface GDT et de noter le réglage précédent pour le rétablir ensuite.

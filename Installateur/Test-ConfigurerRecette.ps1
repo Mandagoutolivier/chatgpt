@@ -88,6 +88,7 @@ try {
             Assert-Recette ([IO.File]::ReadAllText($cheminPath).Trim() -eq '\\DS224\CabinetCardioTest') 'Racine incorrecte.'
             Assert-Recette ($apres.dossierGdt -eq (Join-Path $env:LOCALAPPDATA 'CabinetCardioTest\GDT')) 'GDT mal isole.'
             Assert-Recette ([IO.File]::ReadAllText($jetonPath) -eq $global:RecetteJetonFictif) 'Jeton non enregistre.'
+            Assert-Recette ([IO.File]::ReadAllText((Join-Path $local 'service.url')) -ceq 'https://192.168.10.1:8443') 'URL modifiee ou terminee par CR/LF, non retires par le lecteur VBA.'
             $acl=Get-Acl -LiteralPath $jetonPath
             Assert-Recette $acl.AreAccessRulesProtected 'ACL du jeton heritee.'
             $sids=@([Security.Principal.WindowsIdentity]::GetCurrent().User.Value,'S-1-5-18','S-1-5-32-544')

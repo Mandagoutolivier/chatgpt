@@ -160,7 +160,8 @@ try {
         throw 'La copie du programme SQLite ne correspond pas au fichier prepare.'
     }
     [IO.File]::WriteAllText($postePath, $poste, $encodage)
-    [IO.File]::WriteAllText($urlPath, ($urlService + "`r`n"), $encodage)
+    # VBA Trim$ retire les espaces, mais pas CR/LF : conserver l'URL sans fin de ligne.
+    [IO.File]::WriteAllText($urlPath, $urlService, $encodage)
     # Restreindre les droits du fichier AVANT d'y enregistrer le jeton.
     if (-not [IO.File]::Exists($jetonPath)) { [IO.File]::WriteAllBytes($jetonPath, [byte[]]@()) }
     Proteger-FichierLocal $jetonPath

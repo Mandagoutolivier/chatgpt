@@ -93,7 +93,8 @@ function Installer-ConnexionService {
     if ($response.result.protocole -ne 2) { throw 'Service NAS incompatible avec cette version.' }
     if ($medecin -and 'medecin' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role medecin.' }
     if ($secretariat -and 'secretariat' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role secretariat.' }
-    Ecrire-Reglage $urlPath ($UrlService.TrimEnd('/')+"`r`n")
+    # Le lecteur VBA ne retire pas CR/LF avec Trim$ : ecrire l'URL sans fin de ligne.
+    Ecrire-Reglage $urlPath ($UrlService.TrimEnd('/'))
     Ecrire-Reglage $tokenPath $token
     Proteger-FichierLocal $tokenPath
     $token=$null
