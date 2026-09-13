@@ -2,9 +2,12 @@
 param(
     [Parameter(Mandatory=$true)][string]$CabinetXlsm,
     [Parameter(Mandatory=$true)][string]$Sortie,
-    [string]$RacineSources = (Split-Path $PSScriptRoot -Parent)
+    [string]$RacineSources = ''
 )
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
+if ([string]::IsNullOrWhiteSpace($RacineSources)) {
+    $RacineSources = Split-Path $PSScriptRoot -Parent
+}
 $manifest = Lire-Manifeste $RacineSources
 Verifier-ModeleSource $CabinetXlsm 'Cabinet.xlsm' $manifest
 $CabinetXlsm = (Resolve-Path -LiteralPath $CabinetXlsm).Path

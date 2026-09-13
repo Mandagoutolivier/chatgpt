@@ -1,9 +1,13 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)][string]$RacineNas,
-    [string]$RacineSources = (Split-Path $PSScriptRoot -Parent)
+    [string]$RacineSources = ''
 )
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
+# Windows PowerShell 5.1 -File peut evaluer les valeurs par defaut avant PSScriptRoot.
+if ([string]::IsNullOrWhiteSpace($RacineSources)) {
+    $RacineSources = Split-Path $PSScriptRoot -Parent
+}
 if ($RacineNas -notmatch '^\\\\[^\\]+\\[^\\]+') { throw 'La racine doit etre un chemin UNC du Synology.' }
 if (-not (Test-Path -LiteralPath $RacineNas -PathType Container)) { throw "NAS inaccessible : $RacineNas" }
 foreach ($dir in @('Base','Base\locks','Actes','Patients','Config','Config\DDE','Modeles','Echange\Arrives',

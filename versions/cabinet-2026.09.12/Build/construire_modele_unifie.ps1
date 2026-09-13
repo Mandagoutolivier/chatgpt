@@ -3,9 +3,12 @@ param(
     [Parameter(Mandatory=$true)][string]$Prod6,
     [Parameter(Mandatory=$true)][string]$Cabinet1,
     [Parameter(Mandatory=$true)][string]$Sortie,
-    [string]$RacineSources = (Split-Path $PSScriptRoot -Parent)
+    [string]$RacineSources = ''
 )
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
+if ([string]::IsNullOrWhiteSpace($RacineSources)) {
+    $RacineSources = Split-Path $PSScriptRoot -Parent
+}
 $manifest = Lire-Manifeste $RacineSources
 Verifier-ModeleSource $Prod6 'ModeleCourrierChatGPT_PROD(6).dotm' $manifest
 Verifier-ModeleSource $Cabinet1 'Cabinet(1).dotm' $manifest

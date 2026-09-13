@@ -38,6 +38,7 @@ jobs:
         run: |
           ./versions/cabinet-2026.09.12/Tests/test_construction.ps1
           ./versions/cabinet-2026.09.12/Tests/test_installation.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_lancement_direct.ps1
           ./versions/cabinet-2026.09.12/Tests/test_assistant.ps1
           ./versions/cabinet-2026.09.12/Tests/test_choix_nas.ps1
           ./versions/cabinet-2026.09.12/Tests/test_attente_office.ps1
@@ -54,6 +55,7 @@ jobs:
         run: |
           ./versions/cabinet-2026.09.12/Tests/test_construction.ps1
           ./versions/cabinet-2026.09.12/Tests/test_installation.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_lancement_direct.ps1
           ./versions/cabinet-2026.09.12/Tests/test_assistant.ps1
           ./versions/cabinet-2026.09.12/Tests/test_choix_nas.ps1
           ./versions/cabinet-2026.09.12/Tests/test_attente_office.ps1

@@ -4,7 +4,7 @@ param(
     [ValidateSet('Preparation','Installation')][string]$Mode = 'Preparation',
     [Parameter(Mandatory=$true)][string]$RacineNas,
     [string]$DossierGdt = 'C:\Mandagout',
-    [string]$DossierSources = (Join-Path (Split-Path $PSScriptRoot -Parent) 'ModelesSource'),
+    [string]$DossierSources = '',
     [string]$SqliteExe = '',
     [string]$SqliteSha256 = '',
     [string]$DossierPrepare = '',
@@ -16,6 +16,9 @@ param(
 . (Join-Path $PSScriptRoot 'outils_installation.ps1')
 if ($env:OS -ne 'Windows_NT') { throw 'Ce script necessite Windows avec Word et Excel installes.' }
 $root = Split-Path $PSScriptRoot -Parent
+if ([string]::IsNullOrWhiteSpace($DossierSources)) {
+    $DossierSources = Join-Path $root 'ModelesSource'
+}
 $medecin = $Profil -in @('Domicile','CabinetMedecin')
 $secretariat = $Profil -in @('Domicile','CabinetSecretariat')
 if ($RacineNas -notmatch '^\\\\[^\\]+\\[^\\]+') { throw 'Utilisez le chemin UNC du Synology pour RacineNas.' }
