@@ -36,10 +36,12 @@ Public Sub CreerClasseurSiAbsent(ByVal fichier As String, ByVal Feuille As Strin
     ' Le schema serveur est versionne ; aucun classeur de base n'est cree.
 End Sub
 
-Public Function AjouterSeanceUnique(ByVal fichier As String, ByVal lignes As Collection, ByVal seanceID As String) As Boolean
+Public Function AjouterSeanceUnique(ByVal fichier As String, ByVal lignes As Collection, ByVal seanceID As String, _
+                                    Optional ByRef selectionDifferente As Boolean = False) As Boolean
     Dim p As Object, r As Object
     Set p = modServiceNas.Parametres(): p("id") = seanceID: Set p("lignes") = lignes
     Set r = modServiceNas.Appeler("bill", p)
+    If r.Exists("selection_differente") Then selectionDifferente = CBool(r("selection_differente"))
     AjouterSeanceUnique = CBool(r("ajoute"))
 End Function
 
