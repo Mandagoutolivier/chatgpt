@@ -48,8 +48,15 @@ function Lire-ModuleVba($Module) {
     return [string]$Module.Lines(1,$count)
 }
 
-function Installer-SourcesVba($Projet, $Entrees, [string]$Racine) {
+function Installer-SourcesVba($Projet, $Entrees, [string]$Racine, [string[]]$RetraitsAutorises=@()) {
     if ($Projet.Protection -ne 0) { throw 'Le projet VBA est verrouille : utilisez les modeles sources non proteges.' }
+    $attendus=@($Entrees | ForEach-Object { $_.name })
+    # Examiner tous les composants avant le premier DeleteLines/Remove.
+    foreach ($component in @($Projet.VBComponents)) {
+        if ($component.Name -notin $attendus -and ($component.Type -eq 100 -or $component.Name -notin $RetraitsAutorises)) {
+            throw "Composant inconnu conserve : $($component.Name). Inventaire requis avant construction."
+        }
+    }
     foreach ($entry in $Entrees) {
         $file = Join-Path $Racine $entry.path
         if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Source VBA absente : $file" }

@@ -217,200 +217,107 @@ Private Sub PR_MarquerDemandeMultipageGeneree( _
 End Sub
 
 Public Sub PR_CorrigerToutEnUnClic()
-
-    Dim docPrincipal As Document
-    Dim docTemp As Document
-    Dim rngCorps As Range
-    Dim rngPremierPatient As Range
-    Dim rngTemp As Range
-
-    Dim promptComplet As String
-    Dim reponseAPI As String
-    Dim corpsCorrige As String
-
-    Dim numeroErreur As Long
-    Dim descriptionErreur As String
-    Dim cheminSortieDragon As String
-
+    Dim docPrincipal As Document, rngCorps As Range, premier As Range, etat As Object, reponse As Object
+    Dim original As String, source As String, corpsCorrige As String, numero As Long, description As String
+    Dim ancienEcran As Boolean, hashCourant As String, verrou As Integer
     If mTraitementEnCours Then Exit Sub
     mTraitementEnCours = True
-    On Error GoTo GestionErreur
-
-    If Documents.Count = 0 Then
-        MsgBox "Aucun courrier Word n'est ouvert.", vbExclamation, "Prod Rapide"
-        mTraitementEnCours = False
-        Exit Sub
-    End If
-
-    Application.ScreenUpdating = False
-    Application.StatusBar = "Preparation du courrier..."
-
+    ancienEcran = Application.ScreenUpdating
+    On Error GoTo Echec
+    If Documents.Count = 0 Then Err.Raise vbObjectError + 960, , "Aucun courrier ouvert."
+    Set docPrincipal = ActiveDocument
     ReinitialiserContexteTraitement
     PR_ReinitialiserSuiviMultipage
-
-    gCorrectionCabinetTestValidee = False
-
-    Set docPrincipal = ActiveDocument
-
-    'Si ce document a déjà été traité par Prod Rapide,
-    'on retire d'abord les anciennes demandes complémentaires.
-    modIntegrationUnifie.SauvegarderBrouillon docPrincipal
-
     Set gDocOriginalCabinetTest = docPrincipal
-
-    If Not LocaliserCorpsCourrier( _
-        docPrincipal, _
-        rngCorps, _
-        rngPremierPatient) Then
-
-        MsgBox "Impossible de localiser le corps du courrier.", _
-               vbExclamation, "Prod Rapide"
-        GoTo Sortie
-    End If
-
+    modIntegrationUnifie.InitialiserPatientProd docPrincipal
+    modEtatCourrier.PrendreVerrou docPrincipal, verrou
+    modIntegrationUnifie.SauvegarderBrouillon docPrincipal
+    If Not LocaliserCorpsCourrier(docPrincipal, rngCorps, premier) Then Err.Raise vbObjectError + 960, , "Corps du courrier introuvable."
     Set gPlageOriginale = rngCorps.Duplicate
-
-    If Not modIntegrationUnifie.InitialiserPatientProd(docPrincipal) Then
-        MsgBox "Impossible d'identifier le patient.", _
-               vbExclamation, "Prod Rapide"
-        GoTo Sortie
+    original = rngCorps.Text
+    Set etat = modEtatCourrier.Charger(docPrincipal, original)
+    hashCourant = modServiceNas.SHA256(original)
+    If CBool(etat("corps_insere")) Then
+        If etat.Exists("document_hash") Then
+            If hashCourant <> CStr(etat("document_hash")) Then
+                If MsgBox("Le corps a ete modifie depuis le dernier cycle. Conserver ce cycle et commencer une nouvelle correction du texte actuel ?", vbYesNo + vbQuestion, "Texte modifie") <> vbYes Then GoTo Sortie
+                modIntegrationUnifie.FixerVariable docPrincipal, "CycleU1", ""
+                Set etat = modEtatCourrier.Charger(docPrincipal, original)
+            End If
+        End If
+    ElseIf hashCourant <> CStr(etat("source_hash")) Then
+        If MsgBox("Le texte a change pendant cette reprise. Conserver le cycle precedent et commencer une nouvelle correction du texte actuel ?", vbYesNo + vbQuestion, "Nouveau cycle explicite") <> vbYes Then GoTo Sortie
+        modIntegrationUnifie.FixerVariable docPrincipal, "CycleU1", ""
+        Set etat = modEtatCourrier.Charger(docPrincipal, original)
     End If
-
-    gTexteAnonymise = Replace(rngCorps.Text, gPatient.NomComplet, gPatient.civilite & " " & MARQUEUR_PATIENT, 1, -1, vbTextCompare)
-    If InStr(1, gTexteAnonymise, MARQUEUR_PATIENT, vbBinaryCompare) = 0 Then Err.Raise vbObjectError + 960, "modProdRapide", "Inserez l identite du patient avec la touche C avant de finaliser."
-    promptComplet = ConstruirePromptReecritureMedicale(gTexteAnonymise)
-
-    Application.StatusBar = "Analyse et reecriture du courrier..."
-
-    reponseAPI = AppelerOpenAI(promptComplet)
-
-    If Trim$(reponseAPI) = "" Then
-        MsgBox "Aucune réponse exploitable reçue de l'API.", _
-               vbExclamation, "Prod Rapide"
-        GoTo Sortie
+    original = modEtatCourrier.LireProtege(Trim$(modIntegrationUnifie.VariableDoc(docPrincipal, "CycleU1")), "-source")
+    source = Replace(original, gPatient.NomComplet, gPatient.civilite & " " & MARQUEUR_PATIENT, 1, -1, vbTextCompare)
+    If InStr(1, source, MARQUEUR_PATIENT, vbBinaryCompare) = 0 Then Err.Raise vbObjectError + 960, , "Inserez l identite du patient avec C avant de finaliser."
+    gTexteAnonymise = source
+    If Len(CStr(etat("corps"))) = 0 Then
+        modEtatCourrier.AvantAppel docPrincipal, etat, "corps"
+        Set reponse = AppelerOpenAIStructure(source, ConstruirePromptReecritureMedicale(""))
+        corpsCorrige = CStr(reponse("corps_courrier"))
+        If InStr(1, corpsCorrige, MARQUEUR_PATIENT, vbBinaryCompare) = 0 Then Err.Raise vbObjectError + 960, , "Marqueur patient absent du courrier corrige."
+        corpsCorrige = MPF_NormaliserRetoursTexte(corpsCorrige)
+        corpsCorrige = PR_CorrigerReferentPatientOrientationCCN(corpsCorrige)
+        etat("corps") = corpsCorrige: etat("appel") = ""
+        modEtatCourrier.Sauver docPrincipal, etat
     End If
-
-    corpsCorrige = ExtraireBlocBalise( _
-        reponseAPI, _
-        BALISE_DEBUT_CORPS, _
-        BALISE_FIN_CORPS)
-
-    If Trim$(corpsCorrige) = "" Then
-        MsgBox "La réponse API ne contient pas de bloc CORPS_COURRIER exploitable.", _
-               vbExclamation, "Prod Rapide"
-        GoTo Sortie
+    corpsCorrige = CStr(etat("corps"))
+    If Len(CStr(etat("reponse"))) = 0 Then
+        If TexteContientDemandeExamenEligible(source) Then
+            modEtatCourrier.AvantAppel docPrincipal, etat, "annexes"
+            Set reponse = AppelerOpenAIStructure(corpsCorrige, ConstruirePromptDemandeExamenSeule(""))
+            If reponse("demandes").Count = 0 Then Err.Raise vbObjectError + 436, , "Demande detectee dans la dictee mais aucune annexe recue."
+        Else
+            Set reponse = modServiceNas.Parametres(): Set reponse("demandes") = New Collection
+        End If
+        reponse("corps_courrier") = corpsCorrige
+        etat("reponse") = modServiceNas.JsonValeur(reponse): etat("appel") = ""
+        modEtatCourrier.Sauver docPrincipal, etat
     End If
-
-    If InStr(1, corpsCorrige, MARQUEUR_PATIENT, vbTextCompare) = 0 Then
-        MsgBox "Le marqueur patient est absent de la réponse API." & vbCrLf & _
-               "Le courrier n'a pas été modifié.", _
-               vbExclamation, "Prod Rapide"
-        GoTo Sortie
-    End If
-
-    corpsCorrige = MPF_NormaliserRetoursTexte(corpsCorrige)
-
-    'V8 : sécurité de référent dans le courrier principal.
-    'Le confrère reste le destinataire ; le patient ne doit jamais devenir « vous »
-    'dans une phrase d'orientation vers le CCN.
-    corpsCorrige = _
-        PR_CorrigerReferentPatientOrientationCCN(corpsCorrige)
-
-    'DOUBLE-API-DETAILLE-1 : le second appel reçoit le courrier principal déjà corrigé.
-    'Il rédige systématiquement les lettres complémentaires lorsqu'une demande éligible existe.
-    Application.StatusBar = "Redaction des courriers complementaires..."
-    reponseAPI = CompleterReponseAvecDemandeExamenSiNecessaire( _
-        reponseAPI, _
-        corpsCorrige)
-    gReponseAPICabinetTest = reponseAPI
-
+    gReponseAPICabinetTest = CStr(etat("reponse"))
     gCorpsCorrigeAnonymiseCabinetTest = corpsCorrige
-
-    Application.StatusBar = "Insertion du courrier corrige..."
-
-    PR_SupprimerDemandesDejaAjoutees docPrincipal
-    modIntegrationUnifie.FixerVariable docPrincipal, "PublicationID", modFichiers.IdUnique()
-    modIntegrationUnifie.FixerVariable docPrincipal, "DateValidation", Format$(Now, "dd/mm/yyyy hh:nn:ss")
-    If Not RemplacerCorpsOriginalParTexte(corpsCorrige) Then
-        MsgBox "Impossible d'insérer le courrier corrigé.", _
-               vbExclamation, "Prod Rapide"
-        GoTo Sortie
+    Application.ScreenUpdating = False
+    If Not CBool(etat("corps_insere")) Then
+        If Not RemplacerCorpsOriginalParTexte(corpsCorrige) Then Err.Raise vbObjectError + 960, , "Insertion du courrier interrompue."
+        MPF_AppliquerMiseEnPageCourrier docPrincipal
+        If Not LocaliserCorpsCourrier(docPrincipal, rngCorps, premier) Then Err.Raise vbObjectError + 960, , "Corps introuvable apres insertion."
+        etat("corps_insere") = True: etat("document_hash") = modServiceNas.SHA256(rngCorps.Text)
+        docPrincipal.Save: modEtatCourrier.Sauver docPrincipal, etat
     End If
-
-    MPF_AppliquerMiseEnPageCourrier docPrincipal
-
-    'DOMICILE-DOUBLE-API-DETAILLE-1 : aucune mise en gras n'est demandée à l'API.
-    'Les dictionnaires seront appliqués au document complet après création
-    'des éventuelles lettres complémentaires.
-
     gCorrectionCabinetTestValidee = True
-
-    Application.ScreenUpdating = True
-
+    ' Reconstituer les pages a partir des resultats durables. Aucune nouvelle
+    ' requete IA et aucune reutilisation d'une selection d'un autre document.
+    PR_SupprimerDemandesDejaAjoutees docPrincipal
+    PR_ReinitialiserSuiviMultipage
     PR_AjouterDemandesAuDocumentPrincipal
-
+    etat("reponse") = gReponseAPICabinetTest
+    etat("annexes_ok") = gDemandesMultipagesAjouteesProdRapide
+    modEtatCourrier.Sauver docPrincipal, etat
+    docPrincipal.Save
+    If Not gDemandesMultipagesAjouteesProdRapide Then Err.Raise vbObjectError + 436, , "Annexes incompletes. D reprend cette etape avec les textes deja recus."
     MPF_SecuriserToutesSignatures docPrincipal
-
-    Application.StatusBar = "Mise en gras locale selon les dictionnaires..."
-    Call modGras.AppliquerGrasDocumentComplet(docPrincipal)
-
-    'Enregistrer seulement si le courrier principal est corrigé
-    'et si toutes les éventuelles lettres complémentaires sont prêtes.
-    If gCorrectionCabinetTestValidee And gDemandesMultipagesAjouteesProdRapide Then
-        modControleCourrier.PreparerRelecture docPrincipal, gTexteAnonymise, corpsCorrige
-        modIntegrationUnifie.SauvegarderBrouillon docPrincipal
-        Application.ScreenUpdating = True
-        docPrincipal.Activate
-        Application.StatusBar = "Relisez le courrier et les annexes ; D une seconde fois pour transmettre."
-    End If
-
-    GoTo Sortie
-
+    modGras.AppliquerGrasDocumentComplet docPrincipal
+    If Not LocaliserCorpsCourrier(docPrincipal, rngCorps, premier) Then Err.Raise vbObjectError + 960, , "Corps introuvable apres mise en forme."
+    etat("document_hash") = modServiceNas.SHA256(rngCorps.Text)
+    modEtatCourrier.Sauver docPrincipal, etat
+    modControleCourrier.PreparerRelecture docPrincipal, source, corpsCorrige
+    docPrincipal.Save
 Sortie:
-
-    Set gDocOriginalCabinetTest = Nothing
-    Set gPlageOriginale = Nothing
-    Application.ScreenUpdating = True
-    Application.StatusBar = False
-
     On Error Resume Next
-    If Not docTemp Is Nothing Then
-        docTemp.Close SaveChanges:=wdDoNotSaveChanges
-    End If
-
-    If Not docPrincipal Is Nothing Then
-        docPrincipal.Activate
-    End If
-    On Error GoTo 0
-
+    Set gDocOriginalCabinetTest = Nothing: Set gPlageOriginale = Nothing
+    Application.ScreenUpdating = ancienEcran: Application.StatusBar = vbNullString
+    modEtatCourrier.LibererVerrou verrou
     mTraitementEnCours = False
+    On Error GoTo 0
+    If numero <> 0 Then Err.Raise numero, "Correction", description
     Exit Sub
-
-GestionErreur:
-    mTraitementEnCours = False
-
-    numeroErreur = Err.Number
-    descriptionErreur = Err.description
-
-    Set gDocOriginalCabinetTest = Nothing
-    Set gPlageOriginale = Nothing
-    Application.ScreenUpdating = True
-    Application.StatusBar = False
-
-    On Error Resume Next
-    If Not docTemp Is Nothing Then
-        docTemp.Close SaveChanges:=wdDoNotSaveChanges
-    End If
-
-    If Not docPrincipal Is Nothing Then
-        docPrincipal.Activate
-    End If
-    On Error GoTo 0
-
-    MsgBox "Erreur pendant la correction automatique :" & vbCrLf & _
-           numeroErreur & " - " & descriptionErreur, _
-           vbExclamation, "Prod Rapide"
-
+Echec:
+    numero = Err.Number: description = Err.Description
+    modLog.Diagnostic "correction", "echec", numero
+    Resume Sortie
 End Sub
 
 Public Sub PR_AjouterDemandesAuDocumentPrincipal()
@@ -441,7 +348,7 @@ Public Sub PR_AjouterDemandesAuDocumentPrincipal()
     Dim i As Long
     Dim numeroErreur As Long
     Dim descriptionErreur As String
-    Dim etapeMultipage As String
+    Dim etapeMultipage As String, etatDestinations As Object
 
     On Error GoTo GestionErreur
 
@@ -492,6 +399,7 @@ Public Sub PR_AjouterDemandesAuDocumentPrincipal()
         Exit Sub
     End If
 
+    Set etatDestinations = modEtatCourrier.Charger(docPrincipal, "")
     nombreNonResolues = 0
     nombrePretes = 0
     listeProblemes = ""
@@ -516,7 +424,7 @@ Public Sub PR_AjouterDemandesAuDocumentPrincipal()
         'une destination de rythmologie par défaut. La secrétaire doit choisir.
         If PR_DoitForcerCorrespondantACompleterCCN( _
             gTexteAnonymise, _
-            CStr(demande("CorpsDestination"))) Then
+            CStr(demande("CorpsDestination"))) And Not modEtatCourrier.DestinationConfirmee(etatDestinations, i, cleDestination) Then
 
             cleDestination = "A_COMPLETER"
             demande("CleDestination") = cleDestination
@@ -1114,31 +1022,16 @@ NouvelleSelection:
         GoTo NouvelleSelection
     End If
 
-    blocOriginal = _
-        CStr(demande("BlocComplet"))
-
-    blocModifie = _
-        PR_RemplacerCleDansBloc( _
-            blocOriginal, _
-            cleChoisie)
-
-    If blocModifie <> blocOriginal Then
-
-        gReponseAPICabinetTest = _
-            Replace( _
-                gReponseAPICabinetTest, _
-                blocOriginal, _
-                blocModifie, _
-                1, _
-                1, _
-                vbBinaryCompare)
-
-        demande("BlocComplet") = _
-            blocModifie
-
-        demande("CleDestination") = _
-            cleChoisie
-    End If
+    Dim structure As Object, etat As Object
+    Set structure = modJson.JsonParse(gReponseAPICabinetTest)
+    structure("demandes")(numeroDemande)("cle_destination") = cleChoisie
+    demande("CleDestination") = cleChoisie
+    gReponseAPICabinetTest = modServiceNas.JsonValeur(structure)
+    Set etat = modEtatCourrier.Charger(gDocOriginalCabinetTest, "")
+    etat("reponse") = gReponseAPICabinetTest
+    If Not etat.Exists("destinations_confirmees") Then Set etat("destinations_confirmees") = modServiceNas.Parametres()
+    etat("destinations_confirmees")(CStr(numeroDemande)) = cleChoisie
+    modEtatCourrier.Sauver gDocOriginalCabinetTest, etat
 
     cleDestination = cleChoisie
 
@@ -1393,8 +1286,6 @@ Private Sub PR_AjouterDocumentEnNouvellePage( _
     etapeMultipage = "Fusion : copie de la lettre source"
 
     docSource.Activate
-    rngSource.Copy
-    DoEvents
 
     etapeMultipage = "Fusion : activation du courrier principal"
 
@@ -1408,8 +1299,7 @@ Private Sub PR_AjouterDocumentEnNouvellePage( _
 
     etapeMultipage = "Fusion : collage avec mise en forme d'origine"
 
-    rngInsertion.PasteAndFormat _
-        Type:=wdFormatOriginalFormatting
+    rngInsertion.FormattedText = rngSource.FormattedText
 
     'La marque de paragraphe finale du document source n'est pas copiée.
     'La signature étant le dernier paragraphe, son retrait de paragraphe

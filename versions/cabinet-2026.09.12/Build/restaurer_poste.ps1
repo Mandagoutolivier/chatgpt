@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param([Parameter(Mandatory=$true)][string]$DossierSauvegarde,[switch]$Appliquer)
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'outils_installation.ps1')
 if ($env:OS -ne 'Windows_NT') { throw 'Restauration locale Windows uniquement.' }
 if (Get-Process WINWORD,EXCEL -ErrorAction SilentlyContinue) { throw 'Fermez Word et Excel.' }
 $root=(Resolve-Path -LiteralPath $DossierSauvegarde).Path
@@ -14,8 +15,7 @@ $before=Join-Path $root ('avant-restauration-'+[guid]::NewGuid().ToString('N'))
 [void][IO.Directory]::CreateDirectory($before)
 for ($i=$items.Count-1;$i -ge 0;$i--) {
     $item=$items[$i]
-    if (Test-Path -LiteralPath $item.destination -PathType Leaf) { [IO.File]::Copy($item.destination,(Join-Path $before ($i.ToString()+'.bak')),$false) }
-    if ($item.backup) { [IO.File]::Copy($item.backup,$item.destination,$true) }
-    elseif (Test-Path -LiteralPath $item.destination -PathType Leaf) { Remove-Item -LiteralPath $item.destination }
+    if (Test-Path -LiteralPath $item.destination -PathType Leaf) { $copy=Join-Path $before ($i.ToString()+'.bak');[IO.File]::Copy($item.destination,$copy,$false);if ([IO.Path]::GetFileName($item.destination) -eq 'service.token') { Proteger-FichierLocal $copy } }
+    Restaurer-FichierAvecDroits $item
 }
 Write-Host 'Fichiers locaux restaures. Le serveur NAS et ses transactions ne sont pas modifies.'

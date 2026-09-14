@@ -1,11 +1,9 @@
-# Cabinet Cardio — version NAS unique
+# Cabinet Cardio — préparation U1
 
-La seule version active est [cabinet-2026.09.12](versions/cabinet-2026.09.12/README.md), avec PostgreSQL comme autorité des données. L’ancienne livraison `cabinet-unifie` est retirée ; ses points d’entrée échouent avant toute écriture. Son code reste dans l’historique Git.
+Le dossier maintenu dans ce dépôt est [cabinet-2026.09.12](versions/cabinet-2026.09.12/README.md), avec PostgreSQL comme autorité des données. L'ancienne livraison `cabinet-unifie` reste dans l'historique Git.
 
-Les sources U0 sont destinées à une **recette isolée**. La clôture U0 nécessite les preuves NAS, Office et Resting12Lead décrites dans [U0_RECETTE.md](versions/cabinet-2026.09.12/U0_RECETTE.md). Les modèles dans `ModelesSource` sont des entrées de construction, pas des compléments corrigés prêts à activer.
+Cette branche poursuit U0 avec les correctifs U1. Elle sert à une **recette isolée**, sans remplacement de l'installation clinique actuelle. Les modèles de `ModelesSource` sont les originaux de construction.
 
-Lire le [guide U0](versions/cabinet-2026.09.12/U0_RECETTE.md) avant une migration ou une activation. Le [lanceur](Installateur/Demarrer_Installation_Cabinet.cmd) vise un commit immuable et vérifie les octets de ce commit. Il prépare les modèles et exige toujours la compilation et la recette sur le poste cible.
+Lire [U1_RECETTE.md](versions/cabinet-2026.09.12/U1_RECETTE.md) pour les changements, preuves et limites, ainsi que [U0_RECETTE.md](versions/cabinet-2026.09.12/U0_RECETTE.md) pour les conditions NAS, SMB et ECG avant bascule. Le lanceur est épinglé à un commit et ne remplace pas ces validations.
 
-Les anciennes copies déjà présentes sur les PC ne peuvent pas être neutralisées par une modification GitHub. Les inventorier et retirer aux comptes clients l’écriture SMB sur les bases historiques avant bascule.
-
-Ne jamais déposer de données patients, courriers ou secrets dans ce dépôt.
+Les copies déjà installées sur les PC ne sont pas modifiées par la publication de cette branche. Aucun patient, courrier ou secret ne doit être déposé dans ce dépôt.

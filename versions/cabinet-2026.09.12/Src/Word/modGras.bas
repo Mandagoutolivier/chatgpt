@@ -111,19 +111,8 @@ Private Function MarquerForme(ByVal doc As Document, ByVal terme As String, ByVa
     If zone Is Nothing Then Set zone = doc.Bookmarks("CORPS").Range
     fin = zone.End
     Set rng = zone.Duplicate
-    With rng.Find
-        .ClearFormatting
-        .Text = terme
-        .MatchCase = False
-        .MatchWholeWord = True
-        .MatchWildcards = False
-        .MatchSoundsLike = False
-        .MatchAllWordForms = False
-        .Forward = True
-        .Wrap = wdFindStop
-        .Format = False
-    End With
-    Do While rng.Find.Execute
+
+    Do While modRechercheWord.Trouver(rng, terme, True)
         If rng.End > fin Then Exit Do
         rng.Font.Bold = True
         If majuscules Then rng.Case = wdUpperCase

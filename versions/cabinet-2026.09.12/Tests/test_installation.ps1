@@ -9,7 +9,7 @@ try {
     [void][IO.Directory]::CreateDirectory((Join-Path $root 'Build'))
     [void][IO.Directory]::CreateDirectory($stage)
     $source=Join-Path $root 'Src/test.bas';[IO.File]::WriteAllText($source,'source fictive')
-    foreach ($name in @('CabinetUnifie.dotm','Cabinet.xlsm','sqlite3.exe')) { [IO.File]::WriteAllText((Join-Path $stage $name),'binaire fictif') }
+    foreach ($name in @('CabinetUnifie.dotm','Cabinet.xlsm')) { [IO.File]::WriteAllText((Join-Path $stage $name),'binaire fictif') }
     Ecrire-Preparation $stage 'Domicile' $root
     Verifier-Preparation $stage 'Domicile' $root
     Verifier $true 'empreintes et profil initiaux acceptes'
@@ -20,7 +20,7 @@ try {
     [IO.File]::WriteAllText((Join-Path $stage 'Cabinet.xlsm'),'autre binaire')
     $refuse=$false;try { Verifier-Preparation $stage 'Domicile' $root } catch { $refuse=$true };Verifier $refuse 'modification binaire refusee'
     [IO.File]::WriteAllText((Join-Path $stage 'Cabinet.xlsm'),'binaire fictif')
-    Remove-Item -LiteralPath (Join-Path $stage 'sqlite3.exe')
-    $refuse=$false;try { Verifier-Preparation $stage 'Domicile' $root } catch { $refuse=$true };Verifier $refuse 'dependance manquante refusee'
+    Remove-Item -LiteralPath (Join-Path $stage 'CabinetUnifie.dotm')
+    $refuse=$false;try { Verifier-Preparation $stage 'Domicile' $root } catch { $refuse=$true };Verifier $refuse 'modele manquant refusee'
     Write-Output "$count controles de preparation reussis."
 } finally { Remove-Item -LiteralPath $tmp -Recurse -Force }

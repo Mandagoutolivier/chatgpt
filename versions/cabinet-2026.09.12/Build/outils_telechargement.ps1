@@ -60,3 +60,16 @@ function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$C
         throw
     } finally { if ($null -ne $zip) { $zip.Dispose() } }
 }
+
+function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
+    if (-not (Test-Path -LiteralPath $Dossier)) { return '' }
+    try { Tester-PaquetCabinet $Dossier $Empreintes;return '' }
+    catch {
+        $cause=$_.Exception.Message
+        $archive=$Dossier+'.a-verifier-'+[guid]::NewGuid().ToString('N')
+        [IO.Directory]::Move($Dossier,$archive)
+        Write-Host ('Paquet incomplet ou modifie conserve dans : '+$archive)
+        Write-Host ('Diagnostic : '+$cause)
+        return $archive
+    }
+}

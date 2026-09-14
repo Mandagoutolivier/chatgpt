@@ -1,5 +1,7 @@
 # Installation guidée Cabinet Cardio
 
+**Branche U1 en brouillon : conserver l’installation clinique actuelle.** Les essais AX8_Max utilisent une copie isolée ; leur état est décrit dans [U1_RECETTE.md](../versions/cabinet-2026.09.12/U1_RECETTE.md).
+
 Télécharger **Demarrer_Installation_Cabinet.cmd** avec le bouton « Download raw file » de GitHub, puis double-cliquer. Ce fichier autonome contient le PowerShell lisible fourni à côté ; il n'a besoin d'aucun autre fichier local au départ.
 
 1. Le navigateur télécharge la version précise du dépôt privé. Se connecter à GitHub si nécessaire. Le lanceur repère le ZIP, l'extrait et vérifie tous les fichiers de la version.
@@ -20,11 +22,11 @@ Détails : [guide des trois postes](../versions/cabinet-2026.09.12/INSTALLATION_
 
 ## Maintenance du lanceur
 
-`generer_lanceur.py COMMIT` assemble les outils, le modèle et les empreintes **depuis les objets Git de ce commit**, sans utiliser les fichiers de travail. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. La révision U0 est destinée à la [recette isolée](../versions/cabinet-2026.09.12/U0_RECETTE.md). Les contrôles GitHub Actions ne remplacent pas une exécution sous Word/Excel.
+`generer_lanceur.py COMMIT` assemble les outils, le modèle et les empreintes **depuis les objets Git de ce commit**, sans utiliser les fichiers de travail. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. La révision U1 est destinée à la [recette isolée](../versions/cabinet-2026.09.12/U1_RECETTE.md). Les contrôles GitHub Actions ne remplacent pas une exécution sous Word/Excel.
 
 ## Word ou Excel encore actif
 
-Le lanceur laisse cinq secondes aux processus Office pour terminer leur fermeture. Si Word ou Excel reste actif, il affiche son nom, son PID et sa session Windows, puis attend **Entrée** après fermeture ou **Q** pour reprendre plus tard. Enregistrer les documents avant de fermer les applications. Le lanceur ne termine jamais un processus de force.
+Le lanceur laisse trente secondes aux processus Office pour terminer leur fermeture. Si Word ou Excel reste actif, il affiche son nom, son PID et sa session Windows, puis attend **Entrée** après fermeture ou **Q** pour reprendre plus tard. Enregistrer les documents avant de fermer les applications. Le lanceur ne termine jamais un processus de force.
 
 Si aucune fenêtre Office n'est visible, consulter le Gestionnaire des tâches. Un redémarrage du PC, après enregistrement et fermeture des applications, peut libérer un processus resté actif ; relancer alors le même profil avant d'ouvrir Word ou Excel. La ligne de version affichée au démarrage permet de vérifier quelle copie du lanceur est utilisée. En cas d'échec persistant, transmettre le message et la ligne « Étape » affichée.
 

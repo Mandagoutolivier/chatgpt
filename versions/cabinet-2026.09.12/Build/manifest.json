@@ -259,6 +259,21 @@
       "name": "modRecetteU0",
       "kind": "module",
       "path": "Src/Integration/modRecetteU0.bas"
+    },
+    {
+      "name": "modEtatCourrier",
+      "kind": "module",
+      "path": "Src/Integration/modEtatCourrier.bas"
+    },
+    {
+      "name": "modRecetteU1",
+      "kind": "module",
+      "path": "Src/Integration/modRecetteU1.bas"
+    },
+    {
+      "name": "modRechercheWord",
+      "kind": "module",
+      "path": "Src/Integration/modRechercheWord.bas"
     }
   ],
   "excel": [
@@ -378,6 +393,11 @@
       "name": "modServiceNas",
       "kind": "module",
       "path": "Src/Commun/modServiceNas.bas"
+    },
+    {
+      "name": "modRecetteU1Excel",
+      "kind": "module",
+      "path": "Src/Excel/modRecetteU1Excel.bas"
     }
   ],
   "models": {
@@ -385,5 +405,21 @@
     "ModeleCourrierChatGPT_PROD(6).dotm": "a8ccb702e8defc9fce19b9afb968c4f7cd5b25d59da562dba172bc6b51b85524",
     "Cabinet(1).dotm": "493ed179d97ec4f15cafe39e44f9a6d2c0ce56a42927cf0fd4acafd860dabdb5"
   },
-  "source_commit": "44ff5bb74a20f93a81b81de0d61d75c8370aef50"
+  "source_commit": "44ff5bb74a20f93a81b81de0d61d75c8370aef50",
+  "word_legacy_removals": [
+    "clsNCBouton",
+    "clsNCCombo",
+    "clsNCTextBox",
+    "clsNSBouton",
+    "clsNSTextBox",
+    "frmNouveauCorrespondant",
+    "frmNouvelleStructure",
+    "modCabinetTestDemandes",
+    "modCabinetTestDestinations",
+    "modClaude",
+    "modTests_Word"
+  ],
+  "excel_legacy_removals": [
+    "modTests_Excel"
+  ]
 }

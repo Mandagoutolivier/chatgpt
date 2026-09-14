@@ -534,7 +534,7 @@ End Sub
 ' Remplace le contenu d'un signet et RECREE le signet sur le texte insere
 Public Sub RemplirSignet(ByVal doc As Document, ByVal nom As String, ByVal texte As String)
     Dim rng As Range, aliasDragon As String
-    If Not doc.Bookmarks.Exists(nom) Then Exit Sub
+    If Not doc.Bookmarks.Exists(nom) Then Err.Raise vbObjectError + 1170, , "Signet obligatoire absent : " & nom
     ' signets du modele du medecin (connus des commandes Dragon) : reposes
     If nom = "DESTINATAIRE" Then aliasDragon = "CORRESPONDANT"
     If nom = "APPEL" Then aliasDragon = "FORMULE_APPEL"
@@ -542,6 +542,7 @@ Public Sub RemplirSignet(ByVal doc As Document, ByVal nom As String, ByVal texte
         If Not doc.Bookmarks.Exists(aliasDragon) Then aliasDragon = ""
     End If
     Set rng = doc.Bookmarks(nom).Range
+    If rng.Text = texte Then Exit Sub
     rng.Text = texte
     doc.Bookmarks.Add nom, rng
     If Len(aliasDragon) > 0 Then doc.Bookmarks.Add aliasDragon, rng

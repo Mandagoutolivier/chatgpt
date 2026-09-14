@@ -149,7 +149,7 @@ Private Sub ChargerIni()
                     Dim k As String
                     k = section & "|" & LCase$(Trim$(Left$(ligne, p - 1)))
                     Select Case k
-                        Case "ecg|dossiergdt", "cerfa|imprimante", "poste|profil"
+                        Case "ecg|dossiergdt", "cerfa|imprimante", "cerfa|calagevalide", "cerfa|praticienpreimprime", "poste|profil"
                             mIni(k) = Trim$(Mid$(ligne, p + 1))
                     End Select
                 End If

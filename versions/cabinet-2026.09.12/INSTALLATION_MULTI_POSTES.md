@@ -1,5 +1,7 @@
 # Installer les trois profils
 
+**U1 reste en recette isolée. L’installation clinique actuelle doit être conservée jusqu’à une décision explicite de bascule.** Voir [U1_RECETTE.md](U1_RECETTE.md).
+
 ## Lanceur autonome conseillé
 
 Télécharger **[Demarrer_Installation_Cabinet.cmd](../../Installateur/Demarrer_Installation_Cabinet.cmd)** avec le bouton de téléchargement du fichier GitHub, ou utiliser la pièce jointe fournie dans la conversation. Un seul fichier suffit. Le lancer dans la session Windows habituelle, sans élévation administrateur.
@@ -16,7 +18,7 @@ Il affiche les trois profils, contrôle le dossier NAS choisi, autorise temporai
 
 Le service Synology doit être configuré pour ce même emplacement de données (volume monté côté serveur et chemin UNC côté Windows) ; un choix de dossier dans Windows ne reconfigure pas le serveur. Le VPN doit déjà être configuré : ce lanceur installe les clients Windows, pas le serveur DSM. L'adresse HTTPS et le jeton NAS seront demandés à l'activation. Le déploiement NAS, les réglages Dragon/ECG et le calage de l'imprimante restent décrits ci-dessous.
 
-Les fichiers téléchargés restent dans `%LOCALAPPDATA%\CabinetCardio\Installation\Sources`. L'état de reprise est dans `%APPDATA%\CabinetCardio\Assistant`. Après un arrêt brutal, relancer le fichier pour restaurer aussi le réglage Office temporaire. Si le cache est déclaré altéré, le renommer dans l'Explorateur avant de relancer pour télécharger une nouvelle copie ; ne pas modifier les empreintes du lanceur.
+Les fichiers téléchargés restent dans `%LOCALAPPDATA%\CabinetCardio\Installation\Sources`. L'état de reprise est dans `%APPDATA%\CabinetCardio\Assistant`. Après un arrêt brutal, relancer le fichier pour restaurer aussi le réglage Office temporaire. Un paquet altéré ou contenant des fichiers locaux supplémentaires est automatiquement déplacé dans un dossier de quarantaine conservé. Le téléchargement peut reprendre ; les notes locales restent dans cette copie. Ne pas modifier les empreintes du lanceur.
 
 ## Installation depuis le dépôt complet
 
@@ -37,7 +39,7 @@ Double-cliquer `Installer.cmd` ouvre maintenant le même assistant complet : **1
 .\Installer.ps1 -Profil Cabinet
 ```
 
-Word et Excel sont contrôlés dans les trois profils. Le poste médecin reçoit `CabinetUnifie.dotm` et `sqlite3.exe`. Le secrétariat reçoit `Cabinet.xlsm` et un raccourci. `Normal.dotm` est conservé.
+Word et Excel sont contrôlés dans les trois profils. Le poste médecin reçoit `CabinetUnifie.dotm` ; le tri des arrivées s’effectue en mémoire. Le secrétariat reçoit `Cabinet.xlsm` et un raccourci. `Normal.dotm` est conservé.
 
 ## Tester puis activer le même dossier
 
@@ -50,7 +52,7 @@ Compiler les projets VBA Word et Excel préparés avec **Débogage > Compiler**,
 
 Remplacer les chemins et l'adresse d'exemple. Pour secrétariat, utiliser `-Profil Secretariat` et `-CompilationExcelValidee`. Pour médecin, `-Profil Cabinet` et `-CompilationWordValidee`. Le validateur rouvre les binaires, compare leur source au manifeste et vérifie les références Office. La compilation et les essais physiques restent attestés par l'opérateur ; ils ne sont pas simulés.
 
-À l'activation, le script demande le jeton du compte NAS par saisie masquée, ou accepte `-FichierJeton` pointant vers un fichier local protégé. Il contrôle HTTPS, la version du protocole et les rôles. Il conserve le jeton dans `%APPDATA%\CabinetCardio\service.token` avec des droits limités au compte Windows, SYSTEM et administrateurs. Ne pas saisir un jeton dans la ligne de commande ni le déposer dans GitHub.
+À l'activation, le script demande le jeton du compte NAS par saisie masquée, ou accepte `-FichierJeton` pointant vers un fichier local protégé. Il contrôle HTTPS, le protocole 2, la révision serveur `2026.09.14-u1`, le schéma 2 et les rôles. Il conserve le jeton dans `%APPDATA%\CabinetCardio\service.token` avec des droits limités au compte Windows, SYSTEM et administrateurs. Ne pas saisir un jeton dans la ligne de commande ni le déposer dans GitHub.
 
 Le service doit avoir été initialisé et les classeurs importés avant cette activation. Les ressources initiales sont copiées seulement si absentes ; les bases Excel historiques ne sont jamais remplacées par l'installateur.
 
@@ -72,10 +74,12 @@ Le calage et `poste.ini` sont **locaux à chaque imprimante/poste**. Après essa
 [CERFA]
 CalageValide=1
 PraticienPreimprime=1
-Imprimante=nom exact de l'imprimante si nécessaire
+Imprimante=nom exact de l'imprimante
 ```
 
 Mettre `PraticienPreimprime=1` seulement si les identifiants du médecin figurent déjà correctement sur les feuilles. Un NIR invalide ou une fiche assuré incomplète bloque l'impression ; l'absence de NIR ne bloque pas la consultation. Plus de quatre actes est refusé explicitement et demande une seconde feuille. Aucun connecteur FSE/CPS/SESAM-Vitale n'est livré.
+
+Une impression demandée reste de résultat inconnu jusqu'à confirmation de la feuille sortie. Après interruption, vérifier le papier : confirmer la feuille existante ou demander explicitement une réimpression. Aucun acquittement du courrier n'est accepté tant que ce résultat reste inconnu.
 
 Le journal exporté dans Excel est une copie ; le service conserve les écritures originales. Les montants sont numériques à l'export. L'encaissement couvre un règlement intégral ; le suivi de paiements partiels n'est pas implémenté.
 

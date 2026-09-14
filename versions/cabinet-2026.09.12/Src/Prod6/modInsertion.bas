@@ -108,27 +108,15 @@ Public Sub ConvertirMarkdownGrasDansRange(ByVal rngZone As Range)
 
         Set rngOuverture = doc.Range(positionRecherche, limiteFin)
 
-        With rngOuverture.Find
-            .ClearFormatting
-            .Text = "**"
-            .Forward = True
-            .Wrap = wdFindStop
-            .MatchWildcards = False
-        End With
 
-        If Not rngOuverture.Find.Execute Then Exit Do
+
+        If Not modRechercheWord.Trouver(rngOuverture, "**") Then Exit Do
 
         Set rngFermeture = doc.Range(rngOuverture.End, limiteFin)
 
-        With rngFermeture.Find
-            .ClearFormatting
-            .Text = "**"
-            .Forward = True
-            .Wrap = wdFindStop
-            .MatchWildcards = False
-        End With
 
-        If Not rngFermeture.Find.Execute Then Exit Do
+
+        If Not modRechercheWord.Trouver(rngFermeture, "**") Then Exit Do
 
         contenuDebut = rngOuverture.End
         contenuFin = rngFermeture.Start
@@ -176,16 +164,9 @@ Public Sub MettreIdentitePatientEnGrasDansRange(ByVal rngZone As Range)
 
     Set rngRecherche = doc.Range(rngZone.Start, rngZone.End)
 
-    With rngRecherche.Find
-        .ClearFormatting
-        .Text = identiteComplete
-        .Forward = True
-        .Wrap = wdFindStop
-        .MatchCase = False
-        .MatchWildcards = False
-    End With
 
-    Do While rngRecherche.Find.Execute
+
+    Do While modRechercheWord.Trouver(rngRecherche, identiteComplete)
 
         'Début du gras après "Monsieur " ou "Madame "
         debutIdentite = rngRecherche.Start + Len(gPatient.civilite) + 1
@@ -201,14 +182,7 @@ Public Sub MettreIdentitePatientEnGrasDansRange(ByVal rngZone As Range)
         'Poursuivre la recherche après l'occurrence trouvée.
         Set rngRecherche = doc.Range(rngRecherche.End, finZone)
 
-        With rngRecherche.Find
-            .ClearFormatting
-            .Text = identiteComplete
-            .Forward = True
-            .Wrap = wdFindStop
-            .MatchCase = False
-            .MatchWildcards = False
-        End With
+
 
     Loop
 

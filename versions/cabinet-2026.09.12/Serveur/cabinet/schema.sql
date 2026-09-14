@@ -62,3 +62,17 @@ CREATE INDEX IF NOT EXISTS ressources_rdv_date ON ressources ((donnees->>'Date')
 CREATE INDEX IF NOT EXISTS consultations_file ON consultations(etat,modifie_le);
 CREATE INDEX IF NOT EXISTS consultations_proprietaire ON consultations(proprietaire,etat);
 CREATE INDEX IF NOT EXISTS publications_file ON publications(etat,cree_le);
+
+ALTER TABLE seances ADD COLUMN IF NOT EXISTS impression_etat text NOT NULL DEFAULT 'actes_enregistres';
+ALTER TABLE seances ADD COLUMN IF NOT EXISTS impression_tentative text NOT NULL DEFAULT '';
+UPDATE seances SET impression_etat='confirmee' WHERE imprimee AND impression_etat='actes_enregistres';
+CREATE TABLE IF NOT EXISTS reglements_audit(
+    numero bigserial PRIMARY KEY, seance_id text NOT NULL REFERENCES seances(id),
+    compte text NOT NULL, avant jsonb NOT NULL, apres jsonb NOT NULL,
+    date_evenement timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS migrations_ressources(
+    numero bigserial PRIMARY KEY, version integer NOT NULL, genre text NOT NULL,
+    id text NOT NULL, revision integer NOT NULL, avant jsonb NOT NULL, apres jsonb NOT NULL,
+    date_evenement timestamptz NOT NULL DEFAULT now()
+);

@@ -13,7 +13,7 @@ Private Const MM_EN_POINTS As Double = 2.834645
 ' actes : Collection de dictionnaires (CodeActe/Code + Montant/Tarif)
 ' versPdf : si renseigne, exporte en PDF au lieu d'imprimer (tests/controle)
 Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
-                           Optional ByVal versPdf As String = "")
+                           Optional ByVal versPdf As String = "", Optional ByVal verifierSeulement As Boolean = False)
     Dim valeurs As Object, a As Object, i As Long, total As Double
     Dim code As String, montant As String
 
@@ -59,6 +59,32 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
     Next a
     valeurs("TOTAL") = Format$(total, "0.00")
 
+    Dim champ As Variant
+    For Each champ In valeurs.Keys
+        If Len(CStr(valeurs(champ))) > 0 Then
+            If CStr(champ) <> "PATIENT_NOM" And CStr(champ) <> "PATIENT_DDN" Then
+                If Not ((CStr(champ) = "MEDECIN_RPPS" Or CStr(champ) = "MEDECIN_AM") And modConfig.Config("CERFA", "PraticienPreimprime", "0") = "1") Then ExigerPositions Array(CStr(champ))
+            End If
+        End If
+    Next champ
+    Dim dxControle As Double, dyControle As Double, positionControle As Variant
+    LireOffsets dxControle, dyControle
+    For Each positionControle In LirePositions()
+        If valeurs.Exists(CStr(positionControle(0))) Then
+            If CDbl(positionControle(1)) + dxControle < 0 Or CDbl(positionControle(2)) + dyControle < 0 Or CDbl(positionControle(1)) + dxControle + CDbl(positionControle(3)) > 210 Or CDbl(positionControle(2)) + dyControle + 7 > 297 Then Err.Raise vbObjectError + 710, , "Calage CERFA hors de la page."
+        End If
+    Next positionControle
+    If verifierSeulement Then
+        Dim imprimante As String, service As Object, item As Object, trouve As Boolean
+        imprimante = modConfig.Config("CERFA", "Imprimante", "")
+        If Len(Trim$(imprimante)) = 0 Then Err.Raise vbObjectError + 708, , "Choisissez une imprimante CERFA dans poste.ini."
+        Set service = GetObject("winmgmts:\\.\root\cimv2")
+        For Each item In service.ExecQuery("SELECT Name FROM Win32_Printer")
+            If StrComp(CStr(item.Name), imprimante, vbTextCompare) = 0 Then trouve = True
+        Next item
+        If Not trouve Then Err.Raise vbObjectError + 708, , "Imprimante CERFA configuree introuvable."
+        Exit Sub
+    End If
     ImprimerDocumentCale valeurs, versPdf
 End Sub
 
@@ -185,26 +211,40 @@ Nettoyage:
 End Sub
 
 Private Function LirePositions() As Collection
-    Dim chemin As String, contenu As String, lignes() As String, i As Long
-    Dim parties() As String, col As Collection
-    Set col = New Collection
+    Dim chemin As String
     chemin = modConfig.chemin("Config") & "\cerfa_positions.txt"
-    If Not modFichiers.FichierExiste(chemin) Then
-        Err.Raise vbObjectError + 700, "modCerfaPrint", "Fichier introuvable : " & chemin
-    End If
-    contenu = Replace(modFichiers.LireTexteUTF8(chemin), vbCrLf, vbLf)
-    lignes = Split(contenu, vbLf)
+    If Not modFichiers.FichierExiste(chemin) Then Err.Raise vbObjectError + 700, , "Fichier de positions CERFA introuvable."
+    Set LirePositions = AnalyserPositions(modFichiers.LireTexteUTF8(chemin))
+End Function
+
+Public Function AnalyserPositions(ByVal contenu As String) As Collection
+    Dim lignes As Variant, parties As Variant, col As New Collection, vus As Object
+    Dim i As Long, cle As String, x As Double, y As Double, largeur As Double, police As Double, re As Object
+    Set vus = CreateObject("Scripting.Dictionary"): vus.CompareMode = 1
+    Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^[A-Z][A-Z0-9_]*$"
+    lignes = Split(Replace(contenu, vbCr, ""), vbLf)
     For i = LBound(lignes) To UBound(lignes)
         If Len(Trim$(lignes(i))) > 0 And Left$(Trim$(lignes(i)), 1) <> "#" Then
             parties = Split(lignes(i), ";")
-            If UBound(parties) >= 4 Then
-                col.Add Array(Trim$(parties(0)), Val(Replace(parties(1), ",", ".")), _
-                              Val(Replace(parties(2), ",", ".")), Val(Replace(parties(3), ",", ".")), _
-                              Val(Replace(parties(4), ",", ".")))
-            End If
+            If UBound(parties) <> 4 Then Err.Raise vbObjectError + 710, , "Position CERFA : cinq champs requis."
+            cle = UCase$(Trim$(parties(0)))
+            If Not re.Test(cle) Or vus.Exists(cle) Then Err.Raise vbObjectError + 710, , "Position CERFA vide, invalide ou dupliquee."
+            x = NombrePosition(CStr(parties(1))): y = NombrePosition(CStr(parties(2)))
+            largeur = NombrePosition(CStr(parties(3))): police = NombrePosition(CStr(parties(4)))
+            If x < 0 Or y < 0 Or largeur <= 0 Or x + largeur > 210 Or y + 7 > 297 Or police < 4 Or police > 72 Then Err.Raise vbObjectError + 710, , "Position CERFA hors page ou dimension invalide."
+            col.Add Array(cle, x, y, largeur, police): vus.Add cle, True
         End If
     Next i
-    Set LirePositions = col
+    If col.Count = 0 Then Err.Raise vbObjectError + 710, , "Aucune position CERFA configuree."
+    Set AnalyserPositions = col
+End Function
+
+Private Function NombrePosition(ByVal texte As String) As Double
+    Dim re As Object
+    Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^-?[0-9]+([.,][0-9]+)?$"
+    texte = Trim$(texte)
+    If Not re.Test(texte) Then Err.Raise vbObjectError + 710, , "Coordonnee CERFA non numerique."
+    NombrePosition = Val(Replace(texte, ",", "."))
 End Function
 
 Private Sub LireOffsets(ByRef dx As Double, ByRef dy As Double)
@@ -214,10 +254,9 @@ Private Sub LireOffsets(ByRef dx As Double, ByRef dy As Double)
     If Not modFichiers.FichierExiste(chemin) Then Exit Sub
     contenu = Trim$(Replace(Replace(modFichiers.LireTexteUTF8(chemin), vbCr, ""), vbLf, ""))
     parties = Split(contenu, ";")
-    If UBound(parties) >= 1 Then
-        dx = Val(Replace(parties(0), ",", "."))
-        dy = Val(Replace(parties(1), ",", "."))
-    End If
+    If UBound(parties) <> 1 Then Err.Raise vbObjectError + 710, , "Deux decalages CERFA sont requis."
+    dx = NombrePosition(CStr(parties(0)))
+    dy = NombrePosition(CStr(parties(1)))
 End Sub
 
 Private Function ValeurOuVide(ByVal dict As Object, ByVal cle As String) As String
@@ -240,4 +279,9 @@ Private Sub ExigerPositions(ByVal champs As Variant)
     For Each cle In champs
         If Not presents.Exists(CStr(cle)) Then Err.Raise vbObjectError + 706, , "Position CERFA non configuree : " & CStr(cle) & ". Calage a effectuer sur votre formulaire."
     Next cle
+End Sub
+
+Public Sub VerifierAvantFacturation(ByVal infos As Object, ByVal actes As Collection)
+    If actes.Count = 0 Then Err.Raise vbObjectError + 709, , "Aucune ligne pour la feuille de soins."
+    ImprimerFeuille infos, actes, "", True
 End Sub

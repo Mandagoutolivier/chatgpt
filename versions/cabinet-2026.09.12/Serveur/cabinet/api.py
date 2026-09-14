@@ -3,9 +3,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 import os
 import logging
+import uuid
+import hashlib
 import psycopg
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ConfigDict, Field
 from .domain import Refus
 from .files import Documents
@@ -39,6 +42,11 @@ def create_app(service: Service | None=None):
                 docs_url=None,redoc_url=None,openapi_url=None)
     app.state.service=service
 
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(request, exc):
+        # La reponse FastAPI par defaut recopie les entrees invalides.
+        return JSONResponse({'error': 'Parametres invalides ou incomplets.', 'code': 'contrat'}, status_code=422)
+
     @app.middleware('http')
     async def limiter(request: Request,call_next):
         length=request.headers.get('content-length','0')
@@ -65,20 +73,31 @@ def create_app(service: Service | None=None):
 
     @app.post('/v1/rpc')
     def rpc(command: Commande,request:Request):
+        correlation = uuid.uuid4().hex
+        command_hash = hashlib.sha256(command.request_id.encode()).hexdigest()[:16]
+        stage = 'authentification'
+        def failure(message, status, code):
+            logging.getLogger('cabinet').warning('rpc correlation=%s commande=%s etape=%s categorie=%s statut=%s',
+                correlation, command_hash, stage, code, status)
+            return JSONResponse({'error': message, 'code': code, 'correlation': correlation}, status_code=status)
         try:
             bearer=request.headers.get('Authorization','')
             if not bearer.startswith('Bearer '):raise Refus('Authentification requise.',401)
             actor=app.state.service.compte(bearer[7:])
+            stage = 'transaction'
             result=app.state.service.executer(actor,command.operation,command.params,command.request_id)
             return {'result':result}
-        except Refus as exc:return JSONResponse({'error':str(exc)},status_code=exc.status)
-        except (KeyError,TypeError,ValueError):return JSONResponse({'error':'Parametres invalides ou incomplets.'},status_code=422)
-        except psycopg.Error:
+        except Refus as exc:return failure(str(exc), exc.status, exc.code)
+        except psycopg.Error as exc:
             # Ne jamais retourner le SQL ni un detail contenant des donnees.
-            return JSONResponse({'error':'Transaction indisponible. Reessayez avec la meme commande.'},status_code=503)
+            state = exc.sqlstate or ''
+            if state.startswith('23'):
+                return failure('Conflit de donnees : rechargez avant de reessayer.', 409, 'contrainte')
+            if isinstance(exc, psycopg.OperationalError) or state in {'40001', '40P01', '55P03', '57014'}:
+                return failure('Transaction indisponible. Reessayez avec la meme commande.', 503, 'indisponible')
+            return failure('Erreur de base. Le traitement n est pas confirme.', 500, 'base_interne')
         except Exception:
-            logging.getLogger('cabinet').error('Erreur interne de commande, contenu non journalise.')
-            return JSONResponse({'error':'Erreur interne. Le traitement n est pas confirme.'},status_code=500)
+            return failure('Erreur interne. Le traitement n est pas confirme.', 500, 'interne')
     return app
 
 app=create_app()

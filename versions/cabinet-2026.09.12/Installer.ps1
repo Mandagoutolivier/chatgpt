@@ -6,7 +6,6 @@ param(
     [string]$UrlService='',
     [string]$DossierPrepare='',
     [string]$DossierGdt='C:\Mandagout',
-    [string]$SqliteExe='',
     [string]$FichierJeton=''
 )
 $ErrorActionPreference='Stop'
@@ -25,7 +24,7 @@ if (-not $RacineNas) {
 }
 $profiles=@{Domicile='Domicile';Secretariat='CabinetSecretariat';Cabinet='CabinetMedecin'}
 $arguments=@{Profil=$profiles[$Profil];Mode=$Mode;RacineNas=$RacineNas;DossierGdt=$DossierGdt}
-foreach ($key in @('UrlService','DossierPrepare','SqliteExe','FichierJeton')) {
+foreach ($key in @('UrlService','DossierPrepare','FichierJeton')) {
     $value=Get-Variable -Name $key -ValueOnly
     if ($value) { $arguments[$key]=$value }
 }

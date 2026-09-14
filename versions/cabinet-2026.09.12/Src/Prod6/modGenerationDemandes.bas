@@ -434,18 +434,9 @@ Private Function TrouverDernierParagrapheSignature( _
     'Recherche d'abord dans le corps principal du document.
     Set rngRecherche = doc.Content.Duplicate
 
-    With rngRecherche.Find
-        .ClearFormatting
-        .Replacement.ClearFormatting
-        .Text = "Mandagout"
-        .Forward = False
-        .Wrap = wdFindStop
-        .Format = False
-        .MatchCase = False
-        .MatchWholeWord = False
-    End With
 
-    If rngRecherche.Find.Execute Then
+
+    If modRechercheWord.Trouver(rngRecherche, "Mandagout", False, False) Then
         Set pSignature = rngRecherche.Paragraphs(1)
         TrouverDernierParagrapheSignature = True
         Exit Function
@@ -458,18 +449,9 @@ Private Function TrouverDernierParagrapheSignature( _
 
             Set rngRecherche = shp.TextFrame.TextRange.Duplicate
 
-            With rngRecherche.Find
-                .ClearFormatting
-                .Replacement.ClearFormatting
-                .Text = "Mandagout"
-                .Forward = False
-                .Wrap = wdFindStop
-                .Format = False
-                .MatchCase = False
-                .MatchWholeWord = False
-            End With
 
-            If rngRecherche.Find.Execute Then
+
+            If modRechercheWord.Trouver(rngRecherche, "Mandagout", False, False) Then
                 'Dans une zone de texte, la position visuelle dépend
                 'surtout de la zone elle-même. On place son bord gauche
                 'à 8 cm de la marge puis on aligne le texte à gauche.

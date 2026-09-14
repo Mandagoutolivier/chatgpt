@@ -8,9 +8,10 @@ import re
 import unicodedata
 
 class Refus(Exception):
-    def __init__(self, message: str, status: int = 409):
+    def __init__(self, message: str, status: int = 409, code: str = 'refus_metier'):
         super().__init__(message)
         self.status = status
+        self.code = code
 
 
 def date_fr(value: str) -> date:
@@ -85,16 +86,29 @@ def empreinte(data: object) -> str:
 def comparer_clinique(source: str, resultat: str) -> dict:
     """Sentinelles de regression, jamais une certification medicale du texte."""
     patterns = {
-        "nombres_et_unites": r"\b\d+(?:[.,]\d+)?\s*(?:mg|µg|mcg|g|mmhg|mm|cm|ml|min|bpm|%|ui)?",
-        "negations": r"\b(?:ne|n['’]|pas|sans|absence|aucun|aucune|negatif|negative)\b",
+        "nombres_et_unites": r"\b\d+(?:[.,]\d+)?\s*(?:mmhg|mcg|mg|μg|g|mm|cm|ml|min|bpm|%|ui)?",
+        "negations": r"\b(?:ne|n['’‘]|pas|sans|absence|aucun|aucune|negatif|negative)\b",
         "identifiants_masques": r"\[\[[A-Z0-9_]+\]\]|\{\{[A-Z0-9_]+\}\}",
     }
     from collections import Counter
     differences = []
     for name, pattern in patterns.items():
-        left = Counter(re.findall(pattern, plier(source))) if name != "identifiants_masques" else Counter(re.findall(pattern, source))
-        right = Counter(re.findall(pattern, plier(resultat))) if name != "identifiants_masques" else Counter(re.findall(pattern, resultat))
+        def tokens(text):
+            values = re.findall(pattern, text if name == 'identifiants_masques' else plier(text))
+            if name == 'nombres_et_unites':
+                values = [re.sub(r'\s+', '', x).replace(',', '.') for x in values]
+            return Counter(values)
+        left, right = tokens(source), tokens(resultat)
         if left != right:
             differences.append({"controle": name, "retires": list((left-right).elements()),
                                 "ajoutes": list((right-left).elements())})
+    # Conserver le contexte de chaque negation : un simple comptage ne voit
+    # pas une negation deplacee de douleur a dyspnee. Alerte conservatrice.
+    def clauses(text):
+        parts = re.split(r'[;,.!?\n]', plier(text))
+        return Counter(p.strip() for p in parts if re.search(patterns['negations'], p))
+    left, right = clauses(source), clauses(resultat)
+    if left != right:
+        differences.append({'controle': 'contexte_negations', 'retires': list((left-right).elements()),
+                            'ajoutes': list((right-left).elements())})
     return {"differences": differences, "relecture_obligatoire": True}

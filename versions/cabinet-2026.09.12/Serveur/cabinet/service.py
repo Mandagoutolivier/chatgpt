@@ -12,10 +12,12 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 from .domain import Refus, patient_valide, date_fr, chevauche, creneau, montant, empreinte, comparer_clinique, plier, valider_nir
 from .files import Documents
+from .contract import validate
+from .actes import FIELDS as ACTE_FIELDS, normaliser as normaliser_acte
 
 READS = {'table.read', 'record.get', 'attentes', 'reprises', 'publications', 'whoami',
-         'correspondent.resolve', 'clinical.compare', 'dictionary.read', 'journal.read', 'nir.validate'}
-SECRETARIAT = {'table.add', 'table.update', 'arrive', 'cancel_arrival', 'bill', 'printed', 'ack', 'payment'}
+         'correspondent.resolve', 'clinical.compare', 'dictionary.read', 'journal.read', 'nir.validate', 'command.result', 'billing.get', 'stale_arrivals'}
+SECRETARIAT = {'table.add', 'table.update', 'arrive', 'cancel_arrival', 'bill', 'printed', 'ack', 'payment', 'agenda.status', 'print.request'}
 MEDECIN = {'claim', 'release', 'draft', 'publish'}
 SHARED = {'dictionary.add', 'correspondent.save'}
 GENRES = {'PATIENTS', 'CORRESPONDANTS', 'RDV', 'ACTES', 'MEDICAMENTS', 'EXPRESSIONS'}
@@ -26,7 +28,7 @@ PATIENT_FIELDS = json.loads((BASE / 'Build/schemas.json').read_text())['PATIENTS
 CORRESP_FIELDS = json.loads((BASE / 'Build/schemas.json').read_text())['CORRESPONDANTS'] + [
     'CleDestination', 'ClesDestination', 'TypesExamen', 'ParDefaut', 'AValider', 'StructureID', 'TypeCorrespondant']
 RDV_FIELDS = ['ID','PatientID','Date','Heure','DureeMin','Motif','ActePrevu','Statut','Notes','DateCreation','DateModif','Nom','Prenom','DDN','TypeActe','HeureArrivee']
-ACTE_FIELDS = ['Code','Libelle','Tarif','CodeAssocie','TarifAssocie','LibelleCerfa','Actif','Notes']
+PAYMENT_MODES = {'CB', 'Cheque', 'Especes', 'Virement', 'Impaye'}
 
 class Service:
     def __init__(self, dsn: str, documents: Documents, clock=None):
@@ -57,7 +59,8 @@ class Service:
         if operation in MEDECIN and 'medecin' not in roles: raise Refus('Role medecin requis.', 403)
         if not roles.intersection({'medecin','secretariat'}): raise Refus('Compte sans role cabinet.',403)
         if operation == 'journal.read' and 'secretariat' not in roles: raise Refus('Role secretariat requis.',403)
-        if operation in {'attentes','reprises','clinical.compare'} and 'medecin' not in roles: raise Refus('Role medecin requis.',403)
+        if operation in {'attentes','reprises','clinical.compare','stale_arrivals'} and 'medecin' not in roles: raise Refus('Role medecin requis.',403)
+        validate(operation, params)
         changing = operation not in READS
         if changing and not re.fullmatch(r'[A-Za-z0-9_-]{16,100}', request_id):
             raise Refus('Identifiant de commande obligatoire.',422)
@@ -85,11 +88,14 @@ class Service:
     def _record(self, db, genre: str, ident: str) -> dict:
         row = db.execute('SELECT donnees,revision FROM ressources WHERE genre=%s AND id=%s',(genre,ident)).fetchone()
         if not row: raise Refus('Enregistrement introuvable.',404)
-        return dict(row['donnees'], _revision=str(row['revision']))
+        data = normaliser_acte(row['donnees'], ident) if genre == 'ACTES' else row['donnees']
+        return dict(data, _revision=str(row['revision']))
 
     def _save(self, db, genre: str, data: dict, update=False) -> dict:
         if genre not in GENRES: raise Refus('Table inconnue.',422)
         data = dict(data)
+        if genre == 'ACTES' and not update and not data.get('Code', '').strip():
+            raise Refus('Code ACTES explicite obligatoire.', 422)
         ident = str(data.get('ID') or data.get('Code') or PREFIX[genre]+uuid.uuid4().hex)
         if not re.fullmatch(r'[\w .:-]{1,100}',ident): raise Refus('Identifiant invalide.',422)
         expected = data.pop('_revision',None)
@@ -102,6 +108,7 @@ class Service:
         elif db.execute('SELECT 1 FROM ressources WHERE genre=%s AND id=%s',(genre,ident)).fetchone():
             raise Refus('Cet identifiant existe deja.')
         fields = {'PATIENTS':PATIENT_FIELDS,'CORRESPONDANTS':CORRESP_FIELDS,'RDV':RDV_FIELDS,'ACTES':ACTE_FIELDS}.get(genre)
+        if genre == 'ACTES': data = normaliser_acte(data, ident, old)
         if fields:
             if set(data) - set(fields) - {'ID'}: raise Refus('Champ inconnu : '+', '.join(sorted(set(data)-set(fields)-{'ID'})),422)
             data = {**dict.fromkeys(fields,''),**data}
@@ -132,6 +139,10 @@ class Service:
             for r in db.execute("SELECT id,donnees FROM ressources WHERE genre='RDV' AND donnees->>'Date'=%s",(data['Date'],)):
                 if r['id'] != ident and chevauche(data,r['donnees']): raise Refus('Creneau deja occupe.')
             state = db.execute('SELECT etat FROM consultations WHERE rdv_id=%s',(ident,)).fetchone()
+            if state and state['etat'] == 'annule' and old and data['Statut'] == 'Prevu' and old['Statut'] != 'Prevu':
+                raise Refus('Arrivee annulee : creez un nouveau rendez-vous.')
+            if old and data['Statut'] != old['Statut']:
+                raise Refus('Utilisez la commande atomique de statut agenda.')
             if state and state['etat'] not in {'annule'} and old and any(data[k]!=old[k] for k in ('Date','Heure','PatientID','Statut')):
                 raise Refus('Consultation deja commencee : modification du rendez-vous refusee.')
         elif genre == 'ACTES':
@@ -156,7 +167,10 @@ class Service:
         if op == 'whoami':
             schema = db.execute('SELECT max(version) AS version FROM schema_version').fetchone()['version']
             return {'ID':actor['identifiant'],'roles':actor['roles'],'version':'2026.09.12',
-                    'protocole':2,'schema':schema,'revision':'2026.09.14-u0'}
+                    'protocole':2,'schema':schema,'revision':'2026.09.14-u1'}
+        if op == 'command.result':
+            row = db.execute('SELECT resultat FROM commandes WHERE compte=%s AND id=%s', (actor['identifiant'], p['id'])).fetchone()
+            return {'trouve': row is not None, 'resultat': row['resultat'] if row else None}
         if op == 'record.get': return self._record(db,p['genre'],p['id'])
         if op in {'table.add','table.update','correspondent.save'}:
             genre='CORRESPONDANTS' if op=='correspondent.save' else p['genre']
@@ -174,7 +188,7 @@ class Service:
             if p.get('year') and genre=='RDV': where.append("right(donnees->>'Date',4)=%s");args.append(str(p['year']))
             if p.get('date') and genre=='RDV': where.append("donnees->>'Date'=%s");args.append(p['date'])
             rows=db.execute('SELECT donnees,revision FROM ressources WHERE '+' AND '.join(where)+' ORDER BY id LIMIT %s OFFSET %s',args+[limit+1,offset]).fetchall()
-            return {'items':[dict(r['donnees'],_revision=str(r['revision'])) for r in rows[:limit]],
+            return {'items':[dict(normaliser_acte(r['donnees'], r['donnees'].get('ID')) if genre == 'ACTES' else r['donnees'],_revision=str(r['revision'])) for r in rows[:limit]],
                     'next':offset+limit if len(rows)>limit else None}
         if op=='arrive':
             rdv=self._record(db,'RDV',p['id']);pat=self._record(db,'PATIENTS',rdv['PatientID'])
@@ -193,12 +207,26 @@ class Service:
             self._set_rdv(db,rdv['ID'],'Arrive');return data
         if op=='attentes':
             return {'items':[r['donnees'] for r in db.execute("SELECT donnees FROM consultations WHERE etat='arrive' AND donnees->>'DateArrivee'=%s ORDER BY modifie_le",(self.clock().strftime('%d/%m/%Y'),))]}
-        if op=='cancel_arrival':
-            self._record(db,'RDV',p['id'])
-            row=db.execute('SELECT * FROM consultations WHERE rdv_id=%s',(p['id'],)).fetchone()
-            if row and row['etat'] not in {'arrive','annule'}: raise Refus('Consultation deja reservee ou publiee.')
-            if row: db.execute("UPDATE consultations SET etat='annule',modifie_le=now() WHERE id=%s",(row['id'],))
-            self._set_rdv(db,p['id'],'Annule');return {'ID':p['id']}
+        if op=='stale_arrivals':
+            return {'items':[dict(r['donnees'], Etat=r['etat']) for r in db.execute("SELECT donnees,etat FROM consultations WHERE etat='arrive' AND donnees->>'DateArrivee'<>%s ORDER BY modifie_le", (self.clock().strftime('%d/%m/%Y'),))]}
+        if op in {'cancel_arrival', 'agenda.status'}:
+            rdv = self._record(db, 'RDV', p['id'])
+            target = p.get('statut', 'Annule')
+            if op == 'agenda.status' and p['revision'] != rdv['_revision']:
+                raise Refus('Rendez-vous modifie : rechargez avant de changer son statut.')
+            if target not in {'Prevu', 'Absent', 'Annule'}: raise Refus('Transition agenda invalide.', 422)
+            row = db.execute('SELECT * FROM consultations WHERE rdv_id=%s', (p['id'],)).fetchone()
+            if rdv['Statut'] == 'Honore' or (row and row['etat'] not in {'arrive', 'annule'}):
+                raise Refus('Consultation deja reservee, publiee ou honoree.')
+            if target == 'Prevu' and row:
+                raise Refus('Arrivee annulee ou ancienne : creez un nouveau rendez-vous.')
+            if target == 'Prevu':
+                candidate = dict(rdv, Statut=target)
+                for other in db.execute("SELECT id,donnees FROM ressources WHERE genre='RDV' AND donnees->>'Date'=%s", (rdv['Date'],)):
+                    if other['id'] != p['id'] and chevauche(candidate, other['donnees']): raise Refus('Creneau deja occupe.')
+            if row: db.execute("UPDATE consultations SET etat='annule',modifie_le=now() WHERE id=%s", (row['id'],))
+            self._set_rdv(db, p['id'], target)
+            return self._record(db, 'RDV', p['id'])
         if op=='claim':
             row=self._consultation(db,p['id'])
             if row['etat']!='arrive': raise Refus('Cette arrivee a deja ete reservee. Utilisez la reprise.')
@@ -231,6 +259,9 @@ class Service:
             if existing:
                 if existing['donnees'].get('empreinte_commande') != empreinte(p):raise Refus('Publication deja utilisee avec un contenu different.')
                 return existing['donnees']
+            if date_fr(p['DateActe']) != date_fr(row['donnees']['DateRdv']): raise Refus('Date de l acte differente du rendez-vous.')
+            for field in ('CheminDocx', 'CheminPdf'):
+                if not self.documents.resoudre(p[field]).is_file(): raise Refus('Fichier de publication indisponible.')
             docx,sha_docx=self.documents.conserver(p['CheminDocx'],'.docx')
             pdf,sha_pdf=self.documents.conserver(p['CheminPdf'],'.pdf')
             data={k:pat.get(k,'') for k in PATIENT_FIELDS};data.pop('ID',None)
@@ -257,21 +288,41 @@ class Service:
             rows=db.execute(query+' ORDER BY s.id,l.n LIMIT %s OFFSET %s',args+[limit+1,offset]).fetchall()
             return {'items':[dict(r['ligne'],FeuilleSoinsImprimee='O' if r['imprimee'] else 'N') for r in rows[:limit]],
                     'next':offset+limit if len(rows)>limit else None}
-        if op=='printed':
-            if not db.execute('UPDATE seances SET imprimee=true WHERE id=%s RETURNING id',(p['id'],)).fetchone():raise Refus('Seance introuvable.',404)
-            return {'ID':p['id']}
-        if op=='payment':
-            row=db.execute('SELECT lignes FROM seances WHERE id=%s',(p['id'],)).fetchone()
-            if not row: raise Refus('Seance introuvable.',404)
-            date_fr(p['date']);lines=row['lignes']
-            if not p.get('mode'): raise Refus('Mode de paiement requis.',422)
-            for line in lines:line.update(Paye='O',DateEncaissement=p['date'],ModePaiement=p['mode'])
-            db.execute('UPDATE seances SET lignes=%s WHERE id=%s',(Jsonb(lines),p['id']));return {'ID':p['id']}
+        if op == 'billing.get': return self._seance(db, p['id'])
+        if op == 'print.request':
+            saved = self._seance(db, p['id'])
+            if saved['impression_etat'] != 'actes_enregistres' and not p['reimpression_confirmee']:
+                raise Refus('Resultat papier incertain ou impression deja confirmee : confirmez une reimpression explicite.')
+            attempt = uuid.uuid4().hex
+            # Avant PrintOut : un crash laisse un resultat inconnu, jamais une
+            # autorisation de reimpression automatique.
+            db.execute("UPDATE seances SET impression_etat='inconnue',impression_tentative=%s WHERE id=%s", (attempt, p['id']))
+            return {'ID': p['id'], 'tentative': attempt, 'impression_etat': 'inconnue'}
+        if op == 'printed':
+            saved = self._seance(db, p['id'])
+            if not p['confirmee'] or p['tentative'] != saved['tentative'] or not p['tentative']:
+                raise Refus('Confirmation papier et tentative concordante requises.')
+            db.execute("UPDATE seances SET imprimee=true,impression_etat='confirmee' WHERE id=%s", (p['id'],))
+            return self._seance(db, p['id'])
+        if op == 'payment':
+            saved = self._seance(db, p['id']); lines = saved['lignes']
+            if p['empreinte'] != saved['empreinte']: raise Refus('Reglement modifie : rechargez la seance.')
+            date_fr(p['date'])
+            if p['mode'] not in PAYMENT_MODES - {'Impaye'}: raise Refus('Mode de paiement invalide.', 422)
+            before = [{k: line.get(k, '') for k in ('CodeActe', 'Montant', 'Paye', 'DateEncaissement', 'ModePaiement')} for line in lines]
+            if any(line.get('Paye') == 'O' for line in lines): raise Refus('Seance deja reglee en tout ou partie : correction comptable explicite requise.')
+            for line in lines: line.update(Paye='O', DateEncaissement=p['date'], ModePaiement=p['mode'])
+            after = [{k: line.get(k, '') for k in ('CodeActe', 'Montant', 'Paye', 'DateEncaissement', 'ModePaiement')} for line in lines]
+            db.execute('INSERT INTO reglements_audit(seance_id,compte,avant,apres) VALUES (%s,%s,%s,%s)', (p['id'], actor['identifiant'], Jsonb(before), Jsonb(after)))
+            db.execute('UPDATE seances SET lignes=%s WHERE id=%s', (Jsonb(lines), p['id']))
+            return self._seance(db, p['id'])
         if op=='ack':
             pub=db.execute('SELECT consultation_id,etat FROM publications WHERE id=%s',(p['id'],)).fetchone()
             if not pub: raise Refus('Publication introuvable.',404)
             if pub['etat']=='remplacee': raise Refus('Une nouvelle version est disponible : rechargez la file.')
             if not db.execute('SELECT 1 FROM seances WHERE id=%s',(pub['consultation_id'],)).fetchone(): raise Refus('Enregistrez les actes avant de terminer.')
+            if self._seance(db, pub['consultation_id'])['impression_etat'] == 'inconnue':
+                raise Refus('Resultat papier inconnu : verifiez l impression avant de terminer.')
             row=self._consultation(db,pub['consultation_id'])
             db.execute("UPDATE publications SET etat='traite' WHERE id=%s",(p['id'],))
             db.execute("UPDATE consultations SET etat='traite',modifie_le=now() WHERE id=%s",(row['id'],))
@@ -286,7 +337,7 @@ class Service:
                     continue  # Un ID explicite est autoritaire, meme absent/inactif.
                 if p.get('cle') and plier(p['cle']) in [plier(x) for x in (d.get('CleDestination','')+';'+d.get('ClesDestination','')+';'+d['ID']).split(';')]:candidates.append(dict(d,_revision=str(r['revision'])))
                 elif p.get('examen') and d.get('ParDefaut')=='1' and plier(p['examen']) in [plier(x) for x in d.get('TypesExamen','').split(';')]:candidates.append(dict(d,_revision=str(r['revision'])))
-            if len(candidates)!=1:raise Refus('Destinataire absent ou ambigu : selectionnez un correspondant identifie.')
+            if len(candidates)!=1:raise Refus('Destinataire absent ou ambigu : selectionnez un correspondant identifie.', 409, 'destination_ambigue' if candidates else 'destination_absente')
             return candidates[0]
         if op=='dictionary.add':
             if p['genre'] not in {'MEDICAMENTS','EXPRESSIONS'}:raise Refus('Dictionnaire inconnu.',422)
@@ -301,6 +352,9 @@ class Service:
         raise Refus('Operation non implementee.',404)
 
     def _facturer(self,db,p):
+        pub = db.execute('SELECT consultation_id,etat FROM publications WHERE id=%s', (p['publication_id'],)).fetchone()
+        if not pub or pub['consultation_id'] != p['id'] or pub['etat'] == 'remplacee':
+            raise Refus('Une nouvelle version est disponible : rechargez la file avant facturation.')
         row=self._consultation(db,p['id'])
         if row['etat'] not in {'publie','traite'}:raise Refus('Courrier non publie : facturation refusee.')
         lines=[dict(x) for x in p['lignes']] if isinstance(p.get('lignes'),list) else None
@@ -315,16 +369,24 @@ class Service:
             if line['CodeActe'] in seen:raise Refus('Acte en double.',422)
             seen.add(line['CodeActe']);line['Montant']=str(montant(line['Montant']))
             if line.get('TiersPayant')=='O' and line.get('Paye')=='O':raise Refus('Tiers payant non encaisse : utiliser la commande de reglement.',422)
-        digest=empreinte(lines)
+            if line.get('ModePaiement', 'Impaye') not in PAYMENT_MODES: raise Refus('Mode de paiement invalide.', 422)
+            if line['Paye'] not in {'O','N'} or line['TiersPayant'] not in {'O','N'}: raise Refus('Indicateur comptable invalide.', 422)
+            if line['Paye'] == 'O':
+                date_fr(line.get('DateEncaissement', ''))
+                if line.get('ModePaiement', 'Impaye') == 'Impaye': raise Refus('Mode de reglement requis.', 422)
+        digest=self._empreinte_selection(lines)
         old=db.execute('SELECT patient_id,empreinte FROM seances WHERE id=%s',(row['id'],)).fetchone()
         if old:
             if old['patient_id']!=row['patient_id']:raise Refus('Collision de patient.')
-            return {'ID':row['id'],'ajoute':False,'selection_differente':old['empreinte']!=digest}
+            saved = self._seance(db, row['id'])
+            return dict(saved, ajoute=False, selection_differente=self._empreinte_selection(saved['lignes']) != digest)
         # Verifier la nomenclature serveur avant la premiere comptabilisation.
         tarifs={}
         for item in db.execute("SELECT donnees FROM ressources WHERE genre='ACTES'"):
             a=item['donnees']
             if a.get('Actif')=='0':continue
+            if a.get('Depassement') and montant(a['Depassement']) != 0:
+                if a.get('Code') in seen: raise Refus('Depassement historique non qualifie : verifier la nomenclature avant facturation.')
             for code,tarif in ((a.get('Code'),a.get('Tarif')),(a.get('CodeAssocie'),a.get('TarifAssocie'))):
                 if code:tarifs.setdefault(code,set()).add(str(montant(tarif)))
         for line in lines:
@@ -334,4 +396,15 @@ class Service:
         for line in lines:
             for key in ('Nom','Prenom','DDN','NIR','AssureNom','AssurePrenom','AssureDDN','AssureNIR'):line[key]=pat.get(key,'')
         db.execute('INSERT INTO seances(id,patient_id,empreinte,lignes) VALUES (%s,%s,%s,%s)',(row['id'],row['patient_id'],digest,Jsonb(lines)))
-        return {'ID':row['id'],'ajoute':True,'selection_differente':False}
+        return dict(self._seance(db, row['id']), ajoute=True, selection_differente=False)
+
+    @staticmethod
+    def _empreinte_selection(lines):
+        keys = ('Date', 'SeanceID', 'PatientID', 'CodeActe', 'Montant', 'TiersPayant')
+        return empreinte(sorted(({k: line.get(k, '') for k in keys} for line in lines), key=lambda x: x['CodeActe']))
+
+    def _seance(self, db, ident):
+        row = db.execute('SELECT * FROM seances WHERE id=%s', (ident,)).fetchone()
+        if not row: raise Refus('Seance introuvable.', 404)
+        return {'ID': ident, 'lignes': row['lignes'], 'empreinte': empreinte(row['lignes']),
+                'impression_etat': row['impression_etat'], 'tentative': row['impression_tentative']}

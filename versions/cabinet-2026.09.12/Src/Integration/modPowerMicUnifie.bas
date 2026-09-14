@@ -17,11 +17,11 @@ Public Sub Unifie_A_NouvelleLettre()
     modIntegrationUnifie.FixerVariable doc, "RdvID", CStr(attente("RdvID"))
     modIntegrationUnifie.FixerVariable doc, "ConsultationID", CStr(attente("ConsultationID"))
     modIntegrationUnifie.FixerVariable doc, "AnneeAgenda", CStr(Year(modTexte.DateFr(CStr(attente("DateRdv")))))
+    modIntegrationUnifie.FixerVariable doc, "DateActe", CStr(attente("DateRdv"))
     modIntegrationUnifie.FixerVariable doc, "ReservationNas", CStr(attente("ReservationNas"))
     modIntegrationUnifie.InitialiserPatientProd doc
     modIntegrationUnifie.SauvegarderBrouillon doc
     sauvegarde = True
-    modAttenteLocale.EnregistrerBrouillon attente, doc.FullName
     modGdt.EcrireGdtPatient pat
     doc.Activate
     modCourrier.AllerDestinataire
@@ -58,6 +58,7 @@ Public Sub Unifie_D_Finaliser()
     If mOccupe Or modProdRapide.PR_EnCours() Then Exit Sub
     mOccupe = True
     On Error GoTo Erreur
+    modIntegrationUnifie.InitialiserPatientProd ActiveDocument
     If Trim$(modIntegrationUnifie.VariableDoc(ActiveDocument, "RelectureEnAttente")) = "1" Then
         modControleCourrier.ValiderEtTransmettre ActiveDocument
     Else

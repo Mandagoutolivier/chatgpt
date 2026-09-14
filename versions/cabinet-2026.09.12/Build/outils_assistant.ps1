@@ -28,7 +28,7 @@ function Choisir-ProfilAssistant {
 function Attendre-FermetureOffice {
     param(
         [ValidateSet('WINWORD','EXCEL')][string[]]$Noms=@('WINWORD','EXCEL'),
-        [ValidateRange(0,30)][int]$DelaiSecondes=5
+        [ValidateRange(0,30)][int]$DelaiSecondes=30
     )
     $running=@(Get-Process -Name $Noms -ErrorAction SilentlyContinue)
     if ($running.Count -eq 0) { return }
@@ -75,6 +75,7 @@ function Autoriser-AccesVbaAssistant([string]$Journal) {
     Attendre-FermetureOffice
     Restaurer-AccesVbaAssistant $Journal
     $saved=[pscustomobject]@{sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value;items=@()}
+    try {
     foreach ($hostName in @('Word','Excel')) {
         $app=$null
         try {
@@ -101,6 +102,11 @@ function Autoriser-AccesVbaAssistant([string]$Journal) {
         Ecrire-EtatAssistant $Journal $saved
         if (-not (Test-Path -LiteralPath $path)) { [void](New-Item -Path $path -Force) }
         New-ItemProperty -LiteralPath $path -Name AccessVBOM -Value 1 -PropertyType DWord -Force | Out-Null
+    }
+    } catch {
+        $cause=$_
+        try { Restaurer-AccesVbaAssistant $Journal } catch { Write-Warning 'Restauration AccessVBOM incomplete : journal conserve.' }
+        throw $cause
     }
 }
 

@@ -17,6 +17,7 @@ Public Sub Ruban_Action(ByVal control As IRibbonControl)
         Case "cabDerivee":      macro = "Unifie_D_Finaliser"
         Case "cabValider":      macro = "Unifie_D_Finaliser"
         Case "cabReprendre":     macro = "Unifie_ReprendreBrouillon"
+        Case "cabAnciennes":    macro = "Unifie_AfficherArriveesAnciennes"
         Case "cabEcg":          macro = "EnvoyerECG"
         Case "cabGras":         macro = "MettreEnGras"
         Case "cabMedicaments":  macro = "OuvrirDictionnaireMedicaments"

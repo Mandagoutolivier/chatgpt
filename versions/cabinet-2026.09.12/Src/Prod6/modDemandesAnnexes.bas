@@ -12,83 +12,18 @@ Option Explicit
 '===============================================================================
 
 Public Function CT_ConstruireCollectionDemandes() As Collection
-
-    Dim demandes As Collection
-    Dim demande As Object
-
-    Dim texteReponse As String
-    Dim positionRecherche As Long
-    Dim positionDebutBloc As Long
-    Dim positionFinBloc As Long
-    Dim longueurBloc As Long
-
-    Dim blocComplet As String
-    Dim cleDestination As String
-    Dim corpsDestination As String
-
-    Set demandes = New Collection
-
-    texteReponse = gReponseAPICabinetTest
-
-    If Trim$(texteReponse) = "" Then
-        Set CT_ConstruireCollectionDemandes = demandes
-        Exit Function
-    End If
-
-    positionRecherche = 1
-
-    Do
-
-        positionDebutBloc = InStr( _
-            positionRecherche, _
-            texteReponse, _
-            BALISE_DEBUT_DEMANDE_DESTINATION, _
-            vbTextCompare)
-
-        If positionDebutBloc = 0 Then Exit Do
-
-        positionFinBloc = InStr( _
-            positionDebutBloc + Len(BALISE_DEBUT_DEMANDE_DESTINATION), _
-            texteReponse, _
-            BALISE_FIN_DEMANDE_DESTINATION, _
-            vbTextCompare)
-
-        If positionFinBloc = 0 Then Err.Raise vbObjectError + 967, , "Bloc de demande incomplet."
-
-        longueurBloc = _
-            positionFinBloc - positionDebutBloc + _
-            Len(BALISE_FIN_DEMANDE_DESTINATION)
-
-        blocComplet = Mid$( _
-            texteReponse, _
-            positionDebutBloc, _
-            longueurBloc)
-
-        cleDestination = CT_ExtraireCleDestination(blocComplet)
-        corpsDestination = CT_ExtraireCorpsDestination(blocComplet)
-        If Len(cleDestination) = 0 Or Len(corpsDestination) = 0 Then Err.Raise vbObjectError + 968, , "Demande sans destinataire ou corps."
-
-        If Trim$(cleDestination) <> "" _
-        And Trim$(corpsDestination) <> "" Then
-
-            Set demande = CreateObject("Scripting.Dictionary")
-
-            demande.Add "CleDestination", cleDestination
-            demande.Add "CorpsDestination", corpsDestination
-            demande.Add "BlocComplet", blocComplet
-
-            demandes.Add demande
-
-        End If
-
-        positionRecherche = _
-            positionFinBloc + _
-            Len(BALISE_FIN_DEMANDE_DESTINATION)
-
-    Loop
-
+    Dim resultat As Object, demande As Object, item As Object, demandes As New Collection, numero As Long
+    If Len(Trim$(gReponseAPICabinetTest)) = 0 Then Set CT_ConstruireCollectionDemandes = demandes: Exit Function
+    Set resultat = modOpenAI_v22_corrige.ValiderStructure(modJson.JsonParse(gReponseAPICabinetTest))
+    For Each demande In resultat("demandes")
+        numero = numero + 1
+        Set item = modServiceNas.Parametres()
+        item("CleDestination") = CStr(demande("cle_destination"))
+        item("CorpsDestination") = CStr(demande("corps"))
+        item("Numero") = numero: item("BlocComplet") = CStr(numero)
+        demandes.Add item
+    Next demande
     Set CT_ConstruireCollectionDemandes = demandes
-
 End Function
 
 Private Function CT_ExtraireCleDestination( _

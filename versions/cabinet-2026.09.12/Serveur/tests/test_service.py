@@ -88,7 +88,7 @@ def test_u0_explicit_correspondent_cannot_fall_back(service):
 
 def test_u0_service_release_contract(service):
     result=rpc(service,'whoami',role='medecin')
-    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.14-u0'
+    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.14-u1'
 
 
 def test_u0_rebase_sql_preserves_identity_and_cached_results(service):
@@ -176,14 +176,15 @@ def test_publication_identite_relecture_destinataire(service):
 
 def test_facturation_idempotence_revision_et_traitement_atomique(service):
     arr,pat,p=publication(service);pub=rpc(service,'publish',p,'medecin')
-    args={'id':arr['ID'],'lignes':[ligne(arr,pat)]}
+    args={'id':arr['ID'],'publication_id':p['PublicationID'],'lignes':[ligne(arr,pat)]}
     with pytest.raises(Refus,match='actes'):rpc(service,'ack',{'id':pub['PublicationID']})
     assert rpc(service,'bill',args)['ajoute'] is True
     assert rpc(service,'bill',args)['ajoute'] is False
-    changed={'id':arr['ID'],'lignes':[dict(ligne(arr,pat),Montant='13.00')]}
+    changed={'id':arr['ID'],'publication_id':p['PublicationID'],'lignes':[dict(ligne(arr,pat),Montant='13.00')]}
     assert rpc(service,'bill',changed)['selection_differente'] is True
     assert rpc(service,'journal.read')['items'][0]['Montant']=='12.30'
-    rpc(service,'printed',{'id':arr['ID']})
+    attempt=rpc(service,'print.request',{'id':arr['ID'],'reimpression_confirmee':False})
+    rpc(service,'printed',{'id':arr['ID'],'tentative':attempt['tentative'],'confirmee':True})
     rpc(service,'ack',{'id':pub['PublicationID']})
     assert rpc(service,'publications')['items']==[]
     assert rpc(service,'record.get',{'genre':'RDV','id':arr['RdvID']})['Statut']=='Honore'
@@ -218,17 +219,17 @@ def test_publication_id_reutilise_different(service):
 
 def test_tarif_altere_refuse_avant_facturation(service):
     arr,pat,p=publication(service);rpc(service,'publish',p,'medecin')
-    with pytest.raises(Refus,match='nomenclature'):rpc(service,'bill',{'id':arr['ID'],'lignes':[dict(ligne(arr,pat),Montant='1.00')]})
+    with pytest.raises(Refus,match='nomenclature'):rpc(service,'bill',{'id':arr['ID'],'publication_id':p['PublicationID'],'lignes':[dict(ligne(arr,pat),Montant='1.00')]})
     assert rpc(service,'journal.read')['items']==[]
 
 
 def test_identite_archivee_et_pagination_journal(service):
     arr,pat,p=publication(service);pub=rpc(service,'publish',dict(p,Nom='NE DOIT PAS REMPLACER IDENTITE'),'medecin')
     assert pub['Nom']==pat['Nom']
-    rpc(service,'bill',{'id':arr['ID'],'lignes':[ligne(arr,pat)]})
+    rpc(service,'bill',{'id':arr['ID'],'publication_id':p['PublicationID'],'lignes':[ligne(arr,pat)]})
     out=rpc(service,'journal.read',{'limit':1,'id':arr['ID']})
     assert out['items'][0]['Nom']==pat['Nom'] and out['next'] is None
-    rpc(service,'payment',{'id':arr['ID'],'date':'12/09/2026','mode':'TEST'})
+    rpc(service,'payment',{'id':arr['ID'],'date':'12/09/2026','mode':'CB','empreinte':rpc(service,'billing.get',{'id':arr['ID']})['empreinte']})
     assert rpc(service,'journal.read')['items'][0]['Paye']=='O'
 
 

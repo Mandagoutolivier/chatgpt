@@ -139,7 +139,7 @@ End Function
 
 Public Function HeureValide(ByVal s As String) As Boolean
     Dim p() As String
-    s = Replace(Trim$(s), "h", ":")
+    s = Replace(LCase$(Trim$(s)), "h", ":")
     p = Split(s, ":")
     If UBound(p) <> 1 Then Exit Function
     If Not (EstEntier(Trim$(p(0))) And EstEntier(Trim$(p(1)))) Then Exit Function
@@ -152,7 +152,7 @@ End Function
 Public Function MinutesDepuisMinuit(ByVal heure As String) As Long
     Dim p() As String
     If Not HeureValide(heure) Then MinutesDepuisMinuit = -1: Exit Function
-    p = Split(Replace(Trim$(heure), "h", ":"), ":")
+    p = Split(Replace(LCase$(Trim$(heure)), "h", ":"), ":")
     MinutesDepuisMinuit = Val(p(0)) * 60 + Val(p(1))
 End Function
 

@@ -5,6 +5,7 @@
       <button id="cabNouveau" label="A · Patient arrivé" onAction="Ruban_Action" size="large" imageMso="FileNew"/>
       <button id="cabPatient" label="C · Insérer identité" onAction="Ruban_Action"/>
       <button id="cabCorriger" label="D · Corriger / transmettre" onAction="Ruban_Action" size="large" imageMso="FileSave"/>
+      <button id="cabAnciennes" label="Arrivées anciennes" onAction="Ruban_Action"/>
       <button id="cabReprendre" label="Reprendre un brouillon" onAction="Ruban_Action"/>
       <button id="cabEcg" label="Envoyer à l’ECG" onAction="Ruban_Action"/>
     </group>

@@ -37,8 +37,8 @@ Public Function PatientVerifie(ByVal doc As Document) As Object
     If Not modTexte.DateFrValide(CStr(pat("DDN"))) Then Err.Raise vbObjectError + 954, "modIntegrationUnifie", "Date de naissance invalide."
     If modTexte.DateFr(CStr(pat("DDN"))) > Date Then Err.Raise vbObjectError + 955, "modIntegrationUnifie", "Date de naissance future."
     If Len(modTexte.SexeNormalise(CStr(pat("Sexe")))) = 0 Then Err.Raise vbObjectError + 956, "modIntegrationUnifie", "Sexe patient indetermine."
-    If Len(Trim$(VariableDoc(doc, "ConsultationID"))) = 0 Then FixerVariable doc, "ConsultationID", modFichiers.IdUnique()
-    If Len(Trim$(VariableDoc(doc, "DateActe"))) = 0 Then FixerVariable doc, "DateActe", Format$(Date, "dd/mm/yyyy")
+    If Len(Trim$(VariableDoc(doc, "ConsultationID"))) = 0 Then Err.Raise vbObjectError + 956, , "Consultation NAS absente : rattachez ce courrier par la file de reprise."
+    If Not modTexte.DateFrValide(Trim$(VariableDoc(doc, "DateActe"))) Then Err.Raise vbObjectError + 956, , "Date de consultation absente ou invalide."
     Set PatientVerifie = pat
 End Function
 
@@ -57,7 +57,7 @@ End Function
 Public Sub SauvegarderBrouillon(ByVal doc As Document)
     Dim pat As Object, chemin As String
     Set pat = PatientVerifie(doc)
-    chemin = modPatient.DossierPatient(pat) & "\brouillon_" & modFichiers.IdUnique() & ".docx"
+    chemin = modPatient.DossierPatient(pat) & "\brouillon_" & modFichiers.NomFichierSur(VariableDoc(doc, "ConsultationID")) & ".docx"
     doc.SaveAs2 FileName:=chemin, FileFormat:=wdFormatXMLDocument, AddToRecentFiles:=False
     If Not modFichiers.FichierExiste(chemin) Then Err.Raise vbObjectError + 957, "modIntegrationUnifie", "Brouillon non enregistre sur le NAS."
     Dim reservation As String, attente As Object
@@ -97,7 +97,9 @@ Public Sub Unifie_ReprendreBrouillon()
         MsgBox "L ouverture a ete interrompue avant l enregistrement du lien vers le brouillon. Faites verifier cette reservation et le dossier patient sur le NAS avant de la liberer.", vbExclamation, "Consultation a recuperer"
         Exit Sub
     End If
-    Documents.Open FileName:=CStr(choisi("CheminBrouillon")), AddToRecentFiles:=False
+    Dim doc As Document
+    Set doc = Documents.Open(FileName:=CStr(choisi("CheminBrouillon")), AddToRecentFiles:=False)
+    InitialiserPatientProd doc
     Exit Sub
 Echec:
     MsgBox "Reprise impossible : " & Err.Description, vbExclamation, "Cabinet"
@@ -153,3 +155,21 @@ Private Function EstPolitesseFinale(ByVal texte As String) As Boolean
             EstPolitesseFinale = True
     End Select
 End Function
+
+Public Sub Unifie_AfficherArriveesAnciennes()
+    Dim resultat As Object, items As Collection, f As ufListe
+    On Error GoTo Echec
+    Set resultat = modServiceNas.Appeler("stale_arrivals", modServiceNas.Parametres())
+    Set items = modServiceNas.ItemsValides(resultat)
+    If items.Count = 0 Then MsgBox "Aucune arrivee ancienne en attente.", vbInformation, "Cabinet": Exit Sub
+    Set f = New ufListe
+    f.Configurer "Arrivees anciennes a verifier avec le secretariat", items, Array("DateRdv", "HeureRdv", "Nom", "Prenom"), "70 pt;55 pt;120 pt;100 pt"
+    f.Controls("btnOK").Visible = False
+    f.Controls("btnAnnuler").Caption = "Fermer"
+    f.Show vbModal
+    Unload f
+    Exit Sub
+Echec:
+    If Not f Is Nothing Then Unload f
+    MsgBox "Liste des arrivees anciennes indisponible : " & Err.Description, vbExclamation, "Cabinet"
+End Sub

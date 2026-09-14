@@ -51,6 +51,8 @@ Private Sub InstallerRaccourcisSession(ByVal verbeux As Boolean)
     majuscule = Array(False, True, False, False, False, False, False)
     macros = Array("Unifie_A_NouvelleLettre", "Unifie_D_Finaliser", "Unifie_D_Finaliser", _
                    "Unifie_C_InsererPatient", "EnvoyerECG", "Unifie_D_Finaliser", "MettreEnGras")
+    Dim ancienContexte As Object
+    Set ancienContexte = Application.CustomizationContext
     CustomizationContext = modele
     For i = 0 To UBound(touches)
         Dim code As Long
@@ -73,6 +75,7 @@ Private Sub InstallerRaccourcisSession(ByVal verbeux As Boolean)
     Err.Clear
     KeyBindings.Add wdKeyCategoryMacro, "InsererPatient", BuildKeyCode(wdKeyF6)
     If Err.Number = 0 Then repares = repares + 1
+    CustomizationContext = ancienContexte
     modele.Saved = True          ' aucune invite d'enregistrement du modele
     If verbeux Then MsgBox "Raccourcis verifies : " & repares & " reinstalle(s) (Ctrl+Alt+N/D/P/G/V/B, Ctrl+Alt+Maj+C).", vbInformation, "Cabinet"
     modLog.LogInfo "Raccourcis (re)poses : " & repares & "/7"
@@ -80,28 +83,18 @@ End Sub
 
 ' Diagnostic a lancer depuis Alt+F8 en cas de probleme : etat de la configuration du poste
 Public Sub DiagnosticCabinet()
-    On Error Resume Next
-    Dim r As String, f As String, racine As String, n As Long
-    f = Environ$("APPDATA") & "\CabinetCardio\chemin.txt"
-    r = "APPDATA : " & Environ$("APPDATA") & vbCrLf
-    r = r & "chemin.txt (FSO) : " & modFichiers.FichierExiste(f) & "   (Dir$) : " & (Len(Dir$(f)) > 0) & vbCrLf
-    Err.Clear
-    racine = modConfig.racine()
-    If Err.Number <> 0 Then r = r & "Racine : ERREUR " & Err.Description & vbCrLf: Err.Clear Else r = r & "Racine : " & racine & vbCrLf
-    r = r & "Racine existe (FSO) : " & modFichiers.DossierExiste(racine) & vbCrLf
-    r = r & "config.ini modele API : " & modConfig.Config("API", "Modele", "(absent)") & vbCrLf
-    r = r & "Patients.xlsx : " & modFichiers.FichierExiste(modConfig.FichierPatients()) & vbCrLf
-    r = r & "LETTRE TYPE.dot : " & modFichiers.FichierExiste(modConfig.chemin("Modeles") & "\LETTRE TYPE.dot") & vbCrLf
-    r = r & "api.key : " & modFichiers.FichierExiste(Environ$("APPDATA") & "\CabinetCardio\api.key") & vbCrLf
-    Err.Clear
-    n = modBase.patients(True).Count
-    If Err.Number <> 0 Then r = r & "Lecture base : ERREUR " & Err.Description & vbCrLf: Err.Clear Else r = r & "Lecture base : " & n & " patients" & vbCrLf
-    Dim t As Template
-    For Each t In Templates
-        r = r & "Modele charge : " & t.Name & vbCrLf
-    Next t
-    modLog.LogInfo "Diagnostic : " & Replace(r, vbCrLf, " | ")
-    MsgBox r, vbInformation, "Cabinet - diagnostic"
+    On Error GoTo Echec
+    Dim r As Object, texte As String, t As Template
+    Set r = modServiceNas.Appeler("whoami", modServiceNas.Parametres())
+    texte = "Service NAS : " & CStr(r("revision")) & vbCrLf & "Protocole " & CStr(r("protocole")) & " / schema " & CStr(r("schema"))
+    texte = texte & vbCrLf & "Modele de correction : " & modConfig.Config("API", "ModeleOpenAI", "(absent)")
+    texte = texte & vbCrLf & "Modele de lettre : " & CStr(modFichiers.FichierExiste(modConfig.chemin("Modeles") & "\LETTRE TYPE.dot"))
+    For Each t In Templates: texte = texte & vbCrLf & "Modele charge : " & t.Name: Next t
+    MsgBox texte, vbInformation, "Diagnostic Cabinet"
+    Exit Sub
+Echec:
+    modLog.Diagnostic "diagnostic_word", "echec", Err.Number
+    MsgBox "Connexion ou configuration indisponible : " & Err.Description, vbExclamation, "Diagnostic Cabinet"
 End Sub
 
 Private Function TrouverModeleCabinet() As Template

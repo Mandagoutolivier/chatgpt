@@ -12,12 +12,12 @@ function Empreintes-Sources([string]$Racine) {
 }
 function Ecrire-Preparation([string]$Dossier,[string]$Profil,[string]$Racine) {
     $binaries=[ordered]@{}
-    foreach ($name in @('CabinetUnifie.dotm','Cabinet.xlsm','sqlite3.exe')) {
+    foreach ($name in @('CabinetUnifie.dotm','Cabinet.xlsm')) {
         $path=Join-Path $Dossier $name
         if (Test-Path -LiteralPath $path) { $binaries[$name]=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash }
     }
     $receipt=[ordered]@{version='2026.09.12';profil=$Profil;sources=(Empreintes-Sources $Racine);binaires=$binaries;compilationOffice='A effectuer sur ce PC'}
-    $receipt['release']='2026.09.14-u0'
+    $receipt['release']='2026.09.14-u1'
     $receipt['commitSources']=$env:CABINET_SOURCE_COMMIT
     $receipt | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $Dossier 'preparation.json') -Encoding UTF8
 }
@@ -30,7 +30,7 @@ function Verifier-Preparation([string]$Dossier,[string]$Profil,[string]$Racine) 
         if ($current[$item.Name] -ne $item.Value) { throw "Source modifiee depuis la preparation : $($item.Name)" }
     }
     $required=@()
-    if ($Profil -in @('Domicile','CabinetMedecin')) { $required+=@('CabinetUnifie.dotm','sqlite3.exe') }
+    if ($Profil -in @('Domicile','CabinetMedecin')) { $required+=@('CabinetUnifie.dotm') }
     if ($Profil -in @('Domicile','CabinetSecretariat')) { $required+='Cabinet.xlsm' }
     foreach ($name in $required) {
         $property=$receipt.binaires.PSObject.Properties[$name]
@@ -45,4 +45,37 @@ function Proteger-FichierLocal([string]$Path) {
         $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($identity,'FullControl','Allow')))
     }
     Set-Acl -LiteralPath $Path -AclObject $acl
+}
+
+function Fusionner-IniPoste([string]$Ancien,[System.Collections.IDictionary]$Valeurs) {
+    $lignes=New-Object 'System.Collections.Generic.List[string]'
+    $ecrits=@{};$section=''
+    foreach ($line in ($Ancien -split '\r?\n')) {
+        if ($line -match '^\s*\[([^]]+)\]') { $section=$Matches[1].ToLowerInvariant() }
+        if ($line -match '^\s*([^;#=]+?)\s*=(.*)$') {
+            $key=$section+'|'+$Matches[1].Trim().ToLowerInvariant()
+            if ($Valeurs.Contains($key)) {
+                if (-not $ecrits.ContainsKey($key)) { $lignes.Add($Matches[1].Trim()+'='+[string]$Valeurs[$key]);$ecrits[$key]=$true }
+                continue
+            }
+        }
+        $lignes.Add($line)
+    }
+    foreach ($key in $Valeurs.Keys) {
+        if (-not $ecrits.ContainsKey($key)) {
+            $parts=$key.Split('|');$lignes.Add('['+$parts[0]+']');$lignes.Add($parts[1]+'='+[string]$Valeurs[$key])
+        }
+    }
+    return ($lignes -join "`r`n").TrimEnd()+"`r`n"
+}
+
+function Restaurer-FichierAvecDroits($Item) {
+    if ($Item.backup) {
+        [IO.File]::Copy($Item.backup,$Item.destination,$true)
+        if ($Item.PSObject.Properties['sddl'] -and $Item.sddl) {
+            $acl=New-Object Security.AccessControl.FileSecurity
+            $acl.SetSecurityDescriptorSddlForm([string]$Item.sddl)
+            Set-Acl -LiteralPath $Item.destination -AclObject $acl
+        }
+    } elseif ([IO.File]::Exists($Item.destination)) { [IO.File]::Delete($Item.destination) }
 }

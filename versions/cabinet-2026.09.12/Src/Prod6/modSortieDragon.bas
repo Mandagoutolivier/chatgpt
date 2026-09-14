@@ -508,3 +508,14 @@ End Function
 Private Function SD_DOSSIER_SORTIE() As String
     SD_DOSSIER_SORTIE = modConfig.CheminNasConfigure("SORTIE", "Dossier", "\\DS224\home\sortiedragon")
 End Function
+
+Public Function SD_CopierRevisionFinale(ByVal doc As Document, ByVal source As String, ByVal publicationID As String, ByRef destination As String) As Boolean
+    Dim pat As Object, fso As Object, base As String
+    Set pat = modIntegrationUnifie.PatientVerifie(doc)
+    SD_CreerDossierSiNecessaire SD_DOSSIER_SORTIE
+    base = modFichiers.NomFichierSur(UCase$(CStr(pat("Nom"))) & " " & CStr(pat("Prenom")) & " " & publicationID)
+    destination = SD_DOSSIER_SORTIE & "\" & base & ".docx"
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    fso.CopyFile source, destination, True
+    SD_CopierRevisionFinale = fso.FileExists(destination)
+End Function

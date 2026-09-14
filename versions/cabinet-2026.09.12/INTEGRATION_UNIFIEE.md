@@ -6,7 +6,7 @@
 |---|---|---|
 | Excel secrétariat | Saisie, agenda, arrivée, file des courriers, actes, export du journal | Aucun classeur de base modifié directement |
 | Word médecin | Dragon, signets, A/B/C/D, API et relecture | Brouillons/documents sur le partage Synology |
-| Cache SQLite | Dernières arrivées reçues, sélection locale | PC médecin uniquement, reconstructible |
+| File locale | Filtrage et tri des arrivées reçues | Mémoire uniquement, reconstruite depuis le NAS |
 | API métier | Authentification, rôles, validation, transitions et conflits | Conteneur Synology |
 | PostgreSQL | Patients, correspondants, agenda, nomenclature, dictionnaires, séances, publications et journal | Volume local Synology |
 | Documents publiés | Versions DOCX/PDF conservées sous empreinte SHA-256 | `Documents` du partage NAS |
@@ -19,7 +19,7 @@ flowchart TD
   W["Word médecin"] --> A
   A --> P["PostgreSQL sur Synology"]
   A --> D["Archives DOCX et PDF"]
-  W --> C["Cache local et export GDT"]
+  W --> C["File en mémoire et export GDT"]
   W --> O["API de correction après masquage"]
 ```
 
@@ -51,7 +51,7 @@ Les mutations sont sérialisées par verrou transactionnel PostgreSQL, puis enre
 
 ## Correction des courriers
 
-Le transport reste celui de PROD6, via OpenAI Responses. Une sortie JSON stricte remplace le texte libre pour le contrat : `corps_courrier` et `demandes[{cle_destination, corps}]`. Le parseur vérifie types, champs obligatoires, doublons et délimiteurs internes. Les délimiteurs historiques ne sont reconstruits qu'après cette validation pour alimenter le moteur Word existant. Le format `text.format` suit la [documentation des sorties structurées](https://developers.openai.com/api/docs/guides/structured-outputs).
+Le transport reste celui de PROD6, via OpenAI Responses. Une sortie JSON stricte remplace le texte libre pour le contrat : `corps_courrier` et `demandes[{cle_destination, corps}]`. Le parseur vérifie types, champs obligatoires, doublons et délimiteurs internes. Le flux D actif conserve le JSON structuré jusqu'aux annexes ; plusieurs destinations inconnues sont distinguées par leur numéro. Les adaptateurs historiques restent hors de ce flux. Le format `text.format` suit la [documentation des sorties structurées](https://developers.openai.com/api/docs/guides/structured-outputs).
 
 Le résultat est comparé à la source sur les nombres/unités, négations et marqueurs d'identité. Les différences sont montrées au médecin. Il s'agit de contrôles de régression, pas d'une validation sémantique médicale ; une phrase peut changer de sens sans modifier ces marqueurs. La relecture de toutes les pages reste obligatoire, y compris des annexes. Les positions/signatures et le gras sont ensuite ceux des moteurs repris et corrigés.
 
@@ -61,6 +61,13 @@ Le masquage du texte libre demeure incomplet par nature : il ne garantit pas de 
 
 `Serveur/cabinet/domain.py` porte les règles pures ; `service.py` les transactions ; `files.py` les archives ; `api.py` le transport ; `migration.py` l'import ; `admin.py` l'exploitation. Le schéma est versionné. Les clients utilisent `modServiceNas`, avec des adaptateurs conservant les signatures des formulaires Office.
 
-Les modules aux noms trompeurs deviennent `modApiConfiguration`, `modDestinations`, `modDemandesAnnexes`. Sept anciens composants de saisie et deux modules de tests historiques ont été retirés du manifeste ; 47 procédures privées sans référence ont été supprimées. Les anciens points publics compatibles sont conservés lorsqu'une commande Dragon externe peut encore les appeler, et les transports concurrents restent désactivés. Le constructeur retire les composants non déclarés avant d'injecter les sources.
+Les modules aux noms trompeurs deviennent `modApiConfiguration`, `modDestinations`, `modDemandesAnnexes`. Sept anciens composants de saisie et deux modules de tests historiques ont été retirés du manifeste ; 47 procédures privées sans référence ont été supprimées. Les anciens points publics compatibles sont conservés lorsqu'une commande Dragon externe peut encore les appeler, et les transports concurrents restent désactivés. Avant toute injection, le constructeur refuse un composant local inconnu. Seuls les composants historiques explicitement listés peuvent être retirés des copies de construction.
 
 La sérialisation globale des mutations convient au volume d'un petit cabinet. Une augmentation importante du nombre d'utilisateurs demandera des mesures et des verrous plus fins. Le journal métier n'est pas un journal d'audit cryptographiquement inviolable.
+## Reprise U1
+
+Une mutation NAS conserve son identifiant de commande dans un fichier local sans patient ni contenu de requête. Après une réponse incertaine, le client interroge le résultat de cette commande avant de la rejouer.
+
+Le cycle Word conserve la source immuable, les résultats et les choix de destination avec DPAPI, sous le compte Windows courant. Une interruption ne relance pas automatiquement un appel IA dont le résultat est inconnu. Une modification du texte nécessite un nouveau cycle explicite. Le verrou local évite deux corrections simultanées d'une consultation sur le même poste.
+
+La migration ACTES canonise les libellés tout en conservant les valeurs et leur historique. Un dépassement non nul dont le sens n'est pas qualifié bloque la facturation de l'acte ; aucun montant n'est déduit arbitrairement. Les impressions relisent les lignes enregistrées et chaque règlement conserve son avant/après.

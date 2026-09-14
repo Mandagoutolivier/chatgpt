@@ -24,7 +24,7 @@ try {
         $state=[pscustomobject]@{profil=$Profil;racineSources=$root;manifeste=$sourceHash;racineNas=$nasConserve;dossierPrepare='';phase='nouveau';wordCompile=$false;excelCompile=$false;wordHash='';excelHash='';recette=$false;dossierGdt=$DossierGdt}
         Ecrire-EtatAssistant $statePath $state
     }
-    if (Test-Path -LiteralPath $journal) { Attendre-FermetureOffice;Restaurer-AccesVbaAssistant $journal }
+    if (Test-Path -LiteralPath $journal) { Restaurer-AccesVbaAssistant $journal;Attendre-FermetureOffice }
     if ($state.phase -eq 'installe') { Write-Host "Le profil $Profil a deja ete installe par ce lanceur. Dossier : $($state.dossierPrepare)";return }
     $ancienNas=$state.racineNas
     $RacineNas=Choisir-RacineNasAssistant $RacineNas $ancienNas (Join-Path (Split-Path $local -Parent) 'chemin.txt')
@@ -62,12 +62,14 @@ try {
         }
         if ($state.excelCompile) { $state.excelHash=(Get-FileHash -LiteralPath (Join-Path $state.dossierPrepare 'Cabinet.xlsm')).Hash }
         $state.phase='compile';Ecrire-EtatAssistant $statePath $state
+        Restaurer-AccesVbaAssistant $journal
         if (-not $state.recette) {
             $state.recette=Confirmer-RecetteAssistant (Join-Path $root 'RECETTE_WINDOWS.md') $state.dossierPrepare
             Ecrire-EtatAssistant $statePath $state
             if (-not $state.recette) { Write-Host 'Preparation conservee. Relancez ce meme lanceur et choisissez le meme profil pour reprendre.';return }
         }
         Attendre-FermetureOffice
+        Autoriser-AccesVbaAssistant $journal
         # La recette peut enregistrer le classeur : reconfirmer la compilation du fichier final.
         if ($medecin -and (Get-FileHash -LiteralPath (Join-Path $state.dossierPrepare 'CabinetUnifie.dotm')).Hash -ne $state.wordHash) {
             $state.wordCompile=Compiler-ProjetAssistant (Join-Path $state.dossierPrepare 'CabinetUnifie.dotm') 'Word'
@@ -81,7 +83,7 @@ try {
         & (Join-Path $PSScriptRoot 'valider_preparation.ps1') -DossierPrepare $state.dossierPrepare -CompilationWordValidee:$state.wordCompile -CompilationExcelValidee:$state.excelCompile -RecetteValidee:$state.recette
         $state.phase='valide';Ecrire-EtatAssistant $statePath $state
     } finally {
-        if (Test-Path -LiteralPath $journal) { Attendre-FermetureOffice;Restaurer-AccesVbaAssistant $journal }
+        if (Test-Path -LiteralPath $journal) { Restaurer-AccesVbaAssistant $journal;Attendre-FermetureOffice }
     }
     } else {
         Verifier-Preparation $state.dossierPrepare $Profil $root

@@ -11,6 +11,7 @@ import openpyxl
 from psycopg.types.json import Jsonb
 from .domain import Refus, plier, empreinte, date_fr, patient_valide, creneau, montant
 from .api import service_environnement
+from .actes import normaliser as normaliser_acte
 from .service import PATIENT_FIELDS,CORRESP_FIELDS,RDV_FIELDS,ACTE_FIELDS
 
 
@@ -120,6 +121,7 @@ def construire_plan(root:Path):
             ident=old.get('Code') or empreinte(plier(old.get('Terme','')))
             if genre=='ACTES':
                 try:
+                    old = normaliser_acte(dict(old, ID=ident), ident)
                     montant(old.get('Tarif',''))
                     if old.get('CodeAssocie'):montant(old.get('TarifAssocie',''))
                 except Refus as exc:errors.append('Nomenclature '+ident+' : '+str(exc))
