@@ -225,3 +225,26 @@ def test_migration_import_atomique_et_reexecution(service,tmp_path):
 def test_refus_statut_arrive_sans_transition(service):
     _,pat,_,_=parcours(service)
     with pytest.raises(Refus,match='nouveau rendez-vous'):rpc(service,'table.add',{'genre':'RDV','data':{'PatientID':pat['ID'],'Date':'12/09/2026','Heure':'13:00','DureeMin':'15','Statut':'Arrive'}})
+
+
+def test_acte_importe_reste_modifiable_et_code_immuable(service):
+    from cabinet.migration import appliquer
+    plan={'ressources':[{'genre':'ACTES','id':'CS','data':{'ID':'CS','Code':'CS','LibelleCourt':'Consultation','Libelle':'','Tarif':'30.00','Depassement':'0','Actif':'1'}}],
+          'historique':[],'erreurs':[],'avertissements':[]}
+    assert appliquer(service,plan)=='importe'
+    acte=rpc(service,'record.get',{'genre':'ACTES','id':'CS'})
+    updated=rpc(service,'table.update',{'genre':'ACTES','data':dict(acte,Tarif='31.00')})
+    assert updated['Tarif']=='31.00' and updated['Libelle']=='Consultation'
+    with pytest.raises(Refus,match='identique'):
+        rpc(service,'table.update',{'genre':'ACTES','data':dict(updated,Code='AUTRE')})
+
+
+def test_absent_atomique_et_annule_non_reactivable(service):
+    _,_,rdv,arr=parcours(service)
+    rpc(service,'absent',{'id':rdv['ID']})
+    assert rpc(service,'record.get',{'genre':'RDV','id':rdv['ID']})['Statut']=='Absent'
+    assert rpc(service,'attentes',role='medecin')['items']==[]
+    actuel=rpc(service,'record.get',{'genre':'RDV','id':rdv['ID']})
+    annule=rpc(service,'table.update',{'genre':'RDV','data':dict(actuel,Statut='Annule')})
+    with pytest.raises(Refus,match='nouveau rendez-vous'):
+        rpc(service,'table.update',{'genre':'RDV','data':dict(annule,Statut='Prevu')})
