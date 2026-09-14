@@ -29,7 +29,8 @@ End Function
 ' Renvoie le SeanceID.
 Public Function EnregistrerSeance(ByVal infos As Object, ByVal ActesChoisis As Collection, _
                                   ByVal modePaiement As String, ByVal tiersPayant As Boolean, _
-                                  ByVal fdsImprimee As Boolean, Optional ByRef dejaEnregistree As Boolean = False) As String
+                                  ByVal fdsImprimee As Boolean, Optional ByRef dejaEnregistree As Boolean = False, _
+                                  Optional ByRef selectionDifferente As Boolean = False) As String
     Dim seanceID As String, lignes As Collection, a As Object
     seanceID = ValeurOuVide(infos, "ConsultationID")
     If Len(seanceID) = 0 Then seanceID = ValeurOuVide(infos, "SeanceID")
@@ -52,7 +53,7 @@ Public Function EnregistrerSeance(ByVal infos As Object, ByVal ActesChoisis As C
     Dim annee As Long
     annee = Year(modTexte.DateFr(CStr(infos("DateActe"))))
     modBaseIO.CreerClasseurSiAbsent modConfig.FichierJournal(annee), "JOURNAL", modJournal.EntetesJournal()
-    dejaEnregistree = Not modBaseIO.AjouterSeanceUnique(modConfig.FichierJournal(annee), lignes, seanceID)
+    dejaEnregistree = Not modBaseIO.AjouterSeanceUnique(modConfig.FichierJournal(annee), lignes, seanceID, selectionDifferente)
     EnregistrerSeance = seanceID
 End Function
 
