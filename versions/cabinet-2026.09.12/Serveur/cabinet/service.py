@@ -153,7 +153,10 @@ class Service:
         db.execute("UPDATE ressources SET donnees=jsonb_set(donnees,'{Statut}',%s),revision=revision+1 WHERE genre='RDV' AND id=%s",(Jsonb(status),ident))
 
     def _operation(self, db, actor, op, p):
-        if op == 'whoami': return {'ID':actor['identifiant'],'roles':actor['roles'],'version':'2026.09.12','protocole':2}
+        if op == 'whoami':
+            schema = db.execute('SELECT max(version) AS version FROM schema_version').fetchone()['version']
+            return {'ID':actor['identifiant'],'roles':actor['roles'],'version':'2026.09.12',
+                    'protocole':2,'schema':schema,'revision':'2026.09.14-u0'}
         if op == 'record.get': return self._record(db,p['genre'],p['id'])
         if op in {'table.add','table.update','correspondent.save'}:
             genre='CORRESPONDANTS' if op=='correspondent.save' else p['genre']
@@ -278,8 +281,10 @@ class Service:
             for r in db.execute("SELECT donnees,revision FROM ressources WHERE genre='CORRESPONDANTS'"):
                 d=r['donnees']
                 if d.get('Actif')=='0' or d.get('AValider')=='1':continue
-                if p.get('id') and d['ID']==p['id']:candidates.append(dict(d,_revision=str(r['revision'])))
-                elif p.get('cle') and plier(p['cle']) in [plier(x) for x in (d.get('CleDestination','')+';'+d.get('ClesDestination','')+';'+d['ID']).split(';')]:candidates.append(dict(d,_revision=str(r['revision'])))
+                if p.get('id'):
+                    if d['ID']==p['id']:candidates.append(dict(d,_revision=str(r['revision'])))
+                    continue  # Un ID explicite est autoritaire, meme absent/inactif.
+                if p.get('cle') and plier(p['cle']) in [plier(x) for x in (d.get('CleDestination','')+';'+d.get('ClesDestination','')+';'+d['ID']).split(';')]:candidates.append(dict(d,_revision=str(r['revision'])))
                 elif p.get('examen') and d.get('ParDefaut')=='1' and plier(p['examen']) in [plier(x) for x in d.get('TypesExamen','').split(';')]:candidates.append(dict(d,_revision=str(r['revision'])))
             if len(candidates)!=1:raise Refus('Destinataire absent ou ambigu : selectionnez un correspondant identifie.')
             return candidates[0]

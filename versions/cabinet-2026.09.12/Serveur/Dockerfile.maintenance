@@ -1,0 +1,9 @@
+FROM postgres:17.11-bookworm
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-psycopg \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /opt/cabinet
+COPY Serveur/cabinet/recovery.py ./cabinet/recovery.py
+COPY Serveur/cabinet/__init__.py ./cabinet/__init__.py
+RUN chmod 755 /opt/cabinet /opt/cabinet/cabinet && chmod 644 /opt/cabinet/cabinet/*
+ENV PYTHONDONTWRITEBYTECODE=1
+ENTRYPOINT ["python3", "-m", "cabinet.recovery"]

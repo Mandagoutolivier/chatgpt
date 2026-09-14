@@ -1,8 +1,9 @@
-"""Assembler le CMD autonome. Le commit doit contenir exactement les fichiers de version locaux."""
+"""Assembler le CMD depuis les objets du commit, jamais depuis l'arbre local."""
 import argparse
 import hashlib
 import json
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -39,12 +40,25 @@ exit /b 1
 def payload(commit):
     if not re.fullmatch('[a-f0-9]{40}', commit):
         raise ValueError('SHA de commit invalide')
+    def git(*args):
+        return subprocess.check_output(['git', '-C', str(ROOT), *args])
+    if git('rev-parse', commit+'^{commit}').decode().strip() != commit:
+        raise ValueError('Le SHA doit identifier un commit exact')
+    prefix = VERSION.relative_to(ROOT).as_posix() + '/'
     hashes = {}
-    for path in sorted(VERSION.rglob('*')):
-        if path.is_file() and '__pycache__' not in path.parts and '.pytest_cache' not in path.parts:
-            hashes[path.relative_to(VERSION).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
-    helpers = (VERSION / 'Build/outils_telechargement.ps1').read_text(encoding='utf-8-sig')
-    main = (ROOT / 'Installateur/lanceur.template.ps1').read_text(encoding='utf-8-sig')
+    for entry in git('ls-tree', '-rz', commit, '--', prefix).split(b'\0'):
+        if not entry:
+            continue
+        metadata, path = entry.split(b'\t', 1)
+        mode, kind, sha = metadata.split()
+        if kind != b'blob' or mode not in (b'100644', b'100755'):
+            raise ValueError('Seuls les fichiers ordinaires sont admis dans la livraison')
+        relative = path.decode()[len(prefix):]
+        hashes[relative] = hashlib.sha256(git('cat-file', 'blob', sha.decode())).hexdigest()
+    if not hashes:
+        raise ValueError('Version absente de ce commit')
+    helpers = git('show', commit+':'+prefix+'Build/outils_telechargement.ps1').decode('utf-8-sig')
+    main = git('show', commit+':Installateur/lanceur.template.ps1').decode('utf-8-sig')
     main = main.replace('@@COMMIT@@', commit).replace('@@HASHES@@', json.dumps(hashes, ensure_ascii=True, indent=2))
     return helpers + '\n' + main
 

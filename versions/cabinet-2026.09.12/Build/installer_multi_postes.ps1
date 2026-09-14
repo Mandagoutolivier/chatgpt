@@ -91,6 +91,7 @@ function Installer-ConnexionService {
     $body=@{operation='whoami';params=@{}} | ConvertTo-Json -Compress
     $response=Invoke-RestMethod -Method Post -Uri ($UrlService.TrimEnd('/')+'/v1/rpc') -Headers @{Authorization=('Bearer '+$token)} -ContentType 'application/json' -Body $body -MaximumRedirection 0 -TimeoutSec 20
     if ($response.result.protocole -ne 2) { throw 'Service NAS incompatible avec cette version.' }
+    if ($response.result.revision -ne '2026.09.14-u0' -or $response.result.schema -ne 1) { throw 'Revision du service ou schema NAS incompatible avec la livraison U0.' }
     if ($medecin -and 'medecin' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role medecin.' }
     if ($secretariat -and 'secretariat' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role secretariat.' }
     Ecrire-Reglage $urlPath ($UrlService.TrimEnd('/')+"`r`n")
@@ -151,9 +152,9 @@ try {
         return
     }
     # Tous les binaires sont prets avant de modifier une installation active.
-    & (Join-Path $PSScriptRoot 'initialiser_nas.ps1') -RacineNas $RacineNas -RacineSources $root
     # Le service NAS doit etre installe et le compte du poste cree au prealable.
     Installer-ConnexionService
+    & (Join-Path $PSScriptRoot 'initialiser_nas.ps1') -RacineNas $RacineNas -RacineSources $root
     foreach ($required in @('Config\config.ini','Modeles\LETTRE TYPE.dot','Config\DDE\declencheurs_demandes.txt','Config\DDE\examens_complementaires.txt','Config\DDE\exclusions_demandes.txt')) {
         if (-not (Test-Path -LiteralPath (Join-Path $RacineNas $required))) { throw "Ressource NAS absente : $required. Installez le secretariat en premier." }
     }
@@ -193,6 +194,7 @@ try {
         $link=$shell.CreateShortcut($shortcut)
         $link.TargetPath=$destination; $link.WorkingDirectory=Split-Path $destination -Parent; $link.Save()
     }
+    Installer-Fichier (Join-Path $stage 'preparation.json') (Join-Path $local ('installation-'+$Profil+'.json'))
     Write-Host "Installation terminee : $Profil. Sauvegardes et journal : $backupDir"
     Write-Host 'Dragon : affectez A/B/C/D aux quatre macros Unifie_*. Normal.dotm conserve ses macros historiques.'
 } catch {

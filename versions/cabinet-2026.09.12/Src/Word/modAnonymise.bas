@@ -53,6 +53,7 @@ Public Function Construire(ByVal pat As Object, ByVal cor As Object) As Object
     Set retour = CreateObject("Scripting.Dictionary")
 
     If Not pat Is Nothing Then
+        AjouterValeur vers, retour, pat("ID"), "{{PAT_ID}}"
         AjouterValeur vers, retour, pat("Nom"), "{{PAT_NOM}}"
         AjouterValeur vers, retour, pat("NomNaissance"), "{{PAT_NOM_NAISSANCE}}"
         AjouterValeur vers, retour, pat("Prenom"), "{{PAT_PRENOM}}"
@@ -81,6 +82,10 @@ Public Sub AjouterCorrespondant(ByVal ctx As Object, ByVal cor As Object, ByVal 
     If cor Is Nothing Then Exit Sub
     AjouterValeur ctx("vers"), ctx("retour"), cor("Nom"), "{{" & prefixe & "_NOM}}"
     AjouterValeur ctx("vers"), ctx("retour"), cor("Prenom"), "{{" & prefixe & "_PRENOM}}"
+    Dim champ As Variant
+    For Each champ In Array("Adresse1", "Adresse2", "Tel", "Mobile", "Email")
+        If cor.Exists(CStr(champ)) Then AjouterValeur ctx("vers"), ctx("retour"), CStr(cor(champ)), "{{" & prefixe & "_" & UCase$(CStr(champ)) & "}}"
+    Next champ
 End Sub
 
 Private Sub AjouterValeur(ByVal vers As Object, ByVal retour As Object, _
@@ -192,9 +197,9 @@ Public Function ScanResiduel(ByVal texteAnonyme As String, ByVal ctx As Object) 
     Set vers = ctx("vers")
     tPlie = Plier1(texteAnonyme)
     For Each k In vers.Keys
-        If Len(k) >= 3 Then
-            If InStr(tPlie, Plier1(CStr(k))) > 0 Then
-                problemes = problemes & "- identite encore presente : " & Left$(k, 3) & "..." & vbCrLf
+        If Len(k) >= 2 Then
+            If RemplacerPlie(texteAnonyme, CStr(k), "{{RESIDU}}") <> texteAnonyme Then
+                problemes = problemes & "- identite connue encore presente" & vbCrLf
             End If
         End If
     Next k
@@ -206,10 +211,13 @@ Public Function ScanResiduel(ByVal texteAnonyme As String, ByVal ctx As Object) 
         problemes = problemes & "- numero de securite sociale (NIR) detecte" & vbCrLf
     End If
 
-    re.Pattern = "0[1-9]([ .-]?\d{2}){4}"
+    re.Pattern = "(0[1-9]|\+33[ .-]?[1-9])([ .-]?\d{2}){4}"
     If re.Test(texteAnonyme) Then
         problemes = problemes & "- numero de telephone detecte" & vbCrLf
     End If
+
+    re.Pattern = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
+    If re.Test(texteAnonyme) Then problemes = problemes & "- adresse electronique detectee" & vbCrLf
 
     ScanResiduel = problemes
 End Function

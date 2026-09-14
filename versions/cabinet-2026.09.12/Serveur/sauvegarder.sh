@@ -1,20 +1,25 @@
 #!/bin/sh
-# Depuis Serveur/ sur le NAS. Clients arretes. Aucun ancien backup efface.
+# Suspension SMB obligatoire : voir U0_RECETTE.md. Aucun ancien backup efface.
 set -eu
 cd "$(dirname "$0")"
-stamp="cabinet-$(date -u +%Y%m%dT%H%M%SZ)-$$"
-docker compose stop api
-trap 'docker compose start api >/dev/null' EXIT
+[ "$#" -eq 1 ] && [ "$1" = '--ecritures-smb-suspendues' ] || {
+    echo 'Suspendre les ecritures SMB puis : sh sauvegarder.sh --ecritures-smb-suspendues' >&2
+    exit 2
+}
+docker compose build maintenance
+mkdir .cabinet-backup.lock || { echo 'Sauvegarde deja active ou verrou a examiner.' >&2; exit 1; }
+api_was_running=''
+cleanup() {
+    result=$?
+    trap - 0 HUP INT TERM
+    if [ -n "$api_was_running" ]; then
+        docker compose start api >/dev/null || { echo 'Redemarrage API echoue.' >&2; result=1; }
+    fi
+    rmdir .cabinet-backup.lock || result=1
+    exit "$result"
+}
+trap cleanup 0
 trap 'exit 130' HUP INT TERM
-docker compose run --rm -T maintenance sh -eu -c '
-    umask 077
-    export PGPASSWORD="$(cat /run/secrets/admin_password)"
-    mkdir "/backups/$1"
-    pg_dump --format=custom --no-owner --file="/backups/$1/base.dump"
-    tar -C /data -czf "/backups/$1/fichiers.tar.gz" .
-    cd "/backups/$1"
-    sha256sum base.dump fichiers.tar.gz > SHA256SUMS
-    pg_restore --list base.dump >/dev/null
-    printf "%s\n" "2026.09.12-service-nas" > TERMINE
-' sh "$stamp"
-printf 'Sauvegarde terminee : %s (dans CABINET_BACKUP_VOLUME).\n' "$stamp"
+api_was_running=$(docker compose ps --status running -q api)
+if [ -n "$api_was_running" ]; then docker compose stop api; fi
+docker compose run --rm -T maintenance backup --ecritures-smb-suspendues
