@@ -124,7 +124,9 @@ def construire_plan(root:Path):
                     if old.get('CodeAssocie'):montant(old.get('TarifAssocie',''))
                 except Refus as exc:errors.append('Nomenclature '+ident+' : '+str(exc))
             elif not old.get('Terme'):errors.append('Terme de dictionnaire vide : '+path)
-            resources.append({'genre':genre,'id':ident,'data':dict(old,ID=ident)})
+            data = dict(old,ID=ident)
+            if genre=='ACTES': data = {k:data.get(k,'') for k in ACTE_FIELDS + ['ID']}
+            resources.append({'genre':genre,'id':ident,'data':data})
     historical=[]
     for path in sorted((root/'Actes').glob('Journal_*.xlsx')):
         grouped=defaultdict(list)
