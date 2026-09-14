@@ -85,7 +85,7 @@ End Sub
 
 Private Sub btnOK_Click()
     On Error GoTo Erreur
-    Dim actes As Collection, seanceID As String, a As Object, tarifZero As Boolean, deja As Boolean
+    Dim actes As Collection, seanceID As String, a As Object, tarifZero As Boolean, deja As Boolean, selectionDifferente As Boolean
     Set actes = ActesChoisis()
     If actes.Count = 0 Then
         MsgBox "Cochez au moins un acte.", vbExclamation, "Cabinet"
@@ -100,11 +100,20 @@ Private Sub btnOK_Click()
                   vbYesNo + vbExclamation, "Cabinet") <> vbYes Then Exit Sub
     End If
 
+    If chkFds.Value Then modCerfaPrint.ValiderFeuille mDrapeau, modActes.LignesPourImpression(actes)
     seanceID = modActes.EnregistrerSeance(mDrapeau, actes, cmbPaiement.Text, _
-                                          chkTiers.Value, False, deja)
+                                          chkTiers.Value, False, deja, selectionDifferente)
 
     Dim reponse As VbMsgBoxResult, impressionEnvoyee As Boolean
-    If deja And chkFds.Value Then
+    If deja And selectionDifferente Then
+        reponse = MsgBox("La selection ou les montants different de la facturation deja enregistree. Les anciennes donnees sont conservees." & vbCrLf & _
+                        "Oui : reimprimer les actes enregistres et terminer. Non : conserver le courrier en attente.", vbYesNo + vbExclamation, "Reprise d une consultation")
+        If reponse <> vbYes Then Exit Sub
+        If chkFds.Value Then
+            modActes.ImprimerSeanceEnregistree mDrapeau, seanceID
+            impressionEnvoyee = True
+        End If
+    ElseIf deja And chkFds.Value Then
         reponse = MsgBox("Cette consultation figure deja au journal. Reimprimer la feuille avec les actes et montants enregistres ?" & vbCrLf & _
                         "Oui : reimprimer. Non : terminer sans reimprimer. Annuler : conserver le courrier en attente.", vbYesNoCancel + vbQuestion, "Reprise d une consultation")
         If reponse = vbCancel Then Exit Sub
