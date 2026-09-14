@@ -23,6 +23,16 @@ try {
     $source=Join-Path $root 'ModelesSource/ModeleCourrierChatGPT_PROD(6).dotm'
     $model=Join-Path $tmp 'modele.dotm'
     [IO.File]::Copy($source,$model)
+    # Un processus neuf ne doit pas dependre d un premier OpenRead pour charger ZipArchiveMode.
+    $bootstrapModel=Join-Path $tmp 'demarrage-frais.dotm'
+    [IO.File]::Copy($source,$bootstrapModel)
+    $bootstrapScript=Join-Path $tmp 'demarrage-frais.ps1'
+    $helper=(Join-Path $root 'Build/outils_construction.ps1').Replace("'","''")
+    $ruban=(Join-Path $root 'Build/ruban_unifie.xml').Replace("'","''")
+    $bootstrapCode="`$ErrorActionPreference='Stop'`r`n. '$helper'`r`nInstaller-Ruban '$($bootstrapModel.Replace("'","''"))' '$ruban'"
+    [IO.File]::WriteAllText($bootstrapScript,$bootstrapCode,(New-Object Text.UTF8Encoding($true)))
+    & (Get-Process -Id $PID).Path -NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File $bootstrapScript
+    Verifier ($LASTEXITCODE -eq 0) 'injection du ruban dans un processus PowerShell neuf'
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip=[IO.Compression.ZipFile]::OpenRead($model)
     try {

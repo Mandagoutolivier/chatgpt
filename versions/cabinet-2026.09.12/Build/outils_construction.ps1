@@ -94,6 +94,7 @@ function Lire-EntreeZip($Zip, [string]$Nom) {
 }
 
 function Installer-Ruban([string]$Modele, [string]$Ruban) {
+    Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip = [IO.Compression.ZipFile]::Open($Modele, [IO.Compression.ZipArchiveMode]::Update)
     try {
