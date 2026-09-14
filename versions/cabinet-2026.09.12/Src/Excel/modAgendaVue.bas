@@ -348,8 +348,7 @@ Private Sub ExecuterAction(ByVal rdvs As Collection, ByVal rdvID As String, ByVa
         Case "ARRIVE"
             modEchange.SignalerArrivee r
         Case "ABSENT"
-            modEchange.RetirerArrivee r
-            modAgenda.MarquerStatut rdvID, "Absent", annee
+            Set x = modServiceNas.CommandeID("absent", rdvID)
         Case "ANNULE"
             If MsgBox("Annuler ce rendez-vous ?", vbYesNo + vbQuestion, "Cabinet") = vbYes Then
                 modEchange.RetirerArrivee r
