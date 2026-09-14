@@ -15,7 +15,7 @@ from .files import Documents
 
 READS = {'table.read', 'record.get', 'attentes', 'reprises', 'publications', 'whoami',
          'correspondent.resolve', 'clinical.compare', 'dictionary.read', 'journal.read', 'nir.validate'}
-SECRETARIAT = {'table.add', 'table.update', 'arrive', 'cancel_arrival', 'bill', 'printed', 'ack', 'payment'}
+SECRETARIAT = {'table.add', 'table.update', 'arrive', 'absent', 'cancel_arrival', 'bill', 'printed', 'ack', 'payment'}
 MEDECIN = {'claim', 'release', 'draft', 'publish'}
 SHARED = {'dictionary.add', 'correspondent.save'}
 GENRES = {'PATIENTS', 'CORRESPONDANTS', 'RDV', 'ACTES', 'MEDICAMENTS', 'EXPRESSIONS'}
@@ -26,7 +26,7 @@ PATIENT_FIELDS = json.loads((BASE / 'Build/schemas.json').read_text())['PATIENTS
 CORRESP_FIELDS = json.loads((BASE / 'Build/schemas.json').read_text())['CORRESPONDANTS'] + [
     'CleDestination', 'ClesDestination', 'TypesExamen', 'ParDefaut', 'AValider', 'StructureID', 'TypeCorrespondant']
 RDV_FIELDS = ['ID','PatientID','Date','Heure','DureeMin','Motif','ActePrevu','Statut','Notes','DateCreation','DateModif','Nom','Prenom','DDN','TypeActe','HeureArrivee']
-ACTE_FIELDS = ['Code','Libelle','Tarif','CodeAssocie','TarifAssocie','LibelleCerfa','Actif','Notes']
+ACTE_FIELDS = ['Code','Libelle','LibelleCourt','Tarif','CodeAssocie','TarifAssocie','LibelleCerfa','Depassement','Actif','Notes']
 
 class Service:
     def __init__(self, dsn: str, documents: Documents, clock=None):
@@ -132,9 +132,14 @@ class Service:
             for r in db.execute("SELECT id,donnees FROM ressources WHERE genre='RDV' AND donnees->>'Date'=%s",(data['Date'],)):
                 if r['id'] != ident and chevauche(data,r['donnees']): raise Refus('Creneau deja occupe.')
             state = db.execute('SELECT etat FROM consultations WHERE rdv_id=%s',(ident,)).fetchone()
+            if state and old and old['Statut']=='Annule' and data['Statut']=='Prevu':
+                raise Refus('Une arrivee annulee existe deja : creez un nouveau rendez-vous.')
             if state and state['etat'] not in {'annule'} and old and any(data[k]!=old[k] for k in ('Date','Heure','PatientID','Statut')):
                 raise Refus('Consultation deja commencee : modification du rendez-vous refusee.')
         elif genre == 'ACTES':
+            if data['Code'] != ident: raise Refus('Le code d un acte doit etre identique a son identifiant.',422)
+            data['LibelleCourt'] = data['LibelleCourt'] or data['Libelle']
+            data['Libelle'] = data['Libelle'] or data['LibelleCourt']
             montant(data['Tarif'])
             if data.get('CodeAssocie'): montant(data['TarifAssocie'])
         if update:
@@ -190,6 +195,12 @@ class Service:
             self._set_rdv(db,rdv['ID'],'Arrive');return data
         if op=='attentes':
             return {'items':[r['donnees'] for r in db.execute("SELECT donnees FROM consultations WHERE etat='arrive' AND donnees->>'DateArrivee'=%s ORDER BY modifie_le",(self.clock().strftime('%d/%m/%Y'),))]}
+        if op=='absent':
+            rdv=self._record(db,'RDV',p['id'])
+            row=db.execute('SELECT * FROM consultations WHERE rdv_id=%s',(p['id'],)).fetchone()
+            if row and row['etat'] not in {'arrive','annule'}: raise Refus('Consultation deja reservee ou publiee.')
+            if row: db.execute("UPDATE consultations SET etat='annule',proprietaire=NULL,modifie_le=now() WHERE id=%s",(row['id'],))
+            self._set_rdv(db,p['id'],'Absent');return {'ID':p['id']}
         if op=='cancel_arrival':
             self._record(db,'RDV',p['id'])
             row=db.execute('SELECT * FROM consultations WHERE rdv_id=%s',(p['id'],)).fetchone()
