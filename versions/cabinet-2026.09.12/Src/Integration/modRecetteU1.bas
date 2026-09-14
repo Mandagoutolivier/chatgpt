@@ -40,6 +40,21 @@ Public Function Executer(ByVal dossier As String) As String
     numero = Err.Number: Err.Clear
     On Error GoTo Echec
     Exiger numero = vbObjectError + 1105, "Enveloppe incomplete refusee"
+    On Error Resume Next
+    Set r = modServiceNas.DecoderReponse(502, modServiceNas.OctetsUTF8("[]"))
+    numero = Err.Number: Err.Clear
+    On Error GoTo Echec
+    Exiger numero = vbObjectError + 1103, "Erreur HTTP avec tableau JSON"
+    On Error Resume Next
+    Set r = modServiceNas.DecoderReponse(409, modServiceNas.OctetsUTF8("{""error"":null,""code"":{}}"))
+    numero = Err.Number: Err.Clear
+    On Error GoTo Echec
+    Exiger numero = vbObjectError + 1103, "Erreur HTTP avec champs mal types"
+    On Error Resume Next
+    Set r = modServiceNas.DecoderReponse(200, modServiceNas.OctetsUTF8("{""result"":[]}"))
+    numero = Err.Number: Err.Clear
+    On Error GoTo Echec
+    Exiger numero = vbObjectError + 1105, "Resultat RPC objet obligatoire"
     Set items = New Collection
     For i = 1 To 3
         Set ligne = modServiceNas.Parametres()
@@ -94,5 +109,5 @@ Echec:
     If Not doc Is Nothing Then doc.Close wdDoNotSaveChanges
     modEtatCourrier.DefinirDossierTests ""
     On Error GoTo 0
-    Err.Raise numero, "Recette U1 apres " & CStr(mNombre) & " controles", description
+    Executer = "{""reussis"":" & CStr(mNombre) & ",""echec"":true,""numero"":" & CStr(numero) & ",""description"":" & modServiceNas.JsonValeur(description) & "}"
 End Function

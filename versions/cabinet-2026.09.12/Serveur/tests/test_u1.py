@@ -168,3 +168,10 @@ def test_error_classification_and_private_diagnostics(service,monkeypatch,caplog
     assert result.status_code==status and result.json()['code']==code
     assert 'SECRET_' not in result.text and 'SECRET_' not in caplog.text
     assert result.json()['correlation'] in caplog.text
+
+
+@pytest.mark.parametrize('data', [ {'Libelle': 'FICTIF', 'Tarif': '1'}, {'ID': 'X', 'Code': ' ', 'Tarif': '1'} ])
+def test_new_act_requires_explicit_business_code(service, data):
+    with pytest.raises(Refus, match='Code ACTES explicite'):
+        rpc(service, 'table.add', {'genre': 'ACTES', 'data': data})
+    assert rpc(service, 'table.read', {'genre': 'ACTES'})['items'] == []

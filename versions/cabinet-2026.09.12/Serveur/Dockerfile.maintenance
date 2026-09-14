@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 python3
 WORKDIR /opt/cabinet
 COPY Serveur/cabinet/recovery.py ./cabinet/recovery.py
 COPY Serveur/cabinet/__init__.py ./cabinet/__init__.py
+COPY Serveur/cabinet/migration_u1.py Serveur/cabinet/actes.py Serveur/cabinet/domain.py ./cabinet/
 RUN chmod 755 /opt/cabinet /opt/cabinet/cabinet && chmod 644 /opt/cabinet/cabinet/*
 ENV PYTHONDONTWRITEBYTECODE=1
 ENTRYPOINT ["python3", "-m", "cabinet.recovery"]

@@ -33,6 +33,8 @@ try{
     $testArgument=[object]$Sortie
     $result=$word.Run('modRecetteU1.Executer',[ref]$testArgument)
     Trace-U1 ('Tests Word : '+[string]$result)
+    $recette=ConvertFrom-Json -InputObject ([string]$result) -ErrorAction Stop
+    if($null -eq $recette -or $recette.echec -ne $false -or [int]$recette.reussis -lt 26){throw ('Recette Word incomplete ou en echec : '+[string]$recette.description)}
     $doc.Close([ref]$noSave);$doc=$null;$word.Quit([ref]$noSave);$word=$null
     Attendre-FermetureOffice
     $excel=New-Object -ComObject Excel.Application

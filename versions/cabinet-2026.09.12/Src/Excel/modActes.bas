@@ -151,6 +151,17 @@ Public Sub ImprimerSeanceEnregistree(ByVal infos As Object, ByVal seanceID As St
         impression("CodeActe") = ligne("CodeActe"): impression("Montant") = ligne("Montant")
         lignes.Add impression
     Next ligne
+    If CStr(saved("impression_etat")) = "inconnue" Then
+        Dim decision As VbMsgBoxResult
+        decision = MsgBox("Verifiez la feuille deja demandee pour " & CStr(copie("Nom")) & " " & CStr(copie("Prenom")) & " du " & CStr(copie("DateActe")) & "." & vbCrLf & "Est-elle sortie correctement ?" & vbCrLf & "Oui : confirmer cette feuille. Non : proposer une reimpression. Annuler : conserver en attente.", vbYesNoCancel + vbQuestion, "Resultat papier a verifier")
+        If decision = vbCancel Then Exit Sub
+        If decision = vbYes Then
+            Set p = modServiceNas.Parametres(): p("id") = seanceID
+            p("tentative") = CStr(saved("tentative")): p("confirmee") = True
+            Set r = modServiceNas.Appeler("printed", p)
+            Exit Sub
+        End If
+    End If
     modCerfaPrint.VerifierAvantFacturation copie, lignes
     confirme = CStr(saved("impression_etat")) <> "actes_enregistres"
     If confirme Then

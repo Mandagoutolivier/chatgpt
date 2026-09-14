@@ -35,9 +35,10 @@ Private Function CheminEtat(ByVal id As String, ByVal suffixe As String) As Stri
 End Function
 
 Private Function Transformer(ByVal donnees As Variant, ByVal chiffrer As Boolean) As Variant
-    Dim entree As BLOB, sortie As BLOB, resultat() As Byte, ok As Long, numero As Long
+    Dim entree As BLOB, sortie As BLOB, resultat() As Byte, octets() As Byte, ok As Long, numero As Long
     On Error GoTo Echec
-    entree.cbData = UBound(donnees) + 1: entree.pbData = VarPtr(donnees(0))
+    octets = donnees
+    entree.cbData = UBound(octets) + 1: entree.pbData = VarPtr(octets(0))
     If chiffrer Then
         ok = CryptProtectData(entree, 0, 0, 0, 0, 1, sortie)
     Else

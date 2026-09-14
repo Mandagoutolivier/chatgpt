@@ -3,14 +3,14 @@ Option Explicit
 #If VBA7 Then
 Private Declare PtrSafe Function CryptAcquireContextW Lib "advapi32.dll" (ByRef provider As LongPtr, ByVal container As LongPtr, ByVal providerName As LongPtr, ByVal providerType As Long, ByVal flags As Long) As Long
 Private Declare PtrSafe Function CryptCreateHash Lib "advapi32.dll" (ByVal provider As LongPtr, ByVal algorithm As Long, ByVal key As LongPtr, ByVal flags As Long, ByRef hash As LongPtr) As Long
-Private Declare PtrSafe Function CryptHashData Lib "advapi32.dll" (ByVal hash As LongPtr, ByVal data As LongPtr, ByVal length As Long, ByVal flags As Long) As Long
+Private Declare PtrSafe Function CryptHashData Lib "advapi32.dll" (ByVal hash As LongPtr, ByRef data As Any, ByVal length As Long, ByVal flags As Long) As Long
 Private Declare PtrSafe Function CryptGetHashParam Lib "advapi32.dll" (ByVal hash As LongPtr, ByVal param As Long, ByRef data As Any, ByRef length As Long, ByVal flags As Long) As Long
 Private Declare PtrSafe Function CryptDestroyHash Lib "advapi32.dll" (ByVal hash As LongPtr) As Long
 Private Declare PtrSafe Function CryptReleaseContext Lib "advapi32.dll" (ByVal provider As LongPtr, ByVal flags As Long) As Long
 #Else
 Private Declare Function CryptAcquireContextW Lib "advapi32.dll" (ByRef provider As Long, ByVal container As Long, ByVal providerName As Long, ByVal providerType As Long, ByVal flags As Long) As Long
 Private Declare Function CryptCreateHash Lib "advapi32.dll" (ByVal provider As Long, ByVal algorithm As Long, ByVal key As Long, ByVal flags As Long, ByRef hash As Long) As Long
-Private Declare Function CryptHashData Lib "advapi32.dll" (ByVal hash As Long, ByVal data As Long, ByVal length As Long, ByVal flags As Long) As Long
+Private Declare Function CryptHashData Lib "advapi32.dll" (ByVal hash As Long, ByRef data As Any, ByVal length As Long, ByVal flags As Long) As Long
 Private Declare Function CryptGetHashParam Lib "advapi32.dll" (ByVal hash As Long, ByVal param As Long, ByRef data As Any, ByRef length As Long, ByVal flags As Long) As Long
 Private Declare Function CryptDestroyHash Lib "advapi32.dll" (ByVal hash As Long) As Long
 Private Declare Function CryptReleaseContext Lib "advapi32.dll" (ByVal provider As Long, ByVal flags As Long) As Long
@@ -87,25 +87,29 @@ Public Function SHA256(ByVal texte As String) As String
 #Else
     Dim provider As Long, hash As Long
 #End If
-    Dim bytes As Variant, digest(0 To 31) As Byte, length As Long, i As Long, numero As Long
+    Dim bytes() As Byte, digest(0 To 31) As Byte, length As Long, i As Long, numero As Long
+    Dim etape As String, erreurWindows As Long
     On Error GoTo Echec
-    bytes = OctetsUTF8(texte)
+    etape = "utf8": bytes = OctetsUTF8(texte)
+    etape = "contexte"
     If CryptAcquireContextW(provider, 0, 0, 24, &HF0000000) = 0 Then Err.Raise 5
-    If CryptCreateHash(provider, &H800C, 0, 0, hash) = 0 Then Err.Raise 5
+    etape = "initialisation"
+    If CryptCreateHash(provider, &H800C&, 0, 0, hash) = 0 Then Err.Raise 5
     If Len(texte) > 0 Then
-        If CryptHashData(hash, VarPtr(bytes(0)), UBound(bytes) + 1, 0) = 0 Then Err.Raise 5
+        etape = "donnees"
+        If CryptHashData(hash, bytes(0), UBound(bytes) + 1, 0) = 0 Then Err.Raise 5
     End If
-    length = 32
+    etape = "resultat": length = 32
     If CryptGetHashParam(hash, 2, digest(0), length, 0) = 0 Then Err.Raise 5
     For i = 0 To 31: SHA256 = SHA256 & LCase$(Right$("0" & Hex$(digest(i)), 2)): Next i
 Sortie:
     If hash <> 0 Then CryptDestroyHash hash
     If provider <> 0 Then CryptReleaseContext provider, 0
     On Error GoTo 0
-    If numero <> 0 Then Err.Raise vbObjectError + 1107, , "Calcul de l empreinte impossible."
+    If numero <> 0 Then Err.Raise vbObjectError + 1107, "SHA256", "Calcul de l empreinte impossible : " & etape & " (" & CStr(numero) & ", Windows " & CStr(erreurWindows) & ")."
     Exit Function
 Echec:
-    numero = Err.Number: Resume Sortie
+    numero = Err.Number: erreurWindows = Err.LastDllError: Resume Sortie
 End Function
 
 Public Function EstLecture(ByVal operation As String) As Boolean
@@ -257,10 +261,14 @@ Public Function DecoderReponse(ByVal statut As Long, ByVal octets As Variant) As
         Set reponse = modJson.JsonParse(payload)
         Err.Clear
         On Error GoTo 0
-        If Not reponse Is Nothing Then
-            If reponse.Exists("error") Then description = CStr(reponse("error"))
+        If TypeName(reponse) = "Dictionary" Then
+            If reponse.Exists("error") Then
+                If VarType(reponse("error")) = vbString Then description = CStr(reponse("error"))
+            End If
             If reponse.Exists("code") Then
-                If CStr(reponse("code")) = "destination_absente" Or CStr(reponse("code")) = "destination_ambigue" Then Err.Raise vbObjectError + 1141, "Service NAS", description
+                If VarType(reponse("code")) = vbString Then
+                    If CStr(reponse("code")) = "destination_absente" Or CStr(reponse("code")) = "destination_ambigue" Then Err.Raise vbObjectError + 1141, "Service NAS", description
+                End If
             End If
         End If
         Err.Raise vbObjectError + 1103, "Service NAS", description
@@ -268,6 +276,6 @@ Public Function DecoderReponse(ByVal statut As Long, ByVal octets As Variant) As
     Set reponse = modJson.JsonParse(payload)
     If TypeName(reponse) <> "Dictionary" Then Err.Raise vbObjectError + 1105, , "Enveloppe de reponse invalide."
     If Not reponse.Exists("result") Then Err.Raise vbObjectError + 1105, , "Reponse incomplete."
-    If Not IsObject(reponse("result")) Then Err.Raise vbObjectError + 1105, , "Resultat invalide."
+    If TypeName(reponse("result")) <> "Dictionary" Then Err.Raise vbObjectError + 1105, , "Resultat invalide."
     Set DecoderReponse = reponse("result")
 End Function

@@ -94,6 +94,8 @@ class Service:
     def _save(self, db, genre: str, data: dict, update=False) -> dict:
         if genre not in GENRES: raise Refus('Table inconnue.',422)
         data = dict(data)
+        if genre == 'ACTES' and not update and not data.get('Code', '').strip():
+            raise Refus('Code ACTES explicite obligatoire.', 422)
         ident = str(data.get('ID') or data.get('Code') or PREFIX[genre]+uuid.uuid4().hex)
         if not re.fullmatch(r'[\w .:-]{1,100}',ident): raise Refus('Identifiant invalide.',422)
         expected = data.pop('_revision',None)
