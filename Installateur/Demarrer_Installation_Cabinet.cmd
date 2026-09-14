@@ -90,7 +90,7 @@ function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$C
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='061d5d59b32250cfc440365ef65c57468e9b20d5'
+$Commit='84fccdc7981c6158779fa2b9331f597ed87192a5'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -106,7 +106,7 @@ $Empreintes=@'
   "Build/installer_sqlite_medecin.ps1": "0d6221fa88894d767fdad5d8a6eb290a52c27830629b5557fc73eed52673ebc7",
   "Build/manifest.json": "27235fa52d5ae138e8a30896fc0cdf05847157d3901cb572fa9e1510d2ce4030",
   "Build/outils_assistant.ps1": "08e27219541566fc75b69ab2167ce1e72d355347f6c1554d46975869d3c419d2",
-  "Build/outils_construction.ps1": "cd519c89b5a0da498001abe5efdcd1300c3f68c53ded8d26e60e75fa3de65409",
+  "Build/outils_construction.ps1": "e3516d5e30f9ea3154a6029fbb7af7b908dc6b5d7999b53601ab9eb700f511cd",
   "Build/outils_installation.ps1": "4f01a988e4fb57e39b777dabe651d9c48e160d6e7598d30bc613bbfd0bf62f0b",
   "Build/outils_telechargement.ps1": "a20c18c69d5bbd823a72d036d047cd20505985440529fe03dbd9323ecf74d705",
   "Build/release.json": "1fc870de93069e67d603fe1dd682a68ac9c1b3329413a0eb93658e3cebaf3bda",
@@ -244,7 +244,7 @@ $Empreintes=@'
   "Tests/test_attente_office.ps1": "1859e958edd9d74ce5b3d27d8d8faa976bf5576e5138d9a3fa6ac608f53b7677",
   "Tests/test_choix_nas.ps1": "54dd2afe5dde485758abdb0dc8064f00bf5e6a7b87689fe41e8deebd65201c0c",
   "Tests/test_compilation_office.ps1": "dfb927de3bf82ba3d31a304b17f944fdb0ae3d73b589ab2f7002aadcf0b2de9b",
-  "Tests/test_construction.ps1": "4718fae561570b4d477c7a990cd24aec3cdd5535cc288d406cc2d545cd1b145e",
+  "Tests/test_construction.ps1": "ea6f3384499cb1c2ec48c2bf0f66145ef736c95ec0e65ef84057f2c1b835e46c",
   "Tests/test_feuilles_excel.ps1": "4d552b64e4a44913daa035af1ee346e2c7d9ac3f1b1d8c9218f1eef82a21c48a",
   "Tests/test_image_permissions.sh": "ae34c465ef05c08667703e9bc2609f05112e862c2115859edd03ca80ed8b5c2d",
   "Tests/test_installation.ps1": "9b56f991c5949918038f04535259b800f8f293866f309fa9dbc37fcf12b44617",
