@@ -17,6 +17,7 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
     Dim valeurs As Object, a As Object, i As Long, total As Double
     Dim code As String, montant As String
 
+    ValiderFeuille infos, actes, versPdf
     If actes.Count > 4 Then Err.Raise vbObjectError + 701, "modCerfaPrint", "Plus de quatre lignes : une seconde feuille de soins est necessaire. Aucune impression lancee."
     If Not modTexte.DateFrValide(ValeurOuVide(infos, "DateActe")) Then Err.Raise vbObjectError + 702, "modCerfaPrint", "Date de l acte absente ou invalide."
     Set valeurs = CreateObject("Scripting.Dictionary")
@@ -60,6 +61,29 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
     valeurs("TOTAL") = Format$(total, "0.00")
 
     ImprimerDocumentCale valeurs, versPdf
+End Sub
+
+Public Sub ValiderFeuille(ByVal infos As Object, ByVal actes As Collection, Optional ByVal versPdf As String = "")
+    Dim assureDistinct As Boolean, nir As String, rpps As String, am As String
+    Dim p As Object, r As Object
+    If actes Is Nothing Then Err.Raise vbObjectError + 701, "modCerfaPrint", "Aucun acte a imprimer."
+    If actes.Count = 0 Or actes.Count > 4 Then Err.Raise vbObjectError + 701, "modCerfaPrint", "La feuille de soins doit comporter de une a quatre lignes."
+    If Not modTexte.DateFrValide(ValeurOuVide(infos, "DateActe")) Then Err.Raise vbObjectError + 702, "modCerfaPrint", "Date de l acte absente ou invalide."
+    assureDistinct = Len(ValeurOuVide(infos, "AssureNom") & ValeurOuVide(infos, "AssurePrenom") & ValeurOuVide(infos, "AssureNIR")) > 0
+    If assureDistinct Then
+        If Len(ValeurOuVide(infos, "AssureNom")) = 0 Or Len(ValeurOuVide(infos, "AssurePrenom")) = 0 Or Not modTexte.DateFrValide(ValeurOuVide(infos, "AssureDDN")) Then Err.Raise vbObjectError + 703, , "Fiche de l assure incomplete."
+        nir = ValeurOuVide(infos, "AssureNIR")
+        ExigerPositions Array("PATIENT_NOM", "PATIENT_DDN")
+    Else
+        nir = ValeurOuVide(infos, "NIR")
+    End If
+    Set p = modServiceNas.Parametres(): p("nir") = nir
+    Set r = modServiceNas.Appeler("nir.validate", p)
+    rpps = modConfig.Config("MEDECIN", "RPPS", "")
+    am = modConfig.Config("MEDECIN", "NumeroAM", "")
+    If Not ChiffresExactement(rpps, 11) Or Not ChiffresExactement(am, 9) Then Err.Raise vbObjectError + 704, , "Renseignez RPPS (11 chiffres) et numero AM (9 chiffres) dans la configuration."
+    If modConfig.Config("CERFA", "PraticienPreimprime", "0") <> "1" Then ExigerPositions Array("MEDECIN_RPPS", "MEDECIN_AM")
+    If modConfig.Config("CERFA", "CalageValide", "0") <> "1" And Len(versPdf) = 0 Then Err.Raise vbObjectError + 705, , "Validez le calage papier avant impression (CERFA CalageValide=1 dans poste.ini)."
 End Sub
 
 ' Construit et imprime (ou exporte) le document cale
