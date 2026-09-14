@@ -4,6 +4,7 @@ param(
     [string]$RacineSources = (Split-Path $PSScriptRoot -Parent)
 )
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
+throw 'INSTALLATEUR ARCHIVE ET DESACTIVE : utilisez uniquement la version service NAS apres publication et recette du nouveau lanceur.'
 if ($RacineNas -notmatch '^\\\\[^\\]+\\[^\\]+') { throw 'La racine doit etre un chemin UNC du Synology.' }
 if (-not (Test-Path -LiteralPath $RacineNas -PathType Container)) { throw "NAS inaccessible : $RacineNas" }
 foreach ($dir in @('Base','Base\locks','Actes','Patients','Config','Config\DDE','Modeles','Echange\Arrives',
