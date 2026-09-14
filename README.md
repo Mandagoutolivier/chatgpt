@@ -1,3 +1,9 @@
+# VERSION DE REFERENCE — INSTALLATION GELEE
+
+La seule base de travail autorisee est `versions/cabinet-2026.09.12`, issue du commit `71e72fa4ee22f5595f557cbee0e71cb0c69cfd42` puis corrigee sur une branche de recette. **Aucun installateur de ce depot ne doit etre utilise au cabinet tant qu'un nouveau lanceur n'a pas ete publie apres recette Windows et Synology.**
+
+Le dossier `cabinet-unifie/` est une archive technique non installable. Il ne doit jamais etre execute sur un NAS migre vers PostgreSQL : il pourrait recreer des classeurs Excel et separer les donnees entre deux systemes.
+
 ## Installation en un fichier
 
 Télécharger **[Demarrer_Installation_Cabinet.cmd](Installateur/Demarrer_Installation_Cabinet.cmd)**, puis double-cliquer : téléchargement du dépôt privé, vérification, choix domicile/secrétariat/cabinet, préparation et activation guidée. Le serveur Synology doit être disponible. Le lanceur ouvre Office pour la compilation et attend la confirmation des essais avant activation. [Mode d'emploi](Installateur/README.md).
