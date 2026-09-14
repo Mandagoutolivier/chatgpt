@@ -23,6 +23,7 @@ Public Function AjouterRdv(ByVal patientID As String, ByVal dateRdv As String, _
     If Not IsNumeric(dureeMin) Then Err.Raise vbObjectError + 652, "modAgenda", "Duree invalide."
     If Val(dureeMin) <> Fix(Val(dureeMin)) Or Val(dureeMin) < 1 Or Val(dureeMin) > 480 Then Err.Raise vbObjectError + 653, "modAgenda", "Duree invalide."
     If modTexte.MinutesDepuisMinuit(heure) + Val(dureeMin) > 1440 Then Err.Raise vbObjectError + 656, , "Le rendez-vous depasse minuit."
+    If modActes.ActeParCode(typeActe) Is Nothing Then Err.Raise vbObjectError + 657, , "Type d acte absent de la nomenclature. Rechargez les actes."
     dateRdv = Format$(modTexte.DateFr(dateRdv), "dd/mm/yyyy")
     heure = Format$(modTexte.MinutesDepuisMinuit(heure) \ 60, "00") & ":" & Format$(modTexte.MinutesDepuisMinuit(heure) Mod 60, "00")
     AssurerAgendaAnnee AnneeDeDate(dateRdv)
@@ -39,15 +40,15 @@ Public Function AjouterRdv(ByVal patientID As String, ByVal dateRdv As String, _
 End Function
 
 Public Sub MarquerStatut(ByVal rdvID As String, ByVal statut As String, Optional ByVal annee As Long = 0)
-    Dim d As Object, r As Object
+    Dim d As Object, r As Object, p As Object
     If statut = "Arrive" Then
         Set r = modServiceNas.CommandeID("arrive", rdvID)
     ElseIf statut = "Honore" Then
         Err.Raise vbObjectError + 1116, , "Terminez la publication depuis la file du secretariat."
     Else
         Set d = modServiceNas.LireID("RDV", rdvID)
-        d("Statut") = statut
-        modBaseIO.ModifierLigne "", "RDV", "ID", rdvID, d
+        Set p = modServiceNas.Parametres(): p("id") = rdvID: p("statut") = statut: p("revision") = CStr(d("_revision"))
+        Set r = modServiceNas.Appeler("agenda.status", p)
     End If
 End Sub
 ' RDV d'une date (defaut aujourd'hui), tries par heure

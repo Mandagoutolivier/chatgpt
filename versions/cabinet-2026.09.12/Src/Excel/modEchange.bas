@@ -8,31 +8,36 @@ Option Explicit
 
 Private mProchaine As Date
 Private mScrutationActive As Boolean
+Private mPlanifie As Boolean
 
 Public Sub DemarrerScrutation()
     ArreterScrutation
     mScrutationActive = True
     VerifierEchange
+    ProgrammerProchaine
 End Sub
 
 Public Sub ArreterScrutation()
     On Error Resume Next
-    If mScrutationActive Then
+    If mPlanifie Then
         Application.OnTime mProchaine, NomMacroScrutation(), , False
     End If
+    mPlanifie = False
     mScrutationActive = False
 End Sub
 
 Private Sub ProgrammerProchaine()
+    If Not mScrutationActive Or mPlanifie Then Exit Sub
     Dim secondes As Long
     secondes = CLng(modConfig.ConfigNum("ECHANGE", "ScrutationSecondes", 30))
     If secondes < 10 Then secondes = 10
     mProchaine = Now + TimeSerial(0, 0, secondes)
     Application.OnTime mProchaine, NomMacroScrutation()
+    mPlanifie = True
 End Sub
 
 Private Function NomMacroScrutation() As String
-    NomMacroScrutation = "'" & ThisWorkbook.Name & "'!modEchange.VerifierEchange"
+    NomMacroScrutation = "'" & ThisWorkbook.Name & "'!modEchange.TickScrutation"
 End Function
 
 ' Appelee par OnTime : met a jour le compteur sur la feuille Accueil
@@ -53,7 +58,6 @@ Public Sub VerifierEchange()
         Application.StatusBar = False
     End If
 Sortie:
-    If mScrutationActive Then ProgrammerProchaine
     Exit Sub
 Erreur:
     Application.StatusBar = "File des courriers inaccessible : verifier le NAS."
@@ -109,4 +113,11 @@ End Sub
 Public Sub RetirerArrivee(ByVal rdv As Object)
     Dim r As Object
     Set r = modServiceNas.CommandeID("cancel_arrival", CStr(rdv("ID")))
+End Sub
+
+Public Sub TickScrutation()
+    mPlanifie = False
+    If Not mScrutationActive Then Exit Sub
+    VerifierEchange
+    ProgrammerProchaine
 End Sub

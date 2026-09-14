@@ -13,7 +13,7 @@ Private Const MM_EN_POINTS As Double = 2.834645
 ' actes : Collection de dictionnaires (CodeActe/Code + Montant/Tarif)
 ' versPdf : si renseigne, exporte en PDF au lieu d'imprimer (tests/controle)
 Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
-                           Optional ByVal versPdf As String = "")
+                           Optional ByVal versPdf As String = "", Optional ByVal verifierSeulement As Boolean = False)
     Dim valeurs As Object, a As Object, i As Long, total As Double
     Dim code As String, montant As String
 
@@ -59,6 +59,25 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
     Next a
     valeurs("TOTAL") = Format$(total, "0.00")
 
+    Dim champ As Variant
+    For Each champ In valeurs.Keys
+        If Len(CStr(valeurs(champ))) > 0 Then
+            If CStr(champ) <> "PATIENT_NOM" And CStr(champ) <> "PATIENT_DDN" Then
+                If Not ((CStr(champ) = "MEDECIN_RPPS" Or CStr(champ) = "MEDECIN_AM") And modConfig.Config("CERFA", "PraticienPreimprime", "0") = "1") Then ExigerPositions Array(CStr(champ))
+            End If
+        End If
+    Next champ
+    If verifierSeulement Then
+        Dim imprimante As String, service As Object, item As Object, trouve As Boolean
+        imprimante = modConfig.Config("CERFA", "Imprimante", "")
+        If Len(Trim$(imprimante)) = 0 Then Err.Raise vbObjectError + 708, , "Choisissez une imprimante CERFA dans poste.ini."
+        Set service = GetObject("winmgmts:\\.\root\cimv2")
+        For Each item In service.ExecQuery("SELECT Name FROM Win32_Printer")
+            If StrComp(CStr(item.Name), imprimante, vbTextCompare) = 0 Then trouve = True
+        Next item
+        If Not trouve Then Err.Raise vbObjectError + 708, , "Imprimante CERFA configuree introuvable."
+        Exit Sub
+    End If
     ImprimerDocumentCale valeurs, versPdf
 End Sub
 
@@ -240,4 +259,9 @@ Private Sub ExigerPositions(ByVal champs As Variant)
     For Each cle In champs
         If Not presents.Exists(CStr(cle)) Then Err.Raise vbObjectError + 706, , "Position CERFA non configuree : " & CStr(cle) & ". Calage a effectuer sur votre formulaire."
     Next cle
+End Sub
+
+Public Sub VerifierAvantFacturation(ByVal infos As Object, ByVal actes As Collection)
+    If actes.Count = 0 Then Err.Raise vbObjectError + 709, , "Aucune ligne pour la feuille de soins."
+    ImprimerFeuille infos, actes, "", True
 End Sub

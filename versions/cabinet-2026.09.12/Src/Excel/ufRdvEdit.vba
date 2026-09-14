@@ -26,15 +26,21 @@ Private Sub UserForm_Initialize()
         If cmbDuree.List(i) = dureeDef Then cmbDuree.ListIndex = i
     Next i
     cmbType.Clear
-    On Error Resume Next
+    On Error GoTo EchecChargement
     For Each a In modActes.Nomenclature()
         cmbType.AddItem a("Code")
     Next a
+    If cmbType.ListCount = 0 Then Err.Raise vbObjectError + 657, , "Nomenclature vide : prise de rendez-vous suspendue."
     On Error GoTo 0
     If cmbType.ListCount > 0 Then cmbType.ListIndex = 0
     For i = 0 To cmbType.ListCount - 1
         If UCase$(cmbType.List(i)) = UCase$(acteDef) Then cmbType.ListIndex = i
     Next i
+    Exit Sub
+EchecChargement:
+    btnOK.Enabled = False
+    modLog.Diagnostic "agenda_initialisation", "nomenclature", Err.Number
+    MsgBox "Nomenclature indisponible : fermez cette fenetre et reessayez apres reconnexion.", vbExclamation, "Cabinet"
 End Sub
 
 ' Pre-remplissage depuis l'agenda (double-clic sur un creneau libre)

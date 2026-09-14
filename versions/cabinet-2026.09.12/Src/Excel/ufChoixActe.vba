@@ -43,7 +43,7 @@ Private Sub lstItemsInit()
     For Each a In mNomenclature
         lstActes.AddItem ""
         lstActes.List(i, 0) = a("Code")
-        lstActes.List(i, 1) = a("LibelleCourt") & IIf(Len(a("CodeAssocie")) > 0, " (+ " & a("CodeAssocie") & ")", "")
+        lstActes.List(i, 1) = a("Libelle") & IIf(Len(a("CodeAssocie")) > 0, " (+ " & a("CodeAssocie") & ")", "")
         lstActes.List(i, 2) = Format$(Val(Replace(a("Tarif"), ",", ".")) + Val(Replace(a("TarifAssocie"), ",", ".")), "0.00")
         ' preselection simple : consultation -> CSC
         If InStr(typeCourrier, "consultation") > 0 And a("Code") = "CSC" Then lstActes.Selected(i) = True
@@ -100,6 +100,7 @@ Private Sub btnOK_Click()
                   vbYesNo + vbExclamation, "Cabinet") <> vbYes Then Exit Sub
     End If
 
+    If chkFds.Value Then modCerfaPrint.VerifierAvantFacturation mDrapeau, modActes.LignesPourImpression(actes)
     seanceID = modActes.EnregistrerSeance(mDrapeau, actes, cmbPaiement.Text, _
                                           chkTiers.Value, False, deja)
 
@@ -113,8 +114,7 @@ Private Sub btnOK_Click()
             impressionEnvoyee = True
         End If
     ElseIf Not deja And chkFds.Value Then
-        modCerfaPrint.ImprimerFeuille mDrapeau, modActes.LignesPourImpression(actes)
-        modBaseIO.MarquerFeuilleImprimee modConfig.FichierJournal(Year(modTexte.DateFr(Valeur("DateActe")))), seanceID
+        modActes.ImprimerSeanceEnregistree mDrapeau, seanceID
         impressionEnvoyee = True
     End If
 

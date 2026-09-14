@@ -23,7 +23,12 @@ End Sub
 Public Sub OuvrirJournal()
     On Error GoTo Echec
     Dim wb As Workbook, ws As Worksheet, lignes As Collection, d As Object, entetes As Variant, r As Long, c As Long
-    Set lignes = modBaseIO.LireTableX(modConfig.FichierJournal(), "JOURNAL", "SeanceID")
+    Dim exercice As String
+    exercice = Trim$(InputBox("Exercice a exporter (AAAA) :", "Journal comptable", CStr(Year(Date))))
+    If Len(exercice) = 0 Then Exit Sub
+    Dim re As Object: Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^[12][0-9]{3}$"
+    If Not re.Test(exercice) Then Err.Raise vbObjectError + 660, , "Exercice invalide."
+    Set lignes = modBaseIO.LireJournal(exercice)
     Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)
     ws.Name = "Journal exporte": entetes = EntetesJournal()
     For c = LBound(entetes) To UBound(entetes): ws.Cells(1, c + 1).Value2 = entetes(c): Next c

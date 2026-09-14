@@ -348,12 +348,10 @@ Private Sub ExecuterAction(ByVal rdvs As Collection, ByVal rdvID As String, ByVa
         Case "ARRIVE"
             modEchange.SignalerArrivee r
         Case "ABSENT"
-            modEchange.RetirerArrivee r
             modAgenda.MarquerStatut rdvID, "Absent", annee
         Case "ANNULE"
             If MsgBox("Annuler ce rendez-vous ?", vbYesNo + vbQuestion, "Cabinet") = vbYes Then
-                modEchange.RetirerArrivee r
-                modAgenda.MarquerStatut rdvID, "Annule", annee
+                    modAgenda.MarquerStatut rdvID, "Annule", annee
             End If
         Case "FICHE"
             If mPatients.Exists(r("PatientID")) Then

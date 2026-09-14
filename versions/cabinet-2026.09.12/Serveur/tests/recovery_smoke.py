@@ -1,5 +1,7 @@
 """Recette PostgreSQL 17 native, seulement dans compose.verification.yaml."""
 from pathlib import Path
+from contextlib import contextmanager
+from cabinet.migration_u1 import migrer
 import hashlib
 import json
 import os
@@ -53,10 +55,34 @@ def main():
         db.execute("INSERT INTO consultations(id,rdv_id,patient_id,etat,donnees) VALUES ('consult-fictive','rdv-fictif','P123456789A','publie',%s)", (Jsonb({'CheminBrouillon':old+r'\Patients\fictif.docx'}),))
         db.execute("INSERT INTO publications(id,consultation_id,etat,donnees) VALUES ('publication-fictive','consult-fictive','a_traiter',%s)", (Jsonb(publication),))
         db.execute("INSERT INTO commandes(compte,id,empreinte,resultat) VALUES ('compte-fictif','commande-fictive','empreinte-conservee',%s)", (Jsonb({'items':[publication]}),))
+    # Une sauvegarde U0 reste inspectable avec le moteur U1.
+    legacy = r.backup(source, backups, config, old)
+    assert r.inspect_bundle(backups/legacy['sauvegarde'])['schema'] == 1
+    class MigrationService:
+        @contextmanager
+        def connexion(self):
+            with r.connection() as db, db.transaction():
+                yield db
+    acte = {'ID': 'CS', 'Code': 'CS', 'LibelleCourt': 'Consultation FICTIVE',
+            'Tarif': '30.00', 'Depassement': '0.00'}
+    with r.connection() as db:
+        db.execute("INSERT INTO ressources(genre,id,donnees) VALUES ('ACTES','CS',%s)", (Jsonb(acte),))
+    service = MigrationService()
+    simulation = migrer(service)
+    assert simulation['modifications'] == 1 and not simulation['conflits']
+    assert migrer(service, simulation['empreinte'])['applique']
+    avant = [{'CodeActe': 'CS', 'Montant': '30.00', 'Paye': 'N'}]
+    apres = [{'CodeActe': 'CS', 'Montant': '30.00', 'Paye': 'O', 'ModePaiement': 'CB'}]
+    with r.connection() as db:
+        db.execute("INSERT INTO seances(id,patient_id,empreinte,lignes,impression_etat,impression_tentative) "
+                   "VALUES ('consult-fictive','P123456789A','empreinte-fictive',%s,'inconnue','tentative-fictive')", (Jsonb(apres),))
+        db.execute("INSERT INTO reglements_audit(seance_id,compte,avant,apres) VALUES "
+                   "('consult-fictive','compte-fictif',%s,%s)", (Jsonb(avant), Jsonb(apres)))
     report = r.backup(source, backups, config, old)
     bundle = backups/report['sauvegarde']
+    assert r.inspect_bundle(bundle)['schema'] == 2
     source_db = os.environ['PGDATABASE']
-    test_db = 'u0_restore_'+uuid.uuid4().hex
+    test_db = 'u1_restore_'+uuid.uuid4().hex
     with r.connection() as db:
         db.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(test_db)))
     try:
@@ -73,7 +99,18 @@ def main():
             command = db.execute('SELECT resultat,empreinte FROM commandes').fetchone()
             assert command['resultat']['items'][0]['CheminPdf'].startswith(new)
             assert command['empreinte']=='empreinte-conservee'
-            assert db.execute('SELECT id FROM ressources').fetchone()['id']=='P123456789A'
+            assert db.execute("SELECT id FROM ressources WHERE genre='PATIENTS'").fetchone()['id']=='P123456789A'
+            assert db.execute('SELECT max(version) AS v FROM schema_version').fetchone()['v'] == 2
+            acte_restaure = db.execute("SELECT donnees,revision FROM ressources WHERE genre='ACTES' AND id='CS'").fetchone()
+            assert acte_restaure['revision'] == 2
+            assert acte_restaure['donnees']['Libelle'] == 'Consultation FICTIVE'
+            assert acte_restaure['donnees']['Depassement'] == '0.00'
+            migration = db.execute('SELECT avant,apres FROM migrations_ressources').fetchone()
+            assert migration['avant'] == acte and migration['apres'] == acte_restaure['donnees']
+            audit = db.execute('SELECT compte,avant,apres FROM reglements_audit').fetchone()
+            assert audit == {'compte': 'compte-fictif', 'avant': avant, 'apres': apres}
+            seance = db.execute('SELECT lignes,impression_etat,impression_tentative FROM seances').fetchone()
+            assert seance == {'lignes': apres, 'impression_etat': 'inconnue', 'impression_tentative': 'tentative-fictive'}
         # Refus d'une base non vide, meme avec des nouveaux dossiers vides.
         t2=Path('/target2'); t2.mkdir(); c2=Path('/config-target2'); c2.mkdir()
         try:
@@ -91,7 +128,8 @@ def main():
             assert 'altere' in str(exc)
         else:
             raise AssertionError('Dump altere accepte')
-        print(json.dumps({'postgresql_native':True, 'restauration_complete':True,
+        print(json.dumps({'postgresql_native':True, 'schema_u1_restaure':True,
+                          'historique_migration_reglement':True, 'sauvegarde_u0_lisible':True, 'restauration_complete':True,
                           'changement_partage':True, 'base_non_vide_refusee':True,
                           'dump_altere_refuse':True, 'recette_office_smb_executee':False}))
     finally:

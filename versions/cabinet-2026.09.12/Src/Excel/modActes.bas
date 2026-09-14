@@ -49,10 +49,12 @@ Public Function EnregistrerSeance(ByVal infos As Object, ByVal ActesChoisis As C
                                     modePaiement, tiersPayant, fdsImprimee)
         End If
     Next a
-    Dim annee As Long
+    Dim annee As Long, resultat As Object
     annee = Year(modTexte.DateFr(CStr(infos("DateActe"))))
     modBaseIO.CreerClasseurSiAbsent modConfig.FichierJournal(annee), "JOURNAL", modJournal.EntetesJournal()
-    dejaEnregistree = Not modBaseIO.AjouterSeanceUnique(modConfig.FichierJournal(annee), lignes, seanceID)
+    Set resultat = modBaseIO.EnregistrerActes(lignes, seanceID, ValeurOuVide(infos, "PublicationID"))
+    dejaEnregistree = Not CBool(resultat("ajoute"))
+    If CBool(resultat("selection_differente")) Then Err.Raise vbObjectError + 648, , "Les actes coches different des actes deja enregistres. Consultez la seance avant de poursuivre ; aucune modification comptable effectuee."
     EnregistrerSeance = seanceID
 End Function
 
@@ -134,28 +136,31 @@ End Sub
 
 ' Reprise apres un echec d'impression : utilise les montants deja enregistres.
 Public Sub ImprimerSeanceEnregistree(ByVal infos As Object, ByVal seanceID As String)
-    Dim journal As String, ligne As Object, lignes As New Collection, copie As Object, cle As Variant, impression As Object
-    journal = modConfig.FichierJournal(Year(modTexte.DateFr(CStr(infos("DateActe")))))
+    Dim saved As Object, p As Object, tentative As Object, r As Object, ligne As Object
+    Dim copie As Object, lignes As New Collection, impression As Object, cle As Variant, confirme As Boolean
+    Set saved = modServiceNas.CommandeID("billing.get", seanceID)
     Set copie = CreateObject("Scripting.Dictionary")
-    For Each cle In infos.Keys
-        copie(cle) = infos(cle)
-    Next cle
-    For Each ligne In modBaseIO.LireJournal("", seanceID)
-        If CStr(ligne("SeanceID")) = seanceID Then
-            If CStr(ligne("PatientID")) <> CStr(infos("PatientID")) Then Err.Raise vbObjectError + 646, , "Consultation rattachee a un autre patient dans le journal."
-            copie("DateActe") = ligne("Date")
-            copie("Nom") = ligne("Nom"): copie("Prenom") = ligne("Prenom")
-            copie("DDN") = ligne("DDN"): copie("NIR") = ligne("NIR")
-            For Each cle In Array("AssureNom", "AssurePrenom", "AssureDDN", "AssureNIR")
-                If ligne.Exists(CStr(cle)) Then copie(CStr(cle)) = ligne(CStr(cle))
-            Next cle
-            Set impression = CreateObject("Scripting.Dictionary")
-            impression("CodeActe") = ligne("CodeActe")
-            impression("Montant") = ligne("Montant")
-            lignes.Add impression
-        End If
+    For Each cle In infos.Keys: copie(cle) = infos(cle): Next cle
+    For Each ligne In saved("lignes")
+        If CStr(ligne("PatientID")) <> CStr(infos("PatientID")) Then Err.Raise vbObjectError + 646, , "Seance rattachee a un autre patient."
+        copie("DateActe") = ligne("Date")
+        For Each cle In Array("Nom", "Prenom", "DDN", "NIR", "AssureNom", "AssurePrenom", "AssureDDN", "AssureNIR")
+            If ligne.Exists(CStr(cle)) Then copie(CStr(cle)) = ligne(CStr(cle))
+        Next cle
+        Set impression = CreateObject("Scripting.Dictionary")
+        impression("CodeActe") = ligne("CodeActe"): impression("Montant") = ligne("Montant")
+        lignes.Add impression
     Next ligne
-    If lignes.Count = 0 Then Err.Raise vbObjectError + 647, , "Consultation absente du journal."
+    modCerfaPrint.VerifierAvantFacturation copie, lignes
+    confirme = CStr(saved("impression_etat")) <> "actes_enregistres"
+    If confirme Then
+        If MsgBox("Une impression a deja ete demandee. Verifiez la sortie papier avant de poursuivre." & vbCrLf & "Confirmez-vous une nouvelle impression des actes enregistres ?", vbYesNo + vbExclamation, "Reimpression explicite") <> vbYes Then Exit Sub
+    End If
+    Set p = modServiceNas.Parametres(): p("id") = seanceID: p("reimpression_confirmee") = confirme
+    Set tentative = modServiceNas.Appeler("print.request", p)
     modCerfaPrint.ImprimerFeuille copie, lignes
-    modBaseIO.MarquerFeuilleImprimee journal, seanceID
+    If MsgBox("La feuille est-elle sortie correctement sur papier ?" & vbCrLf & "Non conserve un resultat inconnu et le courrier en attente.", vbYesNo + vbQuestion, "Verifier la feuille imprimee") <> vbYes Then Exit Sub
+    Set p = modServiceNas.Parametres(): p("id") = seanceID
+    p("tentative") = CStr(tentative("tentative")): p("confirmee") = True
+    Set r = modServiceNas.Appeler("printed", p)
 End Sub

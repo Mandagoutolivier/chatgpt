@@ -24,7 +24,7 @@ def test_nir_controle():
 
 def test_modification_dose_negation():
     r=comparer_clinique('[[PATIENT]] sans douleur. TEST 5 mg.', '[[PATIENT]] douleur. TEST 10 mg.')
-    assert {d['controle'] for d in r['differences']}=={'nombres_et_unites','negations'}
+    assert {d['controle'] for d in r['differences']}=={'nombres_et_unites','negations','contexte_negations'}
     assert r['relecture_obligatoire'] is True
 
 

@@ -19,7 +19,7 @@ End Sub
 ' Trace d'etape : memorisee pour les messages d'erreur, journalisee
 Public Sub Etape(ByVal libelle As String)
     mEtape = libelle
-    Ecrire "ETAPE", libelle
+    Diagnostic "etape", "debut"
 End Sub
 
 Public Function DerniereEtape() As String
@@ -29,10 +29,36 @@ End Function
 ' Journal principal dans <Racine>\Logs ; si la racine est inaccessible
 ' (configuration du poste), journal de secours dans %TEMP%\CabinetCardio.
 Private Sub Ecrire(ByVal niveau As String, ByVal msg As String)
-    ' Le journal metier durable est tenu par le serveur, avec des identifiants.
-    ' Les anciens appels peuvent contenir noms, chemins ou texte : ne pas les persister.
-    mEtape = niveau
+    ' Les anciens textes libres peuvent contenir des identites : jamais copies.
+    Diagnostic "legacy", niveau, Err.Number
 End Sub
+
+Public Sub Diagnostic(ByVal etape As String, ByVal categorie As String, Optional ByVal numero As Long = 0, Optional ByVal commande As String = "")
+    On Error Resume Next
+    Dim dossier As String, chemin As String, fso As Object, ts As Object, f As Object
+    dossier = Environ$("LOCALAPPDATA") & "\CabinetCardio\Diagnostics"
+    modFichiers.EnsureDossier dossier
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    For Each f In fso.GetFolder(dossier).Files
+        If Left$(f.Name, 3) = "u1-" And DateDiff("d", f.DateLastModified, Now) > 14 Then f.Delete
+    Next f
+    chemin = dossier & "\u1-" & Format$(Date, "yyyymmdd") & ".log"
+    If fso.FileExists(chemin) Then
+        If fso.GetFile(chemin).Size > 1048576 Then
+            If fso.FileExists(chemin & ".1") Then fso.DeleteFile chemin & ".1"
+            fso.MoveFile chemin, chemin & ".1"
+        End If
+    End If
+    Set ts = fso.OpenTextFile(chemin, 8, True, -1)
+    ts.WriteLine Format$(Now, "yyyy-mm-dd hh:nn:ss") & "|" & CodeSur(etape) & "|" & CodeSur(categorie) & "|" & CStr(numero) & "|" & CodeSur(commande)
+    ts.Close
+End Sub
+
+Private Function CodeSur(ByVal valeur As String) As String
+    Dim re As Object
+    Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^[A-Za-z0-9_.-]{0,100}$"
+    If re.Test(valeur) Then CodeSur = valeur Else CodeSur = "non_code"
+End Function
 
 ' --- Tests -----------------------------------------------------------
 

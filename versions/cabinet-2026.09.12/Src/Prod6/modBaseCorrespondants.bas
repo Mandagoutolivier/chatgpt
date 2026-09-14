@@ -15,9 +15,17 @@ End Function
 
 Public Function DestinationParDefautPourTypeExamen(ByVal typeExamen As String) As String
     Dim p As Object, r As Object
+    On Error GoTo Echec
     Set p = modServiceNas.Parametres(): p("examen") = typeExamen
     Set r = modServiceNas.Appeler("correspondent.resolve", p)
     DestinationParDefautPourTypeExamen = RecordCorrespondant(r, typeExamen)
+    Exit Function
+Echec:
+    If Err.Number = vbObjectError + 1141 Then Exit Function
+    Dim numero As Long, description As String
+    numero = Err.Number: description = Err.Description
+    On Error GoTo 0
+    Err.Raise numero, "Destinations", description
 End Function
 
 Public Function RechercherDestinationsParTypeExamen(ByVal typeExamen As String) As String

@@ -13,6 +13,7 @@ try {
     [void][IO.Directory]::CreateDirectory($cache)
     $bootLock=[IO.File]::Open((Join-Path $cache 'telechargement.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
     $package=Join-Path $cache $Commit
+    [void](Isoler-PaquetInvalide $package $Empreintes)
     if (-not (Test-Path -LiteralPath $package)) {
         $url="https://github.com/Mandagoutolivier/chatgpt/archive/$Commit.zip"
         Write-Host ''

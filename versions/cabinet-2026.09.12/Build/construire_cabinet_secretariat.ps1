@@ -26,7 +26,7 @@ try {
     $excel.AutomationSecurity = 3; $excel.EnableEvents = $false
     $wb = $excel.Workbooks.Open($built, 0, $false)
     Lier-FeuillesVba $wb $manifest.excel
-    Installer-SourcesVba $wb.VBProject $manifest.excel $RacineSources
+    Installer-SourcesVba $wb.VBProject $manifest.excel $RacineSources $manifest.excel_legacy_removals
     $ws=$wb.Worksheets.Item(1)
     $top=80
     foreach ($shape in $ws.Shapes) { $top=[Math]::Max($top,[double]$shape.Top+[double]$shape.Height+20) }

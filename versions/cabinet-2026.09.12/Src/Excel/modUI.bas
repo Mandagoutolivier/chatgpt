@@ -190,12 +190,19 @@ End Sub
 
 Public Sub UI_EncaisserSeance()
     On Error GoTo Echec
-    Dim id As String, mode As String, p As Object, r As Object
+    Dim id As String, mode As String, p As Object, r As Object, saved As Object, line As Object, total As Double, detail As String
     id = Trim$(InputBox("Identifiant SeanceID du journal :", "Encaissement"))
     If Len(id) = 0 Then Exit Sub
-    mode = Trim$(InputBox("Mode du reglement integral recu :", "Encaissement"))
+    Set saved = modServiceNas.CommandeID("billing.get", id)
+    For Each line In saved("lignes")
+        total = total + Val(Replace(CStr(line("Montant")), ",", "."))
+        detail = CStr(line("Nom")) & " " & CStr(line("Prenom")) & " - " & CStr(line("Date"))
+    Next line
+    If MsgBox(detail & vbCrLf & "Reglement integral de " & Format$(total, "0.00") & " EUR pour cette seance ?", vbYesNo + vbQuestion, "Confirmer la seance") <> vbYes Then Exit Sub
+    mode = Trim$(InputBox("Mode du reglement integral recu : CB, Cheque, Especes ou Virement", "Encaissement"))
     If Len(mode) = 0 Then Exit Sub
     Set p = modServiceNas.Parametres(): p("id") = id: p("mode") = mode: p("date") = Format$(Date, "dd/mm/yyyy")
+    p("empreinte") = CStr(saved("empreinte"))
     Set r = modServiceNas.Appeler("payment", p)
     MsgBox "Reglement enregistre.", vbInformation, "Cabinet"
     Exit Sub

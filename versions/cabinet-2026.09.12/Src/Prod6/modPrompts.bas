@@ -46,9 +46,9 @@ Public Function ConstruirePromptReecritureMedicale( _
     AjouterLignePrompt p, "Place la conduite à tenir, les modifications thérapeutiques, les examens demandés et le délai de suivi dans un ou plusieurs paragraphes distincts après la synthèse."
     AjouterLignePrompt p, "N'invente jamais un examen clinique, un ECG, une échographie, un Holter, une biologie, un antécédent ou une conclusion pour compléter artificiellement la structure."
     AjouterLignePrompt p, "Conserve strictement les artères, segments, pourcentages de sténose, dates, gestes de revascularisation, valeurs chiffrées, doses, délais et consignes présents dans le texte source."
-    AjouterLignePrompt p, "Retourne le courrier principal exclusivement entre les balises ---CORPS_COURRIER--- et ---FIN_CORPS_COURRIER---."
+    AjouterLignePrompt p, "Renseigne uniquement corps_courrier dans le schema JSON ; demandes est un tableau vide."
 
-    AjouterLignePrompt p, "Ne rédige aucune lettre complémentaire et aucun bloc DEMANDE_DESTINATION dans ce premier appel."
+    AjouterLignePrompt p, "Ne redige aucune lettre complementaire dans ce premier appel."
     AjouterLignePrompt p, ""
     AjouterLignePrompt p, "COURRIER MÉDICAL ANONYMISÉ À TRAITER :"
     AjouterLignePrompt p, "--------------------"
@@ -112,7 +112,8 @@ Private Function NormaliserTexteDetectionDemande( _
     ByVal texte As String) As String
 
     texte = LCase$(texte)
-    texte = Replace(texte, "'", "'")
+    texte = Replace(texte, ChrW(&H2019), "'")
+    texte = Replace(texte, ChrW(&H2018), "'")
     texte = Replace(texte, Chr(160), " ")
     texte = Replace(texte, vbTab, " ")
     texte = Replace(texte, vbCr, " ")
@@ -319,7 +320,7 @@ Public Function ConstruirePromptDemandeExamenSeule( _
     p = ""
 
     AjouterLignePrompt p, "À partir du courrier médical anonymisé fourni, produis uniquement les demandes d'examens ou de consultations spécialisées explicitement décidées."
-    AjouterLignePrompt p, "Ne produis pas de bloc ---CORPS_COURRIER--- et n'écris aucun commentaire hors des blocs de demande."
+    AjouterLignePrompt p, "Renseigne demandes dans le schema JSON ; corps_courrier est une chaine vide. Aucun commentaire hors JSON."
     AjouterLignePrompt p, "Conserve exactement [[PATIENT]] et n'invente aucun nom, âge, résultat, traitement, indication ou destinataire."
     AjouterLignePrompt p, "Une demande existe seulement si une décision actuelle ou future de prescrire, programmer, faire réaliser, adresser, orienter, diriger ou confier le patient est explicitement liée à l'examen ou à l'avis dans le même passage."
     AjouterLignePrompt p, "Une mention historique, un résultat, une hypothèse, une discussion, une possibilité conditionnelle ou un projet non décidé ne doit produire aucun bloc."
@@ -348,7 +349,7 @@ Public Function ConstruirePromptDemandeExamenSeule( _
     AjouterLignePrompt p, "Le corps ne contient ni adresse, ni bloc destinataire, ni formule d'appel, ni formule de politesse, ni signature."
 
     AjouterLignePrompt p, "Chaque demande respecte exactement le format indiqué ci-dessous."
-    AjouterFormatDemandeAuPrompt p
+    AjouterLignePrompt p, "Chaque demande est un objet JSON avec cle_destination et corps. A_COMPLETER est une absence de destinataire : chaque demande non resolue reste separee."
     AjouterLignePrompt p, "Si aucune demande éligible n'est explicitement décidée, ne produis aucun bloc."
     AjouterLignePrompt p, ""
     AjouterLignePrompt p, "COURRIER MÉDICAL ANONYMISÉ À TRAITER :"
@@ -409,7 +410,7 @@ Public Function ConstruireConsignesDemandesStructureesAPI() As String
     AjouterLignePrompt p, ""
     p = p & ConstruireConsignesDemandesExamensDetaillees()
     AjouterLignePrompt p, "Chaque demande doit respecter exactement le format indiqué ci-dessous."
-    AjouterFormatDemandeAuPrompt p
+    AjouterLignePrompt p, "Chaque demande est un objet JSON avec cle_destination et corps. A_COMPLETER est une absence de destinataire : chaque demande non resolue reste separee."
     AjouterLignePrompt p, "N'écris aucun bloc DEMANDE_DESTINATION si aucune demande éligible n'est explicitement décidée dans le courrier source."
     AjouterLignePrompt p, "N'écris rien en dehors du bloc CORPS_COURRIER et des éventuels blocs DEMANDE_DESTINATION."
 
@@ -534,6 +535,9 @@ Private Function CleDestinationPourPrompt( _
 
 GestionErreur:
 
-    CleDestinationPourPrompt = "A_COMPLETER"
+    Dim numero As Long, description As String
+    numero = Err.Number: description = Err.Description
+    On Error GoTo 0
+    Err.Raise numero, "Destinations", description
 
 End Function

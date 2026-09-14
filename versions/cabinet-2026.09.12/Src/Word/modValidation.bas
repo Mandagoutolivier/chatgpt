@@ -24,11 +24,8 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
     If pat Is Nothing Then Err.Raise vbObjectError + 520, "modValidation", _
         "Document sans patient rattache : appuyez sur F6 (ou Ctrl+Alt+P) pour choisir le patient, puis validez."
     Set cor = modApiConfiguration.CorrespondantDuDocument(doc)
-    If cor Is Nothing Then
-        ' destinataire dicte (saisie rapide) : reconnu dans la base si possible
-        If Len(modCourrier.ReconnaitreDestinataire(doc)) > 0 Then Set cor = modApiConfiguration.CorrespondantDuDocument(doc)
-        modCourrier.MettreEnFormeDestinataire doc
-    End If
+    If cor Is Nothing Then Err.Raise vbObjectError + 1128, , "Destinataire principal absent."
+    If UCase$(Trim$(CStr(cor("ID")))) = "A_COMPLETER" Then Err.Raise vbObjectError + 1128, , "Destinataire principal a completer."
 
     typeCourrier = VariableDoc(doc, "TypeCourrier")
     If Len(typeCourrier) = 0 Then typeCourrier = "courrier"
@@ -37,18 +34,9 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
     ' conserve dans le document. Une revalidation apres correction produit
     ' une nouvelle VERSION du meme acte, jamais un acte supplementaire.
     consultationID = VariableDoc(doc, "ConsultationID")
-    If Len(consultationID) = 0 Then
-        consultationID = modFichiers.IdUnique()
-        DefinirVariableDoc doc, "ConsultationID", consultationID
-    End If
-
-    ' Date REELLE de l'acte : celle de la consultation si elle est portee par
-    ' le document, sinon celle de la premiere validation (figee ensuite).
+    If Len(Trim$(consultationID)) = 0 Then Err.Raise vbObjectError + 1129, , "Consultation NAS obligatoire."
     dateActe = VariableDoc(doc, "DateActe")
-    If Not modTexte.DateFrValide(dateActe) Then
-        dateActe = Format$(Date, "dd/mm/yyyy")
-        DefinirVariableDoc doc, "DateActe", dateActe
-    End If
+    If Not modTexte.DateFrValide(dateActe) Then Err.Raise vbObjectError + 1129, , "Date de consultation obligatoire."
 
     publicationID = Trim$(modIntegrationUnifie.VariableDoc(doc, "PublicationID"))
     If Len(publicationID) = 0 Then
@@ -63,8 +51,16 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
     cheminDocx = dossier & "\" & base & "_" & publicationID & ".docx"
     cheminPdf = Left$(cheminDocx, Len(cheminDocx) - 4) & "pdf"
 
-    doc.SaveAs2 cheminDocx, 12                      ' wdFormatXMLDocument
-    doc.ExportAsFixedFormat cheminPdf, 17           ' wdExportFormatPDF
+    If Not modEtatCourrier.PublicationPrete(publicationID) Then
+        doc.SaveAs2 cheminDocx, 12
+        doc.ExportAsFixedFormat cheminPdf, 17
+        Dim sortie As String
+        If Not SD_CopierRevisionFinale(doc, cheminDocx, publicationID, sortie) Then Err.Raise vbObjectError + 1130, , "Copie de sortie interrompue."
+        modIntegrationUnifie.FixerVariable doc, "PublicationPreparee", publicationID
+        ' Ne pas resauver les binaires prepares : PDF et DOCX viennent de la
+        ' meme revision. Le drapeau local sert seulement a reprendre l envoi.
+        modEtatCourrier.EcrireProtege publicationID, "-publication", "preparee"
+    End If
 
     Set d = CreateObject("Scripting.Dictionary")
     d("PatientID") = pat("ID")

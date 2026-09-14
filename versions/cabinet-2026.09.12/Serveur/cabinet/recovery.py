@@ -22,6 +22,7 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 FORMAT = 1
+SUPPORTED_SCHEMAS = {1, 2}
 FILES = ('base.dump', 'fichiers.tar.gz', 'configuration.tar.gz', 'manifest.json')
 PATH_KEYS = {'CheminDocx', 'CheminPdf', 'CheminBrouillon'}
 JSON_COLUMNS = (('ressources', 'donnees', ('genre', 'id')),
@@ -225,7 +226,7 @@ def backup(root, backups, config, unc):
         inventory = regular_tree(root)
         configuration = regular_tree(config)
         schema = db.execute('SELECT max(version) AS v FROM schema_version').fetchone()['v']
-        require(schema == 1, 'Schema de base non pris en charge.')
+        require(type(schema) is int and schema in SUPPORTED_SCHEMAS, 'Schema de base non pris en charge.')
         references = check_references(db, inventory, unc)
         run(['pg_dump', '--format=custom', '--no-owner', '--file='+str(target/'base.dump')])
         pack(root, target/'fichiers.tar.gz', inventory)
@@ -235,7 +236,7 @@ def backup(root, backups, config, unc):
         require(regular_tree(root) == inventory and regular_tree(config) == configuration,
                 'Ecritures detectees pendant la sauvegarde : aucun marqueur TERMINE.')
         manifest = {'format': FORMAT, 'source_unc': unc, 'schema': schema,
-                    'revision': '2026.09.14-u0', 'fichiers': inventory,
+                    'revision': '2026.09.14-u1', 'fichiers': inventory,
                     'configuration': configuration, 'references': references,
                     'acl_synology': 'A sauvegarder et restaurer via DSM ; modes POSIX conserves.',
                     'ecritures_smb': 'Suspension declaree par operateur, controle de stabilite effectue.'}
@@ -270,7 +271,8 @@ def inspect_bundle(bundle):
     for name, expected in sums.items():
         require(not (bundle/name).is_symlink() and digest(bundle/name) == expected, 'Composant de sauvegarde altere.')
     manifest = json.loads((bundle/'manifest.json').read_text())
-    require(manifest['format'] == FORMAT and manifest['schema'] == 1, 'Format de sauvegarde incompatible.')
+    require(manifest['format'] == FORMAT and type(manifest['schema']) is int
+            and manifest['schema'] in SUPPORTED_SCHEMAS, 'Format de sauvegarde incompatible.')
     verify_archive(bundle/'fichiers.tar.gz', manifest['fichiers'])
     verify_archive(bundle/'configuration.tar.gz', manifest['configuration'])
     run(['pg_restore', '--list', str(bundle/'base.dump')])
@@ -296,6 +298,9 @@ def restore(bundle, root, config_target, unc, role):
         require(bool(re.fullmatch(r'[a-z_][a-z0-9_]{0,62}', role)), 'Role cible invalide.')
         command.append('--role='+role)
     run(command+[str(bundle/'base.dump')])
+    with connection() as db:
+        restored_schema = db.execute('SELECT max(version) AS v FROM schema_version').fetchone()['v']
+        require(restored_schema == manifest['schema'], 'Schema restaure different du manifeste.')
     os.chmod(config_target, 0o700)
     verify_archive(bundle/'fichiers.tar.gz', manifest['fichiers'], root)
     # La configuration d'origine est recuperee a part, jamais appliquee au nouveau projet.

@@ -10,8 +10,12 @@ Option Explicit
 ' Cabinet.xlsm - poste secretaire
 
 Private Sub Workbook_Open()
-    On Error Resume Next
+    On Error GoTo Echec
     modEchange.DemarrerScrutation
+    Exit Sub
+Echec:
+    modLog.Diagnostic "ouverture_excel", "scrutation", Err.Number
+    Application.StatusBar = "Connexion NAS a verifier. Actualisez la file des courriers."
 End Sub
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)

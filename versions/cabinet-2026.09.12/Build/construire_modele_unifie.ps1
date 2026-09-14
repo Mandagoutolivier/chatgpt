@@ -40,7 +40,7 @@ try {
         $component.Export($file)
         [void]$dstProj.VBComponents.Import($file)
     }
-    Installer-SourcesVba $dstProj $manifest.word $RacineSources
+    Installer-SourcesVba $dstProj $manifest.word $RacineSources $manifest.word_legacy_removals
     $dst.Save()
     $dst.Close(0); $dst = $null
     $src.Close(0); $src = $null

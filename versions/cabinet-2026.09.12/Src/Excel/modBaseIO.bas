@@ -36,17 +36,11 @@ Public Sub CreerClasseurSiAbsent(ByVal fichier As String, ByVal Feuille As Strin
     ' Le schema serveur est versionne ; aucun classeur de base n'est cree.
 End Sub
 
-Public Function AjouterSeanceUnique(ByVal fichier As String, ByVal lignes As Collection, ByVal seanceID As String) As Boolean
-    Dim p As Object, r As Object
-    Set p = modServiceNas.Parametres(): p("id") = seanceID: Set p("lignes") = lignes
-    Set r = modServiceNas.Appeler("bill", p)
-    AjouterSeanceUnique = CBool(r("ajoute"))
+Public Function EnregistrerActes(ByVal lignes As Collection, ByVal seanceID As String, ByVal publicationID As String) As Object
+    Dim p As Object
+    Set p = modServiceNas.Parametres(): p("id") = seanceID: p("publication_id") = publicationID: Set p("lignes") = lignes
+    Set EnregistrerActes = modServiceNas.Appeler("bill", p)
 End Function
-
-Public Sub MarquerFeuilleImprimee(ByVal fichier As String, ByVal seanceID As String)
-    Dim r As Object
-    Set r = modServiceNas.CommandeID("printed", seanceID)
-End Sub
 
 Private Function AnneeFichier(ByVal fichier As String) As String
     Dim re As Object, matches As Object
@@ -56,13 +50,7 @@ Private Function AnneeFichier(ByVal fichier As String) As String
 End Function
 
 Public Function LireJournal(Optional ByVal annee As String = "", Optional ByVal seanceID As String = "") As Collection
-    Dim p As Object, r As Object, ligne As Object, resultat As New Collection
-    Set p = modServiceNas.Parametres(): p("year") = annee: p("id") = seanceID: p("offset") = 0
-    Do
-        Set r = modServiceNas.Appeler("journal.read", p)
-        For Each ligne In r("items"): resultat.Add ligne: Next ligne
-        If IsNull(r("next")) Then Exit Do
-        p("offset") = r("next")
-    Loop
-    Set LireJournal = resultat
+    Dim p As Object
+    Set p = modServiceNas.Parametres(): p("year") = annee: p("id") = seanceID
+    Set LireJournal = modServiceNas.LirePages("journal.read", p)
 End Function

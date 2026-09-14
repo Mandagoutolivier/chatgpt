@@ -3,9 +3,18 @@ Option Explicit
 
 Public Function CT_DestinationParCle(ByVal cleDestination As String) As String
     Dim p As Object, r As Object
+    If UCase$(Trim$(cleDestination)) = "A_COMPLETER" Or Len(Trim$(cleDestination)) = 0 Then Exit Function
+    On Error GoTo Echec
     Set p = modServiceNas.Parametres(): p("cle") = cleDestination
     Set r = modServiceNas.Appeler("correspondent.resolve", p)
     CT_DestinationParCle = modBaseCorrespondants.RecordCorrespondant(r, CStr(r("TypesExamen")))
+    Exit Function
+Echec:
+    If Err.Number = vbObjectError + 1141 Then Exit Function
+    Dim numero As Long, description As String
+    numero = Err.Number: description = Err.Description
+    On Error GoTo 0
+    Err.Raise numero, "Destinations", description
 End Function
 
 Public Function CT_ListeDestinationsPourSelection() As Collection
