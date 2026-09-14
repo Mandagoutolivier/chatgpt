@@ -56,7 +56,7 @@ Public Sub ValiderEtTransmettre(ByVal doc As Document)
 End Sub
 
 Public Function EmpreinteCourrier(ByVal doc As Document, ByVal destinataireID As String) As String
-    Dim xml As Object, noeud As Object, nodes As Object, attr As Object
+    Dim xml As Object, noeud As Object, nodes As Object, attr As Object, fin As Object, partie As Object, id As String
     Set xml = CreateObject("MSXML2.DOMDocument.6.0")
     xml.async = False: xml.resolveExternals = False
     If Not xml.LoadXML(doc.Content.WordOpenXML) Then Err.Raise vbObjectError + 1167, , "Empreinte du document impossible."
@@ -68,5 +68,21 @@ Public Function EmpreinteCourrier(ByVal doc As Document, ByVal destinataireID As
     For Each noeud In nodes
         For Each attr In noeud.SelectNodes("@*[starts-with(local-name(),'rsid')]"): noeud.RemoveAttributeNode attr: Next attr
     Next noeud
+    ' Exclure uniquement les reperes internes de navigation et l identifiant
+    ' Word regenere a la sauvegarde ; conserver le texte et sa mise en page.
+    Set nodes = xml.SelectNodes("//*[local-name()='bookmarkStart' and @*[local-name()='name']='_GoBack']")
+    For Each noeud In nodes
+        id = CStr(noeud.SelectSingleNode("@*[local-name()='id']").Text)
+        Set partie = noeud.ParentNode
+        Do While partie.nodeName <> "pkg:part" And Not partie.ParentNode Is Nothing
+            Set partie = partie.ParentNode
+        Loop
+        For Each fin In partie.SelectNodes(".//*[local-name()='bookmarkEnd' and @*[local-name()='id']='" & id & "']")
+            fin.ParentNode.RemoveChild fin
+        Next fin
+        noeud.ParentNode.RemoveChild noeud
+    Next noeud
+    Set nodes = xml.SelectNodes("//*[local-name()='settings']/*[local-name()='docId']")
+    For Each noeud In nodes: noeud.ParentNode.RemoveChild noeud: Next noeud
     EmpreinteCourrier = modServiceNas.SHA256(destinataireID & "|" & xml.XML)
 End Function

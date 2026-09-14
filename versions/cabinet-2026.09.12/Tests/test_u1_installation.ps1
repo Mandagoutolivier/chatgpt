@@ -24,3 +24,22 @@ try {
     if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Recurse -Force }
     if ($archive -and (Test-Path -LiteralPath $archive)) { Remove-Item -LiteralPath $archive -Recurse -Force }
 }
+
+# Retour arriere reel des octets et droits, uniquement sur fichiers fictifs.
+if([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT){
+    $aclRoot=Join-Path ([IO.Path]::GetTempPath()) ('cabinet-u1-acl-'+[guid]::NewGuid().ToString('N'))
+    [void][IO.Directory]::CreateDirectory($aclRoot)
+    try{
+        $cible=Join-Path $aclRoot 'fictif.txt';$copie=Join-Path $aclRoot 'sauvegarde.txt'
+        [IO.File]::WriteAllText($cible,'FICTIF AVANT')
+        Proteger-FichierLocal $cible
+        $sddl=(Get-Acl -LiteralPath $cible).Sddl
+        [IO.File]::Copy($cible,$copie,$false);Proteger-FichierLocal $copie
+        Exiger ((Get-Acl -LiteralPath $copie).AreAccessRulesProtected) 'sauvegarde fictive protegee'
+        [IO.File]::WriteAllText($cible,'FICTIF APRES')
+        $acl=Get-Acl -LiteralPath $cible;$acl.SetAccessRuleProtection($false,$true);Set-Acl -LiteralPath $cible -AclObject $acl
+        Restaurer-FichierAvecDroits ([pscustomobject]@{backup=$copie;destination=$cible;sddl=$sddl})
+        Exiger ([IO.File]::ReadAllText($cible) -eq 'FICTIF AVANT') 'octets restaures apres echec simule'
+        Exiger ((Get-Acl -LiteralPath $cible).Sddl -eq $sddl) 'droits restaures apres echec simule'
+    }finally{if(Test-Path -LiteralPath $aclRoot){Remove-Item -LiteralPath $aclRoot -Recurse -Force}}
+}

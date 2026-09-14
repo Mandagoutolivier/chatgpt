@@ -60,6 +60,24 @@ L'import est transactionnel et refusé si la base cible contient déjà des donn
 
 Les formes `Specialistes_ParType` enrichissent les spécialistes existants via `ID_Specialiste`. Plusieurs clés d'examen peuvent être des alias de la même fiche. Une ancienne clé partagée par plusieurs personnes reste bloquée ; le choix explicite d'une fiche utilise son ID unique.
 
+## Mise à niveau U1 d'une base déjà importée
+
+D'abord sauvegarder et restaurer une copie isolée ; arrêter les clients pendant la mise à niveau. Déployer le code U1 sur cette copie, puis simuler :
+
+```sh
+docker compose exec -T api python -m cabinet.migration_u1
+```
+
+Lire les conflits et conserver l'empreinte du plan. Lorsque le plan est approuvé :
+
+```sh
+docker compose exec -T api python -m cabinet.migration_u1 --appliquer EMPREINTE_DU_PLAN
+```
+
+Cette migration transactionnelle conserve les valeurs antérieures dans `migrations_ressources`, unifie `Libelle` et `LibelleCourt`, conserve `Depassement` et passe le schéma à 2. Si les données ont changé depuis la simulation, elle refuse l'application. L'installateur U1 exige le schéma 2 et la révision `2026.09.14-u1`. La sauvegarde et la restauration acceptent les schémas 1 et 2.
+
+Aucune de ces commandes de migration U1 n'a été exécutée sur les données du cabinet pendant la préparation AX8_Max.
+
 ## Comptes et activation des postes
 
 ```sh
@@ -84,4 +102,4 @@ La procédure U0 remplace les anciens scripts de contrôle et de restauration. S
 
 ## Limites d'exploitation
 
-Ces scripts n'ont pas été exécutés sur votre DSM. Les UID, droits SMB, certificat, reverse proxy, volume libre et restauration physique doivent être contrôlés sur le NAS. Les comptes sont des jetons applicatifs ; l'authentification SSO/MFA n'est pas implémentée. Le service conserve les ressources métier en JSONB versionné ; une évolution de schéma exige une migration explicite, pas une modification manuelle des tables.
+Les correctifs U1 n'ont pas été déployés sur le service de votre DSM pendant cette recette. Les UID, droits SMB, certificat, reverse proxy, volume libre et restauration physique doivent être contrôlés sur le NAS. Les comptes sont des jetons applicatifs ; l'authentification SSO/MFA n'est pas implémentée. Le service conserve les ressources métier en JSONB versionné ; une évolution de schéma exige une migration explicite, pas une modification manuelle des tables.

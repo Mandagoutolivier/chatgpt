@@ -708,23 +708,9 @@ Private Function LCM_TrouverRepere( _
     End If
     Set rng = doc.Content.Duplicate
 
-    With rng.Find
 
-        .ClearFormatting
-        .Replacement.ClearFormatting
 
-        .Text = repere
-        .Forward = True
-        .Wrap = wdFindStop
-        .Format = False
-
-        .MatchCase = False
-        .MatchWholeWord = False
-        .MatchWildcards = False
-
-    End With
-
-    If rng.Find.Execute Then
+    If modRechercheWord.Trouver(rng, repere) Then
         Set LCM_TrouverRepere = rng.Duplicate
     End If
 

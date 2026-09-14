@@ -5,8 +5,6 @@ param(
     [Parameter(Mandatory=$true)][string]$RacineNas,
     [string]$DossierGdt = 'C:\Mandagout',
     [string]$DossierSources = '',
-    [string]$SqliteExe = '',
-    [string]$SqliteSha256 = '',
     [string]$DossierPrepare = '',
     [string]$UrlService = '',
     [string]$FichierJeton = '',

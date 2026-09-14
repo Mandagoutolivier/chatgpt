@@ -269,6 +269,11 @@
       "name": "modRecetteU1",
       "kind": "module",
       "path": "Src/Integration/modRecetteU1.bas"
+    },
+    {
+      "name": "modRechercheWord",
+      "kind": "module",
+      "path": "Src/Integration/modRechercheWord.bas"
     }
   ],
   "excel": [
@@ -388,6 +393,11 @@
       "name": "modServiceNas",
       "kind": "module",
       "path": "Src/Commun/modServiceNas.bas"
+    },
+    {
+      "name": "modRecetteU1Excel",
+      "kind": "module",
+      "path": "Src/Excel/modRecetteU1Excel.bas"
     }
   ],
   "models": {

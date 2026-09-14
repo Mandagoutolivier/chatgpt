@@ -5,9 +5,9 @@ function Compiler-ProjetU1($application, $projet) {
         Add-Type 'using System;using System.Runtime.InteropServices;public class CabinetU1Native { [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p); [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h,uint m,IntPtr w,IntPtr l); }'
     }
     $vbe=$application.VBE
-    $vbe.ActiveVBProject=$projet
     $vbe.MainWindow.Visible=$true
     $projet.VBComponents.Item(1).CodeModule.CodePane.Show()
+    if([string]$vbe.ActiveVBProject.FileName -ne [string]$projet.FileName){throw 'Le projet a compiler n est pas celui de la copie attendue.'}
     $ownerPid=[uint32]0
     [void][CabinetU1Native]::GetWindowThreadProcessId([IntPtr]$vbe.MainWindow.HWnd,[ref]$ownerPid)
     if($ownerPid -eq 0){throw 'Instance Office de recette non identifiee.'}

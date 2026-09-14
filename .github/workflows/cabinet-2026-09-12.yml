@@ -68,6 +68,10 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Lanceur conforme aux objets du commit source
+        run: python Installateur/verifier_lanceur.py
       - name: PowerShell Windows 5.1 - controles hors Office
         shell: powershell
         run: |

@@ -10,6 +10,7 @@ End Sub
 Public Function Executer(ByVal dossier As String) As String
     Dim d As Object, r As Object, col As Collection, v As Variant, items As Collection, ligne As Object
     Dim i As Long, numero As Long, description As String, doc As Document, h1 As String, h2 As String, id As String
+    Dim verrou1 As Integer, verrou2 As Integer
     On Error GoTo Echec
     mNombre = 0
     Exiger modServiceNas.SHA256("abc") = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", "SHA256 abc"
@@ -91,10 +92,28 @@ Public Function Executer(ByVal dossier As String) As String
     Exiger modEtatCourrier.LireProtege(id, "-etat") = "ETAPE 2", "Etat atomique remplace"
     Set doc = Documents.Add
     doc.Content.Text = "COURRIER FICTIF : TEST 5 mg."
+    Set d = modServiceNas.Parametres(): Set d("destinations_confirmees") = modServiceNas.Parametres()
+    d("destinations_confirmees")("1") = "COR-FICTIF"
+    Exiger modEtatCourrier.DestinationConfirmee(d, 1, "cor-fictif"), "Choix de destinataire conserve"
+    Exiger Not modEtatCourrier.DestinationConfirmee(d, 2, "COR-FICTIF"), "Choix limite a une annexe"
+    modIntegrationUnifie.FixerVariable doc, "ConsultationID", "CONSULTATION-FICTIVE-U1"
+    modEtatCourrier.PrendreVerrou doc, verrou1
+    On Error Resume Next
+    modEtatCourrier.PrendreVerrou doc, verrou2
+    numero = Err.Number: Err.Clear
+    On Error GoTo Echec
+    Exiger numero = vbObjectError + 1168, "Deux corrections simultanees refusees"
+    modEtatCourrier.LibererVerrou verrou1
+    modEtatCourrier.PrendreVerrou doc, verrou2
+    Exiger verrou2 <> 0, "Verrou libere puis repris"
+    modEtatCourrier.LibererVerrou verrou2
+    VerifierRecherche doc
     h1 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF")
     doc.SaveAs2 dossier & "\revision-fictive.docx", wdFormatXMLDocument
     h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF")
     Exiger h1 = h2, "Revision stable apres sauvegarde"
+    doc.Bookmarks.Add "_GoBack", doc.Range(0, 0)
+    Exiger h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Navigation hors revision"
     modIntegrationUnifie.FixerVariable doc, "PublicationID", modFichiers.IdUnique()
     Exiger h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Variables de reprise hors revision"
     doc.Content.InsertAfter " MODIFICATION"
@@ -106,8 +125,45 @@ Public Function Executer(ByVal dossier As String) As String
 Echec:
     numero = Err.Number: description = Err.Description
     On Error Resume Next
+    modEtatCourrier.LibererVerrou verrou1
+    modEtatCourrier.LibererVerrou verrou2
     If Not doc Is Nothing Then doc.Close wdDoNotSaveChanges
     modEtatCourrier.DefinirDossierTests ""
     On Error GoTo 0
     Executer = "{""reussis"":" & CStr(mNombre) & ",""echec"":true,""numero"":" & CStr(numero) & ",""description"":" & modServiceNas.JsonValeur(description) & "}"
 End Function
+
+Private Sub VerifierRecherche(ByVal doc As Document)
+    Dim f As Find, zone As Range, origine As Object, attendu As Object, cle As Variant, noms As Variant
+    Dim police As Long, numero As Long, description As String, identique As Boolean, trouve As Boolean
+    On Error GoTo Echec
+    Set zone = doc.Content.Duplicate: Set f = zone.Find
+    Set origine = modServiceNas.Parametres(): Set attendu = modServiceNas.Parametres()
+    noms = Array("Text", "Forward", "Wrap", "MatchCase", "MatchWholeWord", "MatchWildcards", "MatchSoundsLike", "MatchAllWordForms", "MatchPrefix", "MatchSuffix", "IgnoreSpace", "IgnorePunct", "Format")
+    For Each cle In noms: origine(CStr(cle)) = CallByName(f, CStr(cle), VbGet): Next cle
+    police = f.Font.Bold
+    f.Text = "CHERCHER FICTIF": f.MatchWildcards = True: f.MatchWholeWord = True: f.Font.Bold = True
+    For Each cle In noms: attendu(CStr(cle)) = CallByName(f, CStr(cle), VbGet): Next cle
+    trouve = modRechercheWord.Trouver(zone, "TEST")
+    Exiger trouve And zone.Text = "TEST", "Recherche independante des options utilisateur"
+    identique = True
+    For Each cle In noms
+        If CStr(CallByName(f, CStr(cle), VbGet)) <> CStr(attendu(CStr(cle))) Then identique = False
+    Next cle
+    Exiger identique, "Options Find restaurees"
+    Exiger f.Font.Bold = True, "Police de recherche conservee"
+Sortie:
+    On Error Resume Next
+    If Not f Is Nothing Then
+        f.Font.Bold = police
+        If Not origine Is Nothing Then
+            For Each cle In origine.Keys: CallByName f, CStr(cle), VbLet, origine(CStr(cle)): Next cle
+        End If
+    End If
+    On Error GoTo 0
+    If numero <> 0 Then Err.Raise numero, "Recette Find", description
+    Exit Sub
+Echec:
+    numero = Err.Number: description = Err.Description
+    Resume Sortie
+End Sub

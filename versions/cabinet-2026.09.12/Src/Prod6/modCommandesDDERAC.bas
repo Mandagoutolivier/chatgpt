@@ -55,7 +55,9 @@ Public Sub RAC_InstallerRaccourcis()
 
     Dim rapport As String
 
+    Dim ancienContexte As Object
     On Error GoTo GestionErreur
+    Set ancienContexte = Application.CustomizationContext
 
     CustomizationContext = modRaccourcis.ModeleUnifie()
 
@@ -103,6 +105,12 @@ Public Sub RAC_InstallerRaccourcis()
         "Pour l'installer : lancer RAC_InstallerCtrlPSecretariat."
 
     MsgBox rapport, vbInformation, "Raccourcis ModeleCourrierChatGPT"
+    GoTo Sortie
+
+Sortie:
+    On Error Resume Next
+    If Not ancienContexte Is Nothing Then CustomizationContext = ancienContexte
+    On Error GoTo 0
     Exit Sub
 
 GestionErreur:
@@ -111,6 +119,7 @@ GestionErreur:
         Err.Number & " - " & Err.description, _
         vbExclamation, _
         "Raccourcis ModeleCourrierChatGPT"
+    Resume Sortie
 End Sub
 
 Private Function RAC_AffecterRaccourci( _
@@ -121,7 +130,9 @@ Private Function RAC_AffecterRaccourci( _
 
     Dim commandeExistante As String
 
+    Dim ancienContexte As Object
     On Error GoTo GestionErreur
+    Set ancienContexte = Application.CustomizationContext
 
     CustomizationContext = modRaccourcis.ModeleUnifie()
 
@@ -135,7 +146,7 @@ Private Function RAC_AffecterRaccourci( _
             RAC_AffecterRaccourci = _
                 "NON MODIFIE : " & libelleTouche & _
                 " est deja affecte a " & commandeExistante
-            Exit Function
+            GoTo Sortie
         End If
 
         On Error Resume Next
@@ -150,6 +161,12 @@ Private Function RAC_AffecterRaccourci( _
 
     RAC_AffecterRaccourci = _
         "OK : " & libelleTouche & " = " & action
+    GoTo Sortie
+
+Sortie:
+    On Error Resume Next
+    If Not ancienContexte Is Nothing Then CustomizationContext = ancienContexte
+    On Error GoTo 0
     Exit Function
 
 GestionErreur:
@@ -157,6 +174,7 @@ GestionErreur:
         "ECHEC : " & libelleTouche & " - " & _
         CStr(Err.Number) & " - " & Err.description
     Err.Clear
+    Resume Sortie
 End Function
 
 Public Sub RAC_GrasSelection()
@@ -251,7 +269,9 @@ Public Sub RAC_SupprimerRaccourcis()
 
     Dim rapport As String
 
+    Dim ancienContexte As Object
     On Error GoTo GestionErreur
+    Set ancienContexte = Application.CustomizationContext
     CustomizationContext = modRaccourcis.ModeleUnifie()
 
     rapport = "Suppression des raccourcis personnalises :" & vbCrLf & vbCrLf
@@ -263,10 +283,17 @@ Public Sub RAC_SupprimerRaccourcis()
 
     modRaccourcis.ModeleUnifie().Save
     MsgBox rapport, vbInformation, "Raccourcis ModeleCourrierChatGPT"
+    GoTo Sortie
+
+Sortie:
+    On Error Resume Next
+    If Not ancienContexte Is Nothing Then CustomizationContext = ancienContexte
+    On Error GoTo 0
     Exit Sub
 
 GestionErreur:
     MsgBox Err.Number & " - " & Err.description, vbExclamation, "Suppression raccourcis"
+    Resume Sortie
 End Sub
 
 Private Sub RAC_NettoyerAnciensCtrlAlt()

@@ -1,9 +1,0 @@
-{
-  "version": "3.53.4",
-  "url": "https://sqlite.org/2026/sqlite-tools-win-x64-3530400.zip",
-  "sha256": "f46ee2475de4cbe287e6e5f7d43c838796b14e7379cd216bdbb28d391429f9fc",
-  "sha3_256": "88b4659fe747896b853af10157316b4ade143553efb89c1c8ca7423a278dcc8b",
-  "size": 6557792,
-  "architecture": "x64",
-  "source": "https://sqlite.org/download.html"
-}

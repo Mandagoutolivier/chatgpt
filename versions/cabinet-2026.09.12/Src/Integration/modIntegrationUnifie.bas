@@ -155,3 +155,21 @@ Private Function EstPolitesseFinale(ByVal texte As String) As Boolean
             EstPolitesseFinale = True
     End Select
 End Function
+
+Public Sub Unifie_AfficherArriveesAnciennes()
+    Dim resultat As Object, items As Collection, f As ufListe
+    On Error GoTo Echec
+    Set resultat = modServiceNas.Appeler("stale_arrivals", modServiceNas.Parametres())
+    Set items = modServiceNas.ItemsValides(resultat)
+    If items.Count = 0 Then MsgBox "Aucune arrivee ancienne en attente.", vbInformation, "Cabinet": Exit Sub
+    Set f = New ufListe
+    f.Configurer "Arrivees anciennes a verifier avec le secretariat", items, Array("DateRdv", "HeureRdv", "Nom", "Prenom"), "70 pt;55 pt;120 pt;100 pt"
+    f.Controls("btnOK").Visible = False
+    f.Controls("btnAnnuler").Caption = "Fermer"
+    f.Show vbModal
+    Unload f
+    Exit Sub
+Echec:
+    If Not f Is Nothing Then Unload f
+    MsgBox "Liste des arrivees anciennes indisponible : " & Err.Description, vbExclamation, "Cabinet"
+End Sub

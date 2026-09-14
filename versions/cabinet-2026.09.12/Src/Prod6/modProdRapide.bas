@@ -219,7 +219,7 @@ End Sub
 Public Sub PR_CorrigerToutEnUnClic()
     Dim docPrincipal As Document, rngCorps As Range, premier As Range, etat As Object, reponse As Object
     Dim original As String, source As String, corpsCorrige As String, numero As Long, description As String
-    Dim ancienEcran As Boolean, hashCourant As String
+    Dim ancienEcran As Boolean, hashCourant As String, verrou As Integer
     If mTraitementEnCours Then Exit Sub
     mTraitementEnCours = True
     ancienEcran = Application.ScreenUpdating
@@ -230,6 +230,7 @@ Public Sub PR_CorrigerToutEnUnClic()
     PR_ReinitialiserSuiviMultipage
     Set gDocOriginalCabinetTest = docPrincipal
     modIntegrationUnifie.InitialiserPatientProd docPrincipal
+    modEtatCourrier.PrendreVerrou docPrincipal, verrou
     modIntegrationUnifie.SauvegarderBrouillon docPrincipal
     If Not LocaliserCorpsCourrier(docPrincipal, rngCorps, premier) Then Err.Raise vbObjectError + 960, , "Corps du courrier introuvable."
     Set gPlageOriginale = rngCorps.Duplicate
@@ -245,7 +246,9 @@ Public Sub PR_CorrigerToutEnUnClic()
             End If
         End If
     ElseIf hashCourant <> CStr(etat("source_hash")) Then
-        Err.Raise vbObjectError + 1166, , "Le texte a change pendant la reprise. Conservez le brouillon et commencez un nouveau cycle explicite."
+        If MsgBox("Le texte a change pendant cette reprise. Conserver le cycle precedent et commencer une nouvelle correction du texte actuel ?", vbYesNo + vbQuestion, "Nouveau cycle explicite") <> vbYes Then GoTo Sortie
+        modIntegrationUnifie.FixerVariable docPrincipal, "CycleU1", ""
+        Set etat = modEtatCourrier.Charger(docPrincipal, original)
     End If
     original = modEtatCourrier.LireProtege(Trim$(modIntegrationUnifie.VariableDoc(docPrincipal, "CycleU1")), "-source")
     source = Replace(original, gPatient.NomComplet, gPatient.civilite & " " & MARQUEUR_PATIENT, 1, -1, vbTextCompare)
@@ -297,12 +300,16 @@ Public Sub PR_CorrigerToutEnUnClic()
     If Not gDemandesMultipagesAjouteesProdRapide Then Err.Raise vbObjectError + 436, , "Annexes incompletes. D reprend cette etape avec les textes deja recus."
     MPF_SecuriserToutesSignatures docPrincipal
     modGras.AppliquerGrasDocumentComplet docPrincipal
+    If Not LocaliserCorpsCourrier(docPrincipal, rngCorps, premier) Then Err.Raise vbObjectError + 960, , "Corps introuvable apres mise en forme."
+    etat("document_hash") = modServiceNas.SHA256(rngCorps.Text)
+    modEtatCourrier.Sauver docPrincipal, etat
     modControleCourrier.PreparerRelecture docPrincipal, source, corpsCorrige
     docPrincipal.Save
 Sortie:
     On Error Resume Next
     Set gDocOriginalCabinetTest = Nothing: Set gPlageOriginale = Nothing
     Application.ScreenUpdating = ancienEcran: Application.StatusBar = vbNullString
+    modEtatCourrier.LibererVerrou verrou
     mTraitementEnCours = False
     On Error GoTo 0
     If numero <> 0 Then Err.Raise numero, "Correction", description
@@ -341,7 +348,7 @@ Public Sub PR_AjouterDemandesAuDocumentPrincipal()
     Dim i As Long
     Dim numeroErreur As Long
     Dim descriptionErreur As String
-    Dim etapeMultipage As String
+    Dim etapeMultipage As String, etatDestinations As Object
 
     On Error GoTo GestionErreur
 
@@ -392,6 +399,7 @@ Public Sub PR_AjouterDemandesAuDocumentPrincipal()
         Exit Sub
     End If
 
+    Set etatDestinations = modEtatCourrier.Charger(docPrincipal, "")
     nombreNonResolues = 0
     nombrePretes = 0
     listeProblemes = ""
@@ -416,7 +424,7 @@ Public Sub PR_AjouterDemandesAuDocumentPrincipal()
         'une destination de rythmologie par défaut. La secrétaire doit choisir.
         If PR_DoitForcerCorrespondantACompleterCCN( _
             gTexteAnonymise, _
-            CStr(demande("CorpsDestination"))) Then
+            CStr(demande("CorpsDestination"))) And Not modEtatCourrier.DestinationConfirmee(etatDestinations, i, cleDestination) Then
 
             cleDestination = "A_COMPLETER"
             demande("CleDestination") = cleDestination
@@ -1021,6 +1029,8 @@ NouvelleSelection:
     gReponseAPICabinetTest = modServiceNas.JsonValeur(structure)
     Set etat = modEtatCourrier.Charger(gDocOriginalCabinetTest, "")
     etat("reponse") = gReponseAPICabinetTest
+    If Not etat.Exists("destinations_confirmees") Then Set etat("destinations_confirmees") = modServiceNas.Parametres()
+    etat("destinations_confirmees")(CStr(numeroDemande)) = cleChoisie
     modEtatCourrier.Sauver gDocOriginalCabinetTest, etat
 
     cleDestination = cleChoisie

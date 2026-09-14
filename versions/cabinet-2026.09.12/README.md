@@ -1,8 +1,10 @@
 # Cabinet Cardio — version 2026.09.12, service NAS
 
-Cette version reprend l'audit du commit `44ff5bb` et remplace les écritures concurrentes dans les classeurs par un service transactionnel PostgreSQL sur le Synology. Word reste l'interface de dictée, Excel celle du secrétariat. SQLite est uniquement un cache local des patients arrivés pour le poste médecin.
+Cette version reprend l'audit du commit `44ff5bb` et remplace les écritures concurrentes dans les classeurs par un service transactionnel PostgreSQL sur le Synology. Word reste l'interface de dictée, Excel celle du secrétariat. U1 filtre et trie les arrivées en mémoire sur le poste médecin ; SQLite n'est plus requis.
 
 **Sources et outils livrés ; compilation et recette Office/Dragon/ECG/imprimante à effectuer sur Windows avant utilisation avec des patients.** Les fichiers dans `ModelesSource` sont les originaux de référence, pas les binaires corrigés à installer directement.
+
+**Branche U1 en recette séparée : ne pas remplacer l’installation clinique actuelle.** Voir les preuves et limites dans [U1_RECETTE.md](U1_RECETTE.md).
 
 ## Installation à trois entrées
 
@@ -12,7 +14,7 @@ Ouvrir `Installer.cmd` ou lancer `Installer.ps1` :
 |---|---|---|
 | 1 | Domicile | Secrétariat + médecin, accès au NAS par VPN |
 | 2 | Secretariat | Patients, agenda, courriers reçus, actes et journal |
-| 3 | Cabinet | Poste médecin, Word unifié, cache SQLite et export ECG |
+| 3 | Cabinet | Poste médecin, Word unifié, file locale en mémoire et export ECG |
 
 Le service Synology se configure **une fois** avant l'activation des postes. L'installation prépare les binaires, puis active le dossier vérifié sans le reconstruire. Voir [installation des postes](INSTALLATION_MULTI_POSTES.md) et [installation NAS](Serveur/INSTALLATION_NAS.md).
 
@@ -29,10 +31,11 @@ Le destinataire est confirmé par identifiant ; les homonymes ou anciennes clés
 
 ## Documents de livraison
 
-- [Corrections et limites](AUDIT.md) : correspondance avec les recommandations précédentes.
+- [Correctifs U1 et qualification](U1_RECETTE.md).
+- [Audit antérieur et limites](AUDIT.md) : correspondance avec les recommandations précédentes.
 - [Architecture et contrats](INTEGRATION_UNIFIEE.md).
 - [Recette Windows](RECETTE_WINDOWS.md) : essais attendus et validation de la préparation.
 - [Service NAS](Serveur/INSTALLATION_NAS.md) : comptes, migration, sauvegarde et restauration.
 - [Inventaire des sources](Tests/inventaire_sources.json).
 
-La version précise R11/R12/R13 de `PROD(6)` demeure **non démontrée**. L'analyse d'empreinte reste disponible dans l'[audit précédent](../../cabinet-unifie/AUDIT.md) ; le présent numéro de livraison ne prétend pas résoudre cette filiation.
+La version précise R11/R12/R13 de `PROD(6)` demeure **non démontrée**. L'analyse d'empreinte reste disponible dans la [livraison archivée](../../cabinet-unifie/README.md) ; le présent numéro de livraison ne prétend pas résoudre cette filiation.

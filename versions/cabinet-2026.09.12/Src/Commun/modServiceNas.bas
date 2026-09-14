@@ -90,7 +90,7 @@ Public Function SHA256(ByVal texte As String) As String
     Dim bytes() As Byte, digest(0 To 31) As Byte, length As Long, i As Long, numero As Long
     Dim etape As String, erreurWindows As Long
     On Error GoTo Echec
-    etape = "utf8": bytes = OctetsUTF8(texte)
+    etape = "utf8": If Len(texte) > 0 Then bytes = OctetsUTF8(texte)
     etape = "contexte"
     If CryptAcquireContextW(provider, 0, 0, 24, &HF0000000) = 0 Then Err.Raise 5
     etape = "initialisation"

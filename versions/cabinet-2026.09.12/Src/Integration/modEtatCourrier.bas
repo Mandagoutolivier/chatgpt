@@ -124,3 +124,29 @@ End Function
 Public Sub DefinirDossierTests(ByVal dossier As String)
     mDossierTests = dossier
 End Sub
+
+Public Sub PrendreVerrou(ByVal doc As Document, ByRef verrou As Integer)
+    Dim consultation As String, chemin As String, fso As Object
+    On Error GoTo Echec
+    consultation = Trim$(modIntegrationUnifie.VariableDoc(doc, "ConsultationID"))
+    If Len(consultation) = 0 Then Err.Raise 5
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    chemin = fso.GetParentFolderName(CheminEtat(modServiceNas.SHA256(consultation), "-etat")) & "\verrou-" & modServiceNas.SHA256(consultation) & ".lock"
+    verrou = FreeFile
+    Open chemin For Binary Access Read Write Lock Read Write As #verrou
+    Exit Sub
+Echec:
+    verrou = 0
+    Err.Raise vbObjectError + 1168, , "Impossible de reserver cette correction sur ce poste. Une autre fenetre peut deja la traiter."
+End Sub
+
+Public Sub LibererVerrou(ByRef verrou As Integer)
+    If verrou <> 0 Then Close #verrou
+    verrou = 0
+End Sub
+
+Public Function DestinationConfirmee(ByVal etat As Object, ByVal numero As Long, ByVal cle As String) As Boolean
+    If Not etat.Exists("destinations_confirmees") Then Exit Function
+    If Not etat("destinations_confirmees").Exists(CStr(numero)) Then Exit Function
+    DestinationConfirmee = (StrComp(CStr(etat("destinations_confirmees")(CStr(numero))), cle, vbTextCompare) = 0)
+End Function
