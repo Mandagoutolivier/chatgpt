@@ -13,14 +13,16 @@ docker compose run --rm -T maintenance sh -eu -c '
     sha256sum -c SHA256SUMS
     tar -tzf fichiers.tar.gz >/dev/null
     cabinet_test_db="restauration_$(date -u +%Y%m%d%H%M%S)_$$"
+    keep_test_db="$2"
     cleanup() {
-        if [ "$2" = "1" ]; then
+        if [ "$keep_test_db" = "1" ]; then
             printf "Base de controle conservee sur demande : %s. Ne pas y connecter les postes.\n" "$cabinet_test_db"
         else
             dropdb --if-exists --force "$cabinet_test_db"
         fi
     }
-    trap cleanup EXIT HUP INT TERM
+    trap cleanup EXIT
+    trap 'exit 130' HUP INT TERM
     createdb "$cabinet_test_db"
     psql --dbname="$cabinet_test_db" -v ON_ERROR_STOP=1 -c "REVOKE CONNECT ON DATABASE \"$cabinet_test_db\" FROM PUBLIC"
     pg_restore --exit-on-error --no-owner --dbname="$cabinet_test_db" base.dump
