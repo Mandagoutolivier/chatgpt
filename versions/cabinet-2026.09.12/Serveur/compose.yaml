@@ -30,6 +30,7 @@ services:
       DB_PASSWORD_FILE: /run/secrets/db_password
       CABINET_UNC: ${CABINET_UNC:?Chemin UNC du partage CabinetCardio}
       CABINET_DATA: /data
+      CABINET_ARCHIVE_GID: ${CABINET_ARCHIVE_GID:-}
       TZ: Europe/Paris
     secrets: [db_password]
     volumes:
@@ -40,16 +41,22 @@ services:
     tmpfs: [/tmp]
     security_opt: [no-new-privileges:true]
   maintenance:
-    image: postgres:17.11-bookworm
+    image: cabinet-maintenance:2026.09.14-u0
+    build:
+      context: ..
+      dockerfile: Serveur/Dockerfile.maintenance
     profiles: [maintenance]
     environment:
       PGHOST: db
       PGUSER: postgres
       PGDATABASE: cabinet
+      PGPASSWORD_FILE: /run/secrets/admin_password
+      CABINET_UNC: ${CABINET_UNC:?Chemin UNC du partage}
     secrets: [admin_password]
     volumes:
       - ${CABINET_DATA_VOLUME}:/data:ro
       - ${CABINET_BACKUP_VOLUME}:/backups
+      - .:/configuration:ro
 secrets:
   admin_password:
     file: ./secrets/admin_password.txt

@@ -108,8 +108,8 @@
     "host": "word",
     "module": "modOpenAI_v22_corrige",
     "source": "Src/Prod6/modOpenAI_v22_corrige.bas",
-    "lines": 823,
-    "sha256": "d82edd591923382e2e5d8ca90c38c4111f14d0ee2235dc9a792f6112d6c750f9"
+    "lines": 851,
+    "sha256": "d2f862e3c6f2d351d1b1b501bc3bf7b81381398cea730fc2062f3f776e835d1a"
   },
   {
     "host": "word",
@@ -123,7 +123,7 @@
     "module": "modPrompts",
     "source": "Src/Prod6/modPrompts.bas",
     "lines": 539,
-    "sha256": "8bafef03425ab26a0eb6e46ef9eea3dff4cf529bda4ee3654d860d9712355288"
+    "sha256": "d568c847de55a11efcd723fac74689146100b6747a71a65ec52423d66a265ecb"
   },
   {
     "host": "word",
@@ -157,8 +157,8 @@
     "host": "word",
     "module": "modAnonymise",
     "source": "Src/Word/modAnonymise.bas",
-    "lines": 259,
-    "sha256": "124207b9d0ab9d658c6fb6ea4067067f7ad938472a813eb3faa09035040f1a7e"
+    "lines": 267,
+    "sha256": "b40022cf9f3f3752a7277c67119863dce3f954ec16a7d8131c886326e594567d"
   },
   {
     "host": "word",
@@ -355,6 +355,13 @@
     "source": "Src/Integration/modControleCourrier.bas",
     "lines": 52,
     "sha256": "64286eed3730b9fd98f1406b014298433eba102d762f28f9f8bda46d75ea87cf"
+  },
+  {
+    "host": "word",
+    "module": "modRecetteU0",
+    "source": "Src/Integration/modRecetteU0.bas",
+    "lines": 57,
+    "sha256": "75fe44170262584fc150b0417451e0d87d2b4d9b4cfa7a98f4b738a57f56f1a5"
   },
   {
     "host": "excel",

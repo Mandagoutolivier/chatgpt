@@ -1,0 +1,6 @@
+services:
+  maintenance:
+    volumes:
+      - ${CABINET_DATA_VOLUME:?Nouveau partage vide}:/data
+      - ${CABINET_BACKUP_VOLUME:?Sauvegarde source}:/backups:ro
+      - ${CABINET_RESTORE_CONFIG:?Dossier vide prive pour recuperer la configuration source}:/configuration-restauree

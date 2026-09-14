@@ -80,32 +80,7 @@ Installer ensuite les postes selon [INSTALLATION_MULTI_POSTES.md](../INSTALLATIO
 
 ## Sauvegarde et reprise
 
-Depuis `Serveur`, clients fermés :
-
-```sh
-sh sauvegarder.sh
-sh verifier_sauvegarde.sh cabinet-HORODATAGE
-```
-
-La sauvegarde suspend l'API, crée un dump PostgreSQL et une archive du partage, calcule leurs SHA-256, puis redémarre l'API. Le fichier `TERMINE` marque une sauvegarde achevée. Aucun ancien jeu n'est effacé. Prévoir une seconde copie dans votre sauvegarde NAS et une politique de conservation adaptée au volume ; le script seul ne fournit pas une sauvegarde hors NAS.
-
-La vérification contrôle les empreintes, lit les archives puis restaure dans une **nouvelle base de contrôle**. Cette base est conservée pour inspection et n'est pas celle des postes. Tester aussi l'ouverture d'un échantillon des DOCX/PDF restaurés. La réussite du dump ne suffit pas à prouver le fonctionnement du cabinet après restauration.
-
-Pour une reprise complète, créer un **nouveau projet Compose**, un nouveau volume DB et un nouveau partage vide. Renseigner ses chemins dans son `.env`, monter le dossier de sauvegarde source et démarrer seulement `docker compose up -d db` (ne pas démarrer l'API qui créerait ses tables). Puis :
-
-```sh
-sh restaurer_nas_vide.sh cabinet-HORODATAGE
-CABINET_RESTORE_DATA=/volume1/CabinetRestaure sh restaurer_nas_vide.sh cabinet-HORODATAGE --appliquer
-```
-
-`CABINET_RESTORE_DATA` doit être exactement le nouveau `CABINET_DATA_VOLUME`. Le script refuse un dossier contenant des fichiers ou une base contenant des tables publiques. En cas d'échec partiel, le nouveau projet reste arrêté : diagnostiquer sans toucher à l'ancien. Après succès, vérifier les droits, démarrer l'API et contrôler :
-
-```sh
-docker compose up -d api
-docker compose exec -T api python -m cabinet.admin reconcilier
-```
-
-Le rapprochement signale les archives manquantes ou altérées, fichiers non référencés et consultations en cours, sans supprimer ni libérer automatiquement. Vérifier le nouveau chemin UNC dans les métadonnées avant de basculer : une restauration vers un autre nom de partage nécessite de maintenir l'ancien alias UNC, ou une migration explicite des chemins. Ne pas improviser un remplacement global dans les données.
+La procédure U0 remplace les anciens scripts de contrôle et de restauration. Suivre [U0_RECETTE.md](../U0_RECETTE.md) : suspension effective des écritures SMB, capture de la base et des fichiers/configuration, vérification dans un cluster isolé, puis restauration persistante sur une cible vide pour la recette Windows. Les anciens jeux sans manifeste U0 restent conservés, mais ne sont pas acceptés silencieusement par ce nouveau vérificateur. Ne pas fabriquer de marqueur `TERMINE` pour les convertir.
 
 ## Limites d'exploitation
 

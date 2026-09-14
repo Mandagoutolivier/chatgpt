@@ -23,7 +23,7 @@ Public Function ConstruirePromptReecritureMedicale( _
 
     p = ""
 
-    AjouterLignePrompt p, "Tu réécris le corps d'un courrier médical de cardiologie dicté par le Docteur Olivier Mandagout."
+    AjouterLignePrompt p, "Tu réécris le corps d'un courrier médical de cardiologie dicté par le cardiologue."
     AjouterLignePrompt p, "Produis un français médical correct tout en restant au plus près de la formulation, du rythme, de la concision et de la logique du texte source."
     AjouterLignePrompt p, "Corrige les erreurs de dictée, d'orthographe, d'accord, de conjugaison, de syntaxe et de ponctuation, sans transformer le courrier en texte académique ou administratif."
     AjouterLignePrompt p, "Ne résume pas, ne simplifie pas excessivement, ne supprime aucune donnée médicale et n'ajoute aucune information absente du texte source."

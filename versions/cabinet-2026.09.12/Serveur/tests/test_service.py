@@ -75,6 +75,38 @@ def test_roles_et_authentification(service):
     with pytest.raises(Refus,match='medecin'):rpc(service,'claim',{'id':'x'})
 
 
+def test_u0_explicit_correspondent_cannot_fall_back(service):
+    first=rpc(service,'table.add',{'genre':'CORRESPONDANTS','data':{'Nom':'FICTIF A','CleDestination':'cle-a'}})
+    second=rpc(service,'table.add',{'genre':'CORRESPONDANTS','data':{'Nom':'FICTIF B','CleDestination':'cle-b'}})
+    with pytest.raises(Refus):
+        rpc(service,'correspondent.resolve',{'id':'ID_ABSENT','cle':'cle-b'},'medecin')
+    assert rpc(service,'correspondent.resolve',{'id':first['ID'],'cle':'cle-b'},'medecin')['ID']==first['ID']
+    rpc(service,'table.update',{'genre':'CORRESPONDANTS','data':dict(first,Actif='0')})
+    with pytest.raises(Refus):
+        rpc(service,'correspondent.resolve',{'id':first['ID'],'cle':'cle-b'},'medecin')
+
+
+def test_u0_service_release_contract(service):
+    result=rpc(service,'whoami',role='medecin')
+    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.14-u0'
+
+
+def test_u0_rebase_sql_preserves_identity_and_cached_results(service):
+    from cabinet.recovery import rebase_database, regular_tree, check_references
+    arr, pat, data=publication(service)
+    result=rpc(service,'publish',data,'medecin')
+    target=r'\\NAS-RECETTE\AutrePartage'
+    with service.connexion() as db:
+        rebase_database(db,str(service.documents.unc),target)
+        references=check_references(db,regular_tree(service.documents.root),target,service.documents.root)
+        assert references['archives']==2 and references['publications']==1
+        saved=db.execute('SELECT donnees FROM publications').fetchone()['donnees']
+        assert saved['PatientID']==pat['ID'] and saved['sha_docx']==result['sha_docx']
+        assert saved['CheminDocx'].startswith(target)
+        cached=db.execute("SELECT resultat FROM commandes WHERE resultat ? 'sha_docx'").fetchone()['resultat']
+        assert cached['CheminPdf'].startswith(target)
+
+
 def test_crud_revision_et_pas_de_perte_mise_a_jour(service):
     cor,pat,_,_=parcours(service)
     a=dict(pat,Tel='0100000000');r=rpc(service,'table.update',{'genre':'PATIENTS','data':a})

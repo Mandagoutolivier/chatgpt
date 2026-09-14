@@ -20,7 +20,7 @@ Détails : [guide des trois postes](../versions/cabinet-2026.09.12/INSTALLATION_
 
 ## Maintenance du lanceur
 
-`generer_lanceur.py COMMIT` assemble `outils_telechargement.ps1`, le modèle et les empreintes des fichiers locaux de `versions/cabinet-2026.09.12`. Le commit indiqué doit contenir exactement ces fichiers. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. Les contrôles GitHub Actions testent l'extraction, le refus des fichiers altérés, la reprise et la syntaxe sur PowerShell 5.1 et 7. Ils ne remplacent pas une exécution sous Word/Excel.
+`generer_lanceur.py COMMIT` assemble les outils, le modèle et les empreintes **depuis les objets Git de ce commit**, sans utiliser les fichiers de travail. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. La révision U0 est destinée à la [recette isolée](../versions/cabinet-2026.09.12/U0_RECETTE.md). Les contrôles GitHub Actions ne remplacent pas une exécution sous Word/Excel.
 
 ## Word ou Excel encore actif
 

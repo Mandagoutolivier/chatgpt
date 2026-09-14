@@ -24,7 +24,9 @@ def service_environnement():
         from psycopg.conninfo import make_conninfo
         password=Path(os.environ['DB_PASSWORD_FILE']).read_text().strip()
         dsn=make_conninfo(host=os.getenv('DB_HOST','db'),dbname='cabinet',user='cabinet',password=password)
-    return Service(dsn,Documents(Path(os.getenv('CABINET_DATA','/data')),os.environ['CABINET_UNC']))
+    group = os.getenv('CABINET_ARCHIVE_GID', '').strip()
+    return Service(dsn,Documents(Path(os.getenv('CABINET_DATA','/data')),os.environ['CABINET_UNC'],
+                                int(group) if group else None))
 
 
 def create_app(service: Service | None=None):

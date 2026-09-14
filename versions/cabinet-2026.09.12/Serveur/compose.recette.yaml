@@ -1,0 +1,13 @@
+services:
+  recette:
+    image: cabinet-maintenance:2026.09.14-u0
+    entrypoint: [python3, /tests/recovery_smoke.py]
+    environment:
+      PGHOST: verification-db
+      PGUSER: postgres
+      PGDATABASE: cabinet_verification
+      PYTHONPATH: /opt/cabinet
+    volumes:
+      - ./tests/recovery_smoke.py:/tests/recovery_smoke.py:ro
+      - ./cabinet/schema.sql:/tests/schema.sql:ro
+    networks: [verification]

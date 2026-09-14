@@ -1,0 +1,33 @@
+services:
+  verification-db:
+    image: postgres:17.11-bookworm
+    environment:
+      POSTGRES_DB: cabinet_verification
+      # Reseau interne ephemere, sans port publie ni client externe.
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - verification-db:/var/lib/postgresql/data
+    networks: [verification]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d cabinet_verification]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  verifier:
+    image: cabinet-maintenance:2026.09.14-u0
+    environment:
+      PGHOST: verification-db
+      PGUSER: postgres
+      PGDATABASE: cabinet_verification
+    volumes:
+      - ${CABINET_BACKUP_VOLUME:?Dossier de sauvegarde source}:/backups:ro
+      - verification-documents:/restore
+      - verification-configuration:/configuration-restauree
+    networks: [verification]
+volumes:
+  verification-db:
+  verification-documents:
+  verification-configuration:
+networks:
+  verification:
+    internal: true

@@ -1,11 +1,20 @@
 name: Cabinet NAS 2026.09.12
 on:
+  pull_request:
+    paths: ['Installateur/**', 'cabinet-unifie/**', 'versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
   push:
     paths: ['Installateur/**', 'versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
+  restauration-u0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Sauvegarde et restauration native dans un projet isole
+        run: sh versions/cabinet-2026.09.12/Tests/test_recovery_docker.sh
   image-permissions-nas:
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -52,6 +61,7 @@ jobs:
           ./versions/cabinet-2026.09.12/Tests/test_attente_office.ps1
           ./versions/cabinet-2026.09.12/Tests/test_feuilles_excel.ps1
           ./versions/cabinet-2026.09.12/Tests/test_compilation_office.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_u0_installation.ps1
 
   installateur-windows:
     runs-on: windows-latest
@@ -69,6 +79,7 @@ jobs:
           ./versions/cabinet-2026.09.12/Tests/test_attente_office.ps1
           ./versions/cabinet-2026.09.12/Tests/test_feuilles_excel.ps1
           ./versions/cabinet-2026.09.12/Tests/test_compilation_office.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_u0_installation.ps1
 
       - name: Lanceur CMD autonome, sans Office ni telechargement
         shell: powershell

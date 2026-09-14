@@ -58,6 +58,8 @@ try {
     Get-ChildItem -LiteralPath $package -Recurse -File | Unblock-File
     $bootLock.Dispose();$bootLock=$null
     Write-Host ('Sources utilisees : '+$package)
+    # Transmission au recu de preparation ; les sources viennent d'etre verifiees.
+    $env:CABINET_SOURCE_COMMIT=$Commit
     & (Join-Path $package 'Build\assistant_installation.ps1')
     exit 0
 } catch {

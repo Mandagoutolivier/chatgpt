@@ -254,6 +254,11 @@
       "name": "modControleCourrier",
       "kind": "module",
       "path": "Src/Integration/modControleCourrier.bas"
+    },
+    {
+      "name": "modRecetteU0",
+      "kind": "module",
+      "path": "Src/Integration/modRecetteU0.bas"
     }
   ],
   "excel": [
