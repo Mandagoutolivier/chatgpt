@@ -10,6 +10,7 @@ param(
     [switch]$ConserverModelesConstruits
 )
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
+throw 'INSTALLATEUR ARCHIVE ET DESACTIVE : utilisez uniquement la version service NAS apres publication et recette du nouveau lanceur.'
 if ($env:OS -ne 'Windows_NT') { throw 'Ce script necessite Windows avec Word et Excel installes.' }
 $root = Split-Path $PSScriptRoot -Parent
 $medecin = $Profil -in @('Domicile','CabinetMedecin')
