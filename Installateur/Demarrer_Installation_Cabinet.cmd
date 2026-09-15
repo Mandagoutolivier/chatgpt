@@ -103,7 +103,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='e2a8c06cb2d6731dd76173f4bb625fb865973c51'
+$Commit='4d86c11f5f648c90cfb75f38e8f5740bd4f6163a'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -150,7 +150,7 @@ $Empreintes=@'
   "ModelesSource/Cabinet(1).dotm": "493ed179d97ec4f15cafe39e44f9a6d2c0ce56a42927cf0fd4acafd860dabdb5",
   "ModelesSource/Cabinet.xlsm": "714e9458066bd28b8b6e6f6e9f65b2d673d3285c1915b57216e780d5e75f04ff",
   "ModelesSource/ModeleCourrierChatGPT_PROD(6).dotm": "a8ccb702e8defc9fce19b9afb968c4f7cd5b25d59da562dba172bc6b51b85524",
-  "README.md": "b547cf4edb80f06c1495e91fac73671924dc5821301a4265b66a2a78fb409575",
+  "README.md": "3d8aeb607d0868db3d2ca02527fadb7b798629836e1b49ac9de68eda9cd66f2a",
   "RECETTE_WINDOWS.md": "8749183e7c9d0e57f019a3a075b239181feb64dc74b4ce4e10ce62ecba81e362",
   "Serveur/.dockerignore": "891c19e4a4cc9f2b65c507511effbb989345d165389833708b19671f3fc4b58f",
   "Serveur/.env.example": "04908d383a89fcbf08243d22a3bacc7f730ba5900171e9cf47fe0e28e91513de",
@@ -291,7 +291,7 @@ $Empreintes=@'
   "Tests/verification_livraison.json": "e1733c2ce5b5523783ef9d8385971ba768499d6acb7e411b98179576cf9cbb50",
   "U0_RECETTE.md": "30208817c337df7b89349d71ecbf80bfe77b9f456ebde5e184aef27ef1531987",
   "U1_RECETTE.md": "faec11f24bc95db3e35a2d690483ba76b9d1cd8c18c30f136ad837962a86d959",
-  "U2_RECETTE.md": "9ff998c8bede34a06facd98ad5fae194a98a6e2616bac1ae2eb2818a69be3d47"
+  "U2_RECETTE.md": "8cebaef27bcbd9dd41fc534c39f59fea5ee4b324a3a23271ff81afc0d74a1eea"
 }
 '@ | ConvertFrom-Json
 $bootLock=$null
