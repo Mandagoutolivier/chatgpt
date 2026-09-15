@@ -1,37 +1,52 @@
-# U2 — développement hors poste, 15 septembre 2026
+# U2 — qualification technique du 15 septembre 2026
 
-Base exacte : U1 `80b471128113100cd47c6a234fd3ed1ae82e85c8`, PR nº 3. Branche de travail : `codex/urgence-2-20260915`.
+Base : U1 `80b471128113100cd47c6a234fd3ed1ae82e85c8`, PR nº 3. Branche : `codex/urgence-2-20260915`, [PR nº 4 en brouillon](https://github.com/Mandagoutolivier/chatgpt/pull/4).
 
-**Cette livraison prépare U2 sans accéder à AX8_Max. Aucune compilation ni recette Office U2, activation clinique, migration NAS, rotation réelle de jeton ou suppression réelle de données n'est déclarée effectuée. L'accès au poste attend le feu vert d'Olivier.**
+**Les correctifs U2, la compilation des modèles et les contrôles VBA ci-dessous sont réalisés. La qualification du parcours complet reste nécessaire avant une mise en service.**
 
-## Changements
+Le commit exécuté pour la recette Office est **`f0a45ecc6daa7a5cd9413f1d9e769747388a8964`**. La publication de ce bilan ne modifie pas les sources VBA, Python ni PowerShell qualifiées ; le lanceur est régénéré pour inclure la documentation actualisée. Les journaux détaillés restent conservés localement.
 
-| Sujet de l'audit | Réalisation hors poste | Validation encore nécessaire sur poste |
+## Changements et limites
+
+| Sujet de l'audit | Réalisation U2 | Qualification complémentaire |
 |---|---|---|
-| Cycle de courrier | Orchestration dans `modCycleCourrier`, document source privé, état de correction centralisé ; macro `PR_CorrigerToutEnUnClic` conservée comme point d'entrée. Nettoyage des copies de texte à la fin du cycle. | Compilation, alternance entre deux courriers fictifs, erreur/reprise et touches PowerMic. |
-| Transport et utilitaires | JSON, UTF-8 et SHA-256 déplacés dans `modDonneesTransport` ; fonctions historiques conservées comme adaptateurs. Commandes locales isolées dans `modCommandesLocales`. | Réexécuter les tests Word U1 qui exercent réellement ces fonctions Windows. |
-| Reprise et jetons | Clé de commande basée sur serveur, compte, opération et contenu. Le jeton n'entre plus dans cette clé. Migration locale de l'ancien nom si trouvé ; deux identifiants contradictoires bloquent en conservant les fichiers. | Dix contrôles VBA U2 préparés, dont migration du fichier et conservation de l'identifiant après renouvellement simulé. |
-| Code désactivé | Trois anciens modules déjà exclus du manifeste U0 déplacés vers `Archives/Vba`. Les anciens corps `CorrigerDocument` et `GenererDepuisProfil`, sans appel trouvé dans les sources actives, sont retirés ; leurs signatures renvoient un message vers le parcours unifié. | Recensement des appels externes installés dans Dragon ; aucune suppression aveugle des noms de macros. |
-| Production et recette | Modules de recette dans `Tests/Vba`, importés uniquement avec `-InclureRecette`. Validation de préparation refusant tout composant supplémentaire. Formulaires et modèles source conservés. | Compiler séparément les constructions de production et de recette ; contrôler ruban et formulaires. |
-| Exploitation serveur | Simulation puis compaction explicite des anciens résultats de commandes, preuve de déduplication conservée ; renouvellement/révocation de jetons avec audit et contrôles de concurrence. | Exercices fictifs sur NAS de recette et essais de reprise côté clients avant toute opération d'exploitation. |
-| Diagnostic et dépendances | Durée, opération autorisée, étape et statut journalisés sans contenu clinique ni jeton. Rotation Docker des logs (3 × 10 Mo). Dépendances de test exclues de l'image API, versions inchangées. | Mesurer ensuite les durées sur le réseau du cabinet avant de décider une optimisation. |
+| Cycle de courrier | Orchestration dans `modCycleCourrier`, document source privé, état centralisé ; entrée historique conservée et copies temporaires de texte libérées en fin de cycle. Compilation réussie. | Alternance entre deux courriers fictifs, erreur/reprise du parcours complet et commandes vocales. |
+| Transport et utilitaires | JSON, UTF-8 et SHA-256 isolés dans `modDonneesTransport`, fonctions historiques conservées comme adaptateurs. Les 34 contrôles Word U1 ont été rejoués avec succès. | Parcours client/serveur réel. |
+| Reprise et jetons | Clé stable par serveur, compte, opération et contenu. Dix contrôles VBA U2 réussis, dont migration des fichiers U1, renouvellement simulé et conservation des identifiants contradictoires. | Avant le premier renouvellement réel depuis U1, résoudre/migrer les attentes tant que l'ancien jeton est disponible. |
+| Code désactivé | Trois modules déjà exclus déplacés dans `Archives/Vba`. Deux corps de moteurs historiques retirés sans appel trouvé dans les sources actives ; signatures conservées avec message explicite. | Recenser les appels externes des commandes vocales. |
+| Production et recette | Modules de recette dans `Tests/Vba`, importés uniquement avec `-InclureRecette`. Les constructions de production et de recette compilent séparément. Les 55 composants Word et 25 Excel de production correspondent au manifeste et aux sources. | Vérifier le ruban et les formulaires dans le parcours complet. |
+| Exploitation serveur | Simulation puis compaction explicite des copies de résultats, preuve de déduplication conservée ; renouvellement/révocation auditée et contrôles de concurrence testés sur PostgreSQL. | Exercices fictifs sur serveur de recette et reprises côté clients avant toute opération réelle. |
+| Diagnostic et dépendances | Durée, opération autorisée, étape et statut sans contenu clinique ni jeton. Rotation des logs (3 × 10 Mo). Dépendances de test exclues de l'image API. | Mesurer les durées avant toute optimisation. |
 
-L'inventaire est reproductible avec `Tests/inventaire_architecture.py`. Il distingue production, recette et archives, signale les composants non classés et les références vers les archives. Il ne peut pas découvrir les commandes Dragon présentes sur un PC auquel aucun accès n'a été fait. Les fonctions de normalisation dont les contrats diffèrent restent séparées.
+L'inventaire reproductible `Tests/inventaire_architecture.py` distingue production, recette et archives. Il ne recense pas les commandes vocales externes. Les fonctions de normalisation dont les contrats diffèrent restent séparées.
 
-## Vérifications hors poste
+## Vérifications automatisées
 
-- Reconstitution des 190 fichiers de la base U1, avec vérification des blobs, de l'arbre et du commit Git exacts.
-- Contrôles statiques de production et de recette : aucun défaut détecté ; ces contrôles ne compilent pas VBA.
-- Quatre tests d'architecture : cohérence des manifestes, détection d'un composant non classé, refus d'un appel de production vers les tests et traitement des littéraux VBA.
-- Première exécution locale : 43 tests serveur réussis, 45 tests réservés à PostgreSQL non exécutés localement. La preuve des tests transactionnels est l'exécution GitHub avec PostgreSQL natif.
-- Le workflow contrôle aussi la construction de l'image sans dépendances de test, sa lecture sous deux UID sans root, la sauvegarde/restauration, PowerShell Windows et le lanceur généré depuis les objets du commit source.
+- Contrôles statiques de production et de recette sans erreur ; quatre tests d'architecture réussis.
+- **88 tests serveur réussis, aucun sauté**, sur PostgreSQL 17 natif. Deux avertissements de dépréciation des bibliothèques de test.
+- Quatre jobs GitHub réussis : métier PostgreSQL, restauration, image serveur et installateur Windows. Contrôles de l'image sous deux UID non root, PowerShell Windows 5.1, séparation des composants et lanceur vérifié contre les objets Git.
 
-Les résultats définitifs sont les contrôles associés au commit de la PR U2 ; un test sauté ou la seule présence d'un script ne constitue pas une réussite. Les 34 tests Word et 10 tests Excel d'U1 doivent être rejoués sur les nouveaux composants, en plus des dix tests U2.
+Preuves du commit exécuté : [exécution de la branche](https://github.com/Mandagoutolivier/chatgpt/actions/runs/34942315972) et [exécution de la PR](https://github.com/Mandagoutolivier/chatgpt/actions/runs/34942320296). Les contrôles des commits de documentation ultérieurs restent visibles dans la PR.
 
-## Prochaine étape demandant l'accès à AX8_Max
+## Recette Office réelle
 
-Après feu vert explicite, et pendant un créneau sans consultation ni document Office ouvert : nouvel inventaire et sauvegarde de l'état courant (sans rétablir une ancienne sauvegarde par-dessus du travail récent), transfert des sources par empreintes, puis `Build/Tester_U2_Office.ps1 -Sortie DOSSIER_NEUF_DE_RECETTE`.
+| Contrôle | Résultat |
+|---|---|
+| Construction et compilation des modèles de recette Word/Excel | Réussies. |
+| Tests VBA Word U1 rejoués | **34 réussis**, aucune erreur. |
+| Tests VBA U2 | **10 réussis**, aucune erreur. |
+| Tests VBA Excel U1 rejoués | **10 réussis**, aucune erreur. |
+| Construction de production sans modules de recette | Réussie ; compilation Word et Excel réussie. |
+| Composants de production | **55 Word + 25 Excel** ; noms, code source et références vérifiés dans Office. |
 
-Ce script utilise les protections U1 de Normal.dotm et AccessVBOM. La validation de la construction de production reste distincte de celle des modèles contenant les tests. Les comparaisons finales doivent partir de la sauvegarde de ce nouveau créneau.
+Ces contrôles utilisent des données fictives. Ils ne constituent ni une validation du sens médical des courriers, ni une qualification du parcours réseau ou de l'impression physique. Les modèles construits restent destinés à la qualification ; les originaux de `ModelesSource` ne doivent pas être installés directement.
 
-La décision de mise en service reste ultérieure : parcours complet NAS/SMB, panne réseau, impression CERFA, ECG et commandes vocales à qualifier sur données fictives. Les améliorations d'interface et les optimisations de performance non mesurées relèvent d'U3.
+Le contrôle supplémentaire de production a révélé qu'Excel pouvait rester en arrière-plan après sa fermeture COM. La fin du processus de contrôle a libéré cette instance ; la restauration de l'environnement a ensuite été vérifiée séparément. Le succès des compilations et la fin du nettoyage sont donc deux constats distincts.
+
+## Avant la mise en service
+
+Qualifier sur données fictives le parcours complet Word → NAS/SMB → Excel, les pannes et reprises réseau, l'impression CERFA, l'ECG, les commandes vocales, les formulaires et les données ACTES. Tester la sauvegarde/restauration du serveur de recette avant une bascule décidée séparément.
+
+Pour chaque nouveau créneau, refaire l'inventaire et la sauvegarde de l'état courant ; ne pas restaurer une ancienne sauvegarde par-dessus les travaux récents.
+
+Les améliorations d'interface et les optimisations de performance non mesurées relèvent d'U3.
