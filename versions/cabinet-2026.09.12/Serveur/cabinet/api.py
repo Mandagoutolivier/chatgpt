@@ -5,6 +5,7 @@ import os
 import logging
 import uuid
 import hashlib
+from time import perf_counter
 import psycopg
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -12,7 +13,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ConfigDict, Field
 from .domain import Refus
 from .files import Documents
-from .service import Service
+from .service import Service, READS, SECRETARIAT, MEDECIN, SHARED
 
 class Commande(BaseModel):
     model_config = ConfigDict(extra='forbid')
@@ -41,6 +42,8 @@ def create_app(service: Service | None=None):
     app=FastAPI(title='Cabinet NAS',version='2026.09.12',lifespan=lifespan,
                 docs_url=None,redoc_url=None,openapi_url=None)
     app.state.service=service
+    logger=logging.getLogger('cabinet');logger.setLevel(logging.INFO)
+    if not logger.handlers:logger.addHandler(logging.StreamHandler())
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request, exc):
@@ -76,7 +79,11 @@ def create_app(service: Service | None=None):
         correlation = uuid.uuid4().hex
         command_hash = hashlib.sha256(command.request_id.encode()).hexdigest()[:16]
         stage = 'authentification'
+        debut = perf_counter(); statut = 500
+        operation = command.operation if command.operation in READS | SECRETARIAT | MEDECIN | SHARED else 'inconnue'
         def failure(message, status, code):
+            nonlocal statut
+            statut = status
             logging.getLogger('cabinet').warning('rpc correlation=%s commande=%s etape=%s categorie=%s statut=%s',
                 correlation, command_hash, stage, code, status)
             return JSONResponse({'error': message, 'code': code, 'correlation': correlation}, status_code=status)
@@ -86,6 +93,7 @@ def create_app(service: Service | None=None):
             actor=app.state.service.compte(bearer[7:])
             stage = 'transaction'
             result=app.state.service.executer(actor,command.operation,command.params,command.request_id)
+            statut = 200
             return {'result':result}
         except Refus as exc:return failure(str(exc), exc.status, exc.code)
         except psycopg.Error as exc:
@@ -98,6 +106,9 @@ def create_app(service: Service | None=None):
             return failure('Erreur de base. Le traitement n est pas confirme.', 500, 'base_interne')
         except Exception:
             return failure('Erreur interne. Le traitement n est pas confirme.', 500, 'interne')
+        finally:
+            logging.getLogger('cabinet').info('rpc_fin correlation=%s commande=%s operation=%s etape=%s statut=%s duree_ms=%.3f',
+                correlation, command_hash, operation, stage, statut, (perf_counter()-debut)*1000)
     return app
 
 app=create_app()

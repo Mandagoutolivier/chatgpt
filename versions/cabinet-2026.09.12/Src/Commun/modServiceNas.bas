@@ -1,20 +1,5 @@
 Attribute VB_Name = "modServiceNas"
 Option Explicit
-#If VBA7 Then
-Private Declare PtrSafe Function CryptAcquireContextW Lib "advapi32.dll" (ByRef provider As LongPtr, ByVal container As LongPtr, ByVal providerName As LongPtr, ByVal providerType As Long, ByVal flags As Long) As Long
-Private Declare PtrSafe Function CryptCreateHash Lib "advapi32.dll" (ByVal provider As LongPtr, ByVal algorithm As Long, ByVal key As LongPtr, ByVal flags As Long, ByRef hash As LongPtr) As Long
-Private Declare PtrSafe Function CryptHashData Lib "advapi32.dll" (ByVal hash As LongPtr, ByRef data As Any, ByVal length As Long, ByVal flags As Long) As Long
-Private Declare PtrSafe Function CryptGetHashParam Lib "advapi32.dll" (ByVal hash As LongPtr, ByVal param As Long, ByRef data As Any, ByRef length As Long, ByVal flags As Long) As Long
-Private Declare PtrSafe Function CryptDestroyHash Lib "advapi32.dll" (ByVal hash As LongPtr) As Long
-Private Declare PtrSafe Function CryptReleaseContext Lib "advapi32.dll" (ByVal provider As LongPtr, ByVal flags As Long) As Long
-#Else
-Private Declare Function CryptAcquireContextW Lib "advapi32.dll" (ByRef provider As Long, ByVal container As Long, ByVal providerName As Long, ByVal providerType As Long, ByVal flags As Long) As Long
-Private Declare Function CryptCreateHash Lib "advapi32.dll" (ByVal provider As Long, ByVal algorithm As Long, ByVal key As Long, ByVal flags As Long, ByRef hash As Long) As Long
-Private Declare Function CryptHashData Lib "advapi32.dll" (ByVal hash As Long, ByRef data As Any, ByVal length As Long, ByVal flags As Long) As Long
-Private Declare Function CryptGetHashParam Lib "advapi32.dll" (ByVal hash As Long, ByVal param As Long, ByRef data As Any, ByRef length As Long, ByVal flags As Long) As Long
-Private Declare Function CryptDestroyHash Lib "advapi32.dll" (ByVal hash As Long) As Long
-Private Declare Function CryptReleaseContext Lib "advapi32.dll" (ByVal provider As Long, ByVal flags As Long) As Long
-#End If
 
 Public Function Parametres() As Object
     Set Parametres = CreateObject("Scripting.Dictionary")
@@ -22,132 +7,28 @@ Public Function Parametres() As Object
 End Function
 
 Public Function JsonValeur(ByVal valeur As Variant) As String
-    Dim k As Variant, element As Variant, texte As String, keys As Variant, i As Long, j As Long, swap As Variant
-    If IsObject(valeur) Then
-        Select Case TypeName(valeur)
-        Case "Collection"
-            For Each element In valeur
-                If Len(texte) > 0 Then texte = texte & ","
-                texte = texte & JsonValeur(element)
-            Next element
-            JsonValeur = "[" & texte & "]"
-        Case "Dictionary"
-            keys = valeur.Keys
-            For i = 0 To valeur.Count - 2
-                For j = i + 1 To valeur.Count - 1
-                    If StrComp(CStr(keys(i)), CStr(keys(j)), vbBinaryCompare) > 0 Then
-                        swap = keys(i): keys(i) = keys(j): keys(j) = swap
-                    End If
-                Next j
-            Next i
-            For Each k In keys
-                If Len(texte) > 0 Then texte = texte & ","
-                texte = texte & JsonValeur(CStr(k)) & ":" & JsonValeur(valeur(k))
-            Next k
-            JsonValeur = "{" & texte & "}"
-        Case Else
-            Err.Raise vbObjectError + 1106, , "Type objet JSON non pris en charge."
-        End Select
-    Else
-        Select Case VarType(valeur)
-        Case vbNull, vbEmpty: JsonValeur = "null"
-        Case vbBoolean
-            If valeur Then JsonValeur = "true" Else JsonValeur = "false"
-        Case vbDate
-            JsonValeur = Chr$(34) & Format$(CDate(valeur), "yyyy-mm-dd") & "T" & Format$(CDate(valeur), "hh:nn:ss") & Chr$(34)
-        Case vbByte, vbInteger, vbLong, vbSingle, vbDouble, vbCurrency, vbDecimal
-            JsonValeur = Replace(CStr(valeur), ",", ".")
-        Case vbString
-            JsonValeur = Chr$(34) & modJson.JsonEchapper(CStr(valeur)) & Chr$(34)
-        Case Else
-            Err.Raise vbObjectError + 1106, , "Type JSON non pris en charge."
-        End Select
-    End If
+    JsonValeur = modDonneesTransport.SerialiserJson(valeur)
 End Function
-
 Public Function OctetsUTF8(ByVal texte As String) As Variant
-    Dim flux As Object
-    Set flux = CreateObject("ADODB.Stream")
-    flux.Type = 2: flux.Charset = "utf-8": flux.Open
-    flux.WriteText texte: flux.Position = 0: flux.Type = 1: flux.Position = 3
-    OctetsUTF8 = flux.Read: flux.Close
+    OctetsUTF8 = modDonneesTransport.EncoderUTF8(texte)
 End Function
-
 Public Function TexteUTF8(ByVal octets As Variant) As String
-    Dim flux As Object
-    Set flux = CreateObject("ADODB.Stream")
-    flux.Type = 1: flux.Open: flux.Write octets
-    flux.Position = 0: flux.Type = 2: flux.Charset = "utf-8"
-    TexteUTF8 = flux.ReadText: flux.Close
+    TexteUTF8 = modDonneesTransport.DecoderUTF8(octets)
 End Function
-
 Public Function SHA256(ByVal texte As String) As String
-#If VBA7 Then
-    Dim provider As LongPtr, hash As LongPtr
-#Else
-    Dim provider As Long, hash As Long
-#End If
-    Dim bytes() As Byte, digest(0 To 31) As Byte, length As Long, i As Long, numero As Long
-    Dim etape As String, erreurWindows As Long
-    On Error GoTo Echec
-    etape = "utf8": If Len(texte) > 0 Then bytes = OctetsUTF8(texte)
-    etape = "contexte"
-    If CryptAcquireContextW(provider, 0, 0, 24, &HF0000000) = 0 Then Err.Raise 5
-    etape = "initialisation"
-    If CryptCreateHash(provider, &H800C&, 0, 0, hash) = 0 Then Err.Raise 5
-    If Len(texte) > 0 Then
-        etape = "donnees"
-        If CryptHashData(hash, bytes(0), UBound(bytes) + 1, 0) = 0 Then Err.Raise 5
-    End If
-    etape = "resultat": length = 32
-    If CryptGetHashParam(hash, 2, digest(0), length, 0) = 0 Then Err.Raise 5
-    For i = 0 To 31: SHA256 = SHA256 & LCase$(Right$("0" & Hex$(digest(i)), 2)): Next i
-Sortie:
-    If hash <> 0 Then CryptDestroyHash hash
-    If provider <> 0 Then CryptReleaseContext provider, 0
-    On Error GoTo 0
-    If numero <> 0 Then Err.Raise vbObjectError + 1107, "SHA256", "Calcul de l empreinte impossible : " & etape & " (" & CStr(numero) & ", Windows " & CStr(erreurWindows) & ")."
-    Exit Function
-Echec:
-    numero = Err.Number: erreurWindows = Err.LastDllError: Resume Sortie
+    SHA256 = modDonneesTransport.EmpreinteSHA256(texte)
 End Function
-
 Public Function EstLecture(ByVal operation As String) As Boolean
     Select Case operation
         Case "whoami", "table.read", "record.get", "attentes", "reprises", "publications", "correspondent.resolve", "clinical.compare", "dictionary.read", "journal.read", "nir.validate", "command.result", "billing.get", "stale_arrivals": EstLecture = True
     End Select
 End Function
 
-Private Function CommandeDurable(ByVal cle As String, ByRef chemin As String, ByRef reprise As Boolean) As String
-    Dim dossier As String, fso As Object, ts As Object, temporaire As String, id As String, re As Object
-    dossier = Environ$("LOCALAPPDATA") & "\CabinetCardio\Commandes"
-    modFichiers.EnsureDossier dossier
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    chemin = dossier & "\" & cle & ".pending"
-    reprise = fso.FileExists(chemin)
-    If Not reprise Then
-        If fso.GetFolder(dossier).Files.Count >= 1000 Then Err.Raise vbObjectError + 1108, , "Trop de commandes en attente. Diagnostic requis avant de continuer."
-        id = modFichiers.IdUnique(): temporaire = chemin & "." & id & ".tmp"
-        Set ts = fso.CreateTextFile(temporaire, False, False): ts.Write id: ts.Close
-        ' Rename atomique sans ecrasement. Deux instances ne peuvent creer
-        ' deux identifiants pour la meme commande ; la perdante doit reprendre.
-        On Error Resume Next
-        fso.MoveFile temporaire, chemin
-        If Err.Number <> 0 Then
-            Err.Clear: fso.DeleteFile temporaire: reprise = True
-        End If
-        On Error GoTo 0
-    End If
-    Set ts = fso.OpenTextFile(chemin, 1, False, 0): id = Trim$(ts.ReadAll): ts.Close
-    Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^[A-Za-z0-9_-]{16,100}$"
-    If Not re.Test(id) Then Err.Raise vbObjectError + 1108, , "Identifiant durable invalide. Aucune commande envoyee."
-    CommandeDurable = id
-End Function
-
 Public Function Appeler(ByVal operation As String, ByVal params As Object) As Object
     Dim requete As Object, reponse As Object, http As Object, lookup As Object, check As Object
     Dim base As String, jeton As String, payload As String, chemin As String, id As String, octets As Variant
     Dim reprise As Boolean, numero As Long, description As String, statut As Long, etape As String
+    Dim session As Object, compte As String, ancienneCle As String
     On Error GoTo Echec
     etape = "configuration"
     base = Trim$(modFichiers.LireTexteUTF8(Environ$("APPDATA") & "\CabinetCardio\service.url"))
@@ -157,7 +38,10 @@ Public Function Appeler(ByVal operation As String, ByVal params As Object) As Ob
     If Len(jeton) < 32 Or InStr(jeton, vbCr) Or InStr(jeton, vbLf) Then Err.Raise vbObjectError + 1101, , "Identifiant de connexion du poste absent ou invalide."
     If Not EstLecture(operation) Then
         etape = "commande_durable"
-        id = CommandeDurable(SHA256(base & "|" & jeton & "|" & operation & "|" & JsonValeur(params)), chemin, reprise)
+        Set session = Appeler("whoami", Parametres())
+        compte = CStr(session("ID"))
+        ancienneCle = SHA256(base & "|" & jeton & "|" & operation & "|" & JsonValeur(params))
+        id = modCommandesLocales.ObtenirCommandeLocale(modCommandesLocales.CleCommandeLocale(base, compte, operation, params), chemin, reprise, ancienneCle)
         If reprise Then
             Set lookup = Parametres(): lookup("id") = id
             Set check = Appeler("command.result", lookup)

@@ -7,3 +7,5 @@ Cette branche poursuit U0 avec les correctifs U1. Elle sert à une **recette iso
 Lire [U1_RECETTE.md](versions/cabinet-2026.09.12/U1_RECETTE.md) pour les changements, preuves et limites, ainsi que [U0_RECETTE.md](versions/cabinet-2026.09.12/U0_RECETTE.md) pour les conditions NAS, SMB et ECG avant bascule. Le lanceur est épinglé à un commit et ne remplace pas ces validations.
 
 Les copies déjà installées sur les PC ne sont pas modifiées par la publication de cette branche. Aucun patient, courrier ou secret ne doit être déposé dans ce dépôt.
+
+La suite [U2 hors poste](versions/cabinet-2026.09.12/U2_RECETTE.md) est preparee sur une branche distincte. Aucune mise en service clinique de cette branche.

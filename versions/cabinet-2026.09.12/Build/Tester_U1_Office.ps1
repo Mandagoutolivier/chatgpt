@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][string]$Sortie)
+param([Parameter(Mandatory=$true)][string]$Sortie, [switch]$RecetteU2)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 . (Join-Path $PSScriptRoot 'outils_assistant.ps1')
@@ -23,9 +23,9 @@ try{
     }
     $normalSurveiller=$true
     Autoriser-AccesVbaAssistant $journal
-    & (Join-Path $PSScriptRoot 'construire_modele_unifie.ps1') -Prod6 (Join-Path $root 'ModelesSource\ModeleCourrierChatGPT_PROD(6).dotm') -Cabinet1 (Join-Path $root 'ModelesSource\Cabinet(1).dotm') -Sortie (Join-Path $Sortie 'CabinetUnifie.dotm') -RacineSources $root
+    & (Join-Path $PSScriptRoot 'construire_modele_unifie.ps1') -Prod6 (Join-Path $root 'ModelesSource\ModeleCourrierChatGPT_PROD(6).dotm') -Cabinet1 (Join-Path $root 'ModelesSource\Cabinet(1).dotm') -Sortie (Join-Path $Sortie 'CabinetUnifie.dotm') -RacineSources $root -InclureRecette
     Trace-U1 'Modele Word construit.'
-    & (Join-Path $PSScriptRoot 'construire_cabinet_secretariat.ps1') -CabinetXlsm (Join-Path $root 'ModelesSource\Cabinet.xlsm') -Sortie (Join-Path $Sortie 'Cabinet.xlsm') -RacineSources $root
+    & (Join-Path $PSScriptRoot 'construire_cabinet_secretariat.ps1') -CabinetXlsm (Join-Path $root 'ModelesSource\Cabinet.xlsm') -Sortie (Join-Path $Sortie 'Cabinet.xlsm') -RacineSources $root -InclureRecette
     Trace-U1 'Classeur Excel construit.'
     Attendre-FermetureOffice
     $word=New-Object -ComObject Word.Application
@@ -45,6 +45,12 @@ try{
     Trace-U1 ('Tests Word : '+[string]$result)
     $recette=ConvertFrom-Json -InputObject ([string]$result) -ErrorAction Stop
     if($null -eq $recette -or $recette.echec -ne $false -or [int]$recette.reussis -lt 34){throw ('Recette Word incomplete ou en echec : '+[string]$recette.description)}
+    if($RecetteU2){
+        $resultU2=$word.Run('modRecetteU2.ExecuterU2',[ref]$testArgument)
+        Trace-U1 ('Tests U2 : '+[string]$resultU2)
+        $u2=ConvertFrom-Json -InputObject ([string]$resultU2) -ErrorAction Stop
+        if($null -eq $u2 -or $u2.echec -ne $false -or [int]$u2.reussis -ne 10){throw ('Recette U2 incomplete ou en echec : '+[string]$u2.description)}
+    }
     $doc.Close([ref]$noSave);$doc=$null;$word.Quit([ref]$noSave);$word=$null
     Attendre-FermetureOffice
     $excel=New-Object -ComObject Excel.Application

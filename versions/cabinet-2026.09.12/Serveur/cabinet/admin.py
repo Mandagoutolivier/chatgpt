@@ -4,6 +4,8 @@ import argparse
 import hashlib
 import json
 import secrets
+from datetime import datetime
+from .maintenance import etat_compte, etat_exploitation, renouveler_jeton, revoquer_compte, compacter_commandes
 from psycopg.types.json import Jsonb
 from .api import service_environnement
 
@@ -14,16 +16,27 @@ def main():
     add=sub.add_parser('compte');add.add_argument('identifiant');add.add_argument('--roles',nargs='+',choices=['medecin','secretariat'],required=True)
     revoke=sub.add_parser('revoquer');revoke.add_argument('identifiant')
     sub.add_parser('reconcilier')
-    args=parser.parse_args();service=service_environnement();service.initialiser()
+    sub.add_parser('etat')
+    account=sub.add_parser('etat-compte');account.add_argument('identifiant')
+    rotate=sub.add_parser('renouveler');rotate.add_argument('identifiant');rotate.add_argument('--empreinte',required=True);rotate.add_argument('--sortie',required=True)
+    compact=sub.add_parser('compacter-commandes');compact.add_argument('--avant',type=datetime.fromisoformat,required=True);compact.add_argument('--limite',type=int,default=100);compact.add_argument('--appliquer')
+    args=parser.parse_args();service=service_environnement()
+    maintenance = {
+        'etat': lambda: etat_exploitation(service),
+        'etat-compte': lambda: etat_compte(service,args.identifiant),
+        'renouveler': lambda: renouveler_jeton(service,args.identifiant,args.empreinte,args.sortie),
+        'revoquer': lambda: revoquer_compte(service,args.identifiant),
+        'compacter-commandes': lambda: compacter_commandes(service,args.avant,args.appliquer,args.limite),
+    }
+    if args.action in maintenance:
+        print(json.dumps(maintenance[args.action](),ensure_ascii=False,indent=2));return
+    service.initialiser()
     with service.connexion() as db:
         if args.action=='compte':
             token=secrets.token_urlsafe(48)
             db.execute('INSERT INTO comptes(identifiant,token_sha256,roles) VALUES (%s,%s,%s)',
                        (args.identifiant,hashlib.sha256(token.encode()).hexdigest(),Jsonb(args.roles)))
             print(token)  # Affiche une seule fois a l'operateur ; ne pas rediriger vers un journal partage.
-        elif args.action=='revoquer':
-            db.execute('UPDATE comptes SET actif=false WHERE identifiant=%s',(args.identifiant,))
-            print('Compte desactive.')
         elif args.action=='reconcilier':
             referenced=set();missing=[];altered=[]
             for row in db.execute('SELECT id,donnees FROM publications'):

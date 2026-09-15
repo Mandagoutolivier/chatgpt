@@ -13,7 +13,7 @@ nettoyer() {
 trap nettoyer EXIT
 
 mkdir -p "$contexte/Serveur" "$contexte/Build"
-cp "$racine/Serveur/Dockerfile" "$racine/Serveur/requirements.txt" "$contexte/Serveur/"
+cp "$racine/Serveur/Dockerfile" "$racine/Serveur/requirements-runtime.txt" "$contexte/Serveur/"
 cp -R "$racine/Serveur/cabinet" "$contexte/Serveur/"
 cp "$racine/Build/schemas.json" "$contexte/Build/"
 find "$contexte" -type d -exec chmod 700 {} +
@@ -29,7 +29,10 @@ from pathlib import Path
 import sys
 
 assert (os.getuid(), os.getgid()) == (int(sys.argv[1]), 100)
+import importlib.util
 import cabinet.api
+assert importlib.util.find_spec("pytest") is None
+assert importlib.util.find_spec("httpx") is None
 
 assert cabinet.api.app.title == "Cabinet NAS"
 schema = Path(cabinet.api.__file__).with_name("schema.sql").read_text(encoding="utf-8")

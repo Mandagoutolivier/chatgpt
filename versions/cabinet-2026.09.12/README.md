@@ -4,7 +4,7 @@ Cette version reprend l'audit du commit `44ff5bb` et remplace les écritures con
 
 **Sources et outils livrés ; compilation et recette Office/Dragon/ECG/imprimante à effectuer sur Windows avant utilisation avec des patients.** Les fichiers dans `ModelesSource` sont les originaux de référence, pas les binaires corrigés à installer directement.
 
-**Branche U1 en recette séparée : ne pas remplacer l’installation clinique actuelle.** Voir les preuves et limites dans [U1_RECETTE.md](U1_RECETTE.md).
+**U2 : développement hors poste, compilation Office à effectuer avant utilisation.** Voir [U2_RECETTE.md](U2_RECETTE.md). La qualification antérieure d’U1 reste dans [U1_RECETTE.md](U1_RECETTE.md).
 
 ## Installation à trois entrées
 

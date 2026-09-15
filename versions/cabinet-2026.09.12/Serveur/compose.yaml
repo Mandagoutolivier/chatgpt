@@ -37,6 +37,11 @@ services:
       - ${CABINET_DATA_VOLUME:?Renseigner le chemin LOCAL du partage NAS}:/data
     ports:
       - 127.0.0.1:8765:8765
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     read_only: true
     tmpfs: [/tmp]
     security_opt: [no-new-privileges:true]

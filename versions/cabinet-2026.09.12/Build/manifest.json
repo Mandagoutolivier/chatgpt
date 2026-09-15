@@ -241,11 +241,6 @@
       "path": "Src/Integration/modPowerMicUnifie.bas"
     },
     {
-      "name": "modAuditTests",
-      "kind": "module",
-      "path": "Src/Integration/modAuditTests.bas"
-    },
-    {
       "name": "modServiceNas",
       "kind": "module",
       "path": "Src/Commun/modServiceNas.bas"
@@ -256,24 +251,29 @@
       "path": "Src/Integration/modControleCourrier.bas"
     },
     {
-      "name": "modRecetteU0",
-      "kind": "module",
-      "path": "Src/Integration/modRecetteU0.bas"
-    },
-    {
       "name": "modEtatCourrier",
       "kind": "module",
       "path": "Src/Integration/modEtatCourrier.bas"
     },
     {
-      "name": "modRecetteU1",
-      "kind": "module",
-      "path": "Src/Integration/modRecetteU1.bas"
-    },
-    {
       "name": "modRechercheWord",
       "kind": "module",
       "path": "Src/Integration/modRechercheWord.bas"
+    },
+    {
+      "name": "modDonneesTransport",
+      "kind": "module",
+      "path": "Src/Commun/modDonneesTransport.bas"
+    },
+    {
+      "name": "modCommandesLocales",
+      "kind": "module",
+      "path": "Src/Commun/modCommandesLocales.bas"
+    },
+    {
+      "name": "modCycleCourrier",
+      "kind": "module",
+      "path": "Src/Integration/modCycleCourrier.bas"
     }
   ],
   "excel": [
@@ -395,9 +395,14 @@
       "path": "Src/Commun/modServiceNas.bas"
     },
     {
-      "name": "modRecetteU1Excel",
+      "name": "modDonneesTransport",
       "kind": "module",
-      "path": "Src/Excel/modRecetteU1Excel.bas"
+      "path": "Src/Commun/modDonneesTransport.bas"
+    },
+    {
+      "name": "modCommandesLocales",
+      "kind": "module",
+      "path": "Src/Commun/modCommandesLocales.bas"
     }
   ],
   "models": {
@@ -417,9 +422,43 @@
     "modCabinetTestDemandes",
     "modCabinetTestDestinations",
     "modClaude",
-    "modTests_Word"
+    "modTests_Word",
+    "modAuditTests",
+    "modRecetteU0",
+    "modRecetteU1",
+    "modRecetteU2"
   ],
   "excel_legacy_removals": [
-    "modTests_Excel"
+    "modTests_Excel",
+    "modRecetteU1Excel"
+  ],
+  "word_recette": [
+    {
+      "name": "modAuditTests",
+      "kind": "module",
+      "path": "Tests/Vba/word/modAuditTests.bas"
+    },
+    {
+      "name": "modRecetteU0",
+      "kind": "module",
+      "path": "Tests/Vba/word/modRecetteU0.bas"
+    },
+    {
+      "name": "modRecetteU1",
+      "kind": "module",
+      "path": "Tests/Vba/word/modRecetteU1.bas"
+    },
+    {
+      "name": "modRecetteU2",
+      "kind": "module",
+      "path": "Tests/Vba/word/modRecetteU2.bas"
+    }
+  ],
+  "excel_recette": [
+    {
+      "name": "modRecetteU1Excel",
+      "kind": "module",
+      "path": "Tests/Vba/excel/modRecetteU1Excel.bas"
+    }
   ]
 }

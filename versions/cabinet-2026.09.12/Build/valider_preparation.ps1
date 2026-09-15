@@ -33,6 +33,10 @@ foreach ($hostName in @('word','excel')) {
             $app=New-Object -ComObject Excel.Application;$app.AutomationSecurity=3;$app.EnableEvents=$false
             $document=$app.Workbooks.Open((Join-Path $stage 'Cabinet.xlsm'),0,$true)
         }
+        $nomsAttendus=@($manifest.$hostName|ForEach-Object{$_.name})
+        foreach($component in $document.VBProject.VBComponents){
+            if($component.Name -notin $nomsAttendus){throw ('Composant non prevu pour la production : '+$component.Name)}
+        }
         foreach ($item in $manifest.$hostName) {
             $component=$document.VBProject.VBComponents.Item($item.name)
             $code=Lire-ModuleVba $component.CodeModule

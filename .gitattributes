@@ -11,3 +11,7 @@
 *.xlsx binary
 *.txt text eol=lf
 *.ini text eol=lf
+
+# Lanceurs generes : conserver les octets Windows controles par le generateur.
+Installateur/Demarrer_Installation_Cabinet.ps1 -text
+Installateur/Demarrer_Installation_Cabinet.cmd -text

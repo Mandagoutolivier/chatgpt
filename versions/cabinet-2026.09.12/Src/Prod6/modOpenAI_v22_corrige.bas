@@ -342,11 +342,11 @@ End Function
 Public Function AppelerOpenAI(ByVal prompt As String) As String
     Dim pat As Object, ctx As Object, anonyme As String, problemes As String, texte As String
     Dim cor As Object, ident As String, medecin As Object, jsonBody As String, requete As Object
-    If gDocOriginalCabinetTest Is Nothing Then Err.Raise vbObjectError + 431, "OpenAI", "Aucune consultation active."
-    If Not (gDocOriginalCabinetTest Is ActiveDocument) Then Err.Raise vbObjectError + 431, "OpenAI", "Le document actif a change. Reprendre la correction dans le bon courrier."
-    Set pat = modIntegrationUnifie.PatientVerifie(gDocOriginalCabinetTest)
+    If modCycleCourrier.DocumentSource() Is Nothing Then Err.Raise vbObjectError + 431, "OpenAI", "Aucune consultation active."
+    If Not (modCycleCourrier.DocumentSource() Is ActiveDocument) Then Err.Raise vbObjectError + 431, "OpenAI", "Le document actif a change. Reprendre la correction dans le bon courrier."
+    Set pat = modIntegrationUnifie.PatientVerifie(modCycleCourrier.DocumentSource())
     Set ctx = modAnonymise.Construire(pat, Nothing)
-    ident = Trim$(modIntegrationUnifie.VariableDoc(gDocOriginalCabinetTest, "CorrespondantID"))
+    ident = Trim$(modIntegrationUnifie.VariableDoc(modCycleCourrier.DocumentSource(), "CorrespondantID"))
     If Len(ident) > 0 Then
         Set cor = modBase.CorrespondantParID(ident)
         If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Correspondant explicite introuvable."
@@ -881,11 +881,11 @@ Public Function AppelerOpenAIStructure(ByVal source As String, ByVal consignes A
     Dim pat As Object, ctx As Object, anonyme As String, problemes As String
     Dim cor As Object, ident As String, medecin As Object, jsonBody As String, requete As Object
     Dim envelope As Object, sortie As Object, demande As Object
-    If gDocOriginalCabinetTest Is Nothing Then Err.Raise vbObjectError + 431, "OpenAI", "Aucune consultation active."
-    If Not (gDocOriginalCabinetTest Is ActiveDocument) Then Err.Raise vbObjectError + 431, "OpenAI", "Le document actif a change. Reprendre la correction dans le bon courrier."
-    Set pat = modIntegrationUnifie.PatientVerifie(gDocOriginalCabinetTest)
+    If modCycleCourrier.DocumentSource() Is Nothing Then Err.Raise vbObjectError + 431, "OpenAI", "Aucune consultation active."
+    If Not (modCycleCourrier.DocumentSource() Is ActiveDocument) Then Err.Raise vbObjectError + 431, "OpenAI", "Le document actif a change. Reprendre la correction dans le bon courrier."
+    Set pat = modIntegrationUnifie.PatientVerifie(modCycleCourrier.DocumentSource())
     Set ctx = modAnonymise.Construire(pat, Nothing)
-    ident = Trim$(modIntegrationUnifie.VariableDoc(gDocOriginalCabinetTest, "CorrespondantID"))
+    ident = Trim$(modIntegrationUnifie.VariableDoc(modCycleCourrier.DocumentSource(), "CorrespondantID"))
     If Len(ident) > 0 Then
         Set cor = modBase.CorrespondantParID(ident)
         If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Correspondant explicite introuvable."
