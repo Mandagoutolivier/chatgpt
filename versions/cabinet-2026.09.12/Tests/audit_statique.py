@@ -17,7 +17,7 @@ def sans_litteraux(line):
     if quoted:raise ValueError('chaine VBA non terminee: '+line[:100])
     return ''.join(out)
 
-def verifier():
+def verifier(recette=False):
     errors=[];manifest=json.loads((ROOT/'Build/manifest.json').read_text())
     for name,sha in manifest['models'].items():
         path=ROOT/'ModelesSource'/name
@@ -30,7 +30,7 @@ def verifier():
     inventory=[]
     for host in ['word','excel']:
         names={};public={};symbols={};texts={}
-        for item in manifest[host]:
+        for item in manifest[host] + (manifest.get(host+'_recette',[]) if recette else []):
             name=item['name'].lower();path=ROOT/item['path']
             if name in names:errors.append(host+' composant double '+name)
             names[name]=item
@@ -50,7 +50,7 @@ def verifier():
             starts=len(re.findall(r'(?im)^\s*(?:Public |Private |Friend )?(?:Sub|Function|Property (?:Get|Let|Set))\s+\w+',code))
             ends=len(re.findall(r'(?im)^\s*End (?:Sub|Function|Property)\s*$',code))
             if starts!=ends:errors.append('procedures non equilibrees '+str(path))
-            inventory.append({'host':host,'module':item['name'],'source':item['path'],'lines':len(text.splitlines()),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+            inventory.append({'role':'recette' if item in manifest.get(host+'_recette',[]) else 'production','host':host,'module':item['name'],'source':item['path'],'lines':len(text.splitlines()),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
         for name,defs in public.items():
             if len(defs)>1:errors.append(host+' symbole public ambigu '+name+' '+str(defs))
         for name,code in texts.items():
@@ -63,7 +63,7 @@ def verifier():
     return errors,inventory
 
 if __name__=='__main__':
-    errors,inventory=verifier()
+    errors,inventory=verifier(recette='--recette' in sys.argv)
     if '--inventory' in sys.argv:print(json.dumps(inventory,indent=2,ensure_ascii=False))
     else:
         for error in errors:print('FAIL',error)

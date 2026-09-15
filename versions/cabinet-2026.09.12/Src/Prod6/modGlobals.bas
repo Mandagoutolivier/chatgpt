@@ -49,8 +49,6 @@ Public Const BALISE_FIN_CORPS_DESTINATION As String = "---FIN_CORPS_DESTINATION-
 ' État de l'interface CABINET TEST
 '=========================================================
 
-Public gDocOriginalCabinetTest As Document
-Public gDocCorrectionCabinetTest As Document
 
 Public gReponseAPICabinetTest As String
 Public gCorpsCorrigeAnonymiseCabinetTest As String

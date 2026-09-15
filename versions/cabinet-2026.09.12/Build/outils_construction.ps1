@@ -1,9 +1,13 @@
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 
-function Lire-Manifeste([string]$Racine) {
+function Lire-Manifeste([string]$Racine, [switch]$InclureRecette) {
     $path = Join-Path $Racine 'Build\manifest.json'
-    Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
+    $manifest=Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($InclureRecette) {
+        foreach ($hostName in @('word','excel')) { $manifest.$hostName=@($manifest.$hostName)+@($manifest.($hostName+'_recette')) }
+    }
+    return $manifest
 }
 
 function Verifier-ModeleSource([string]$Chemin, [string]$Nom, $Manifeste) {

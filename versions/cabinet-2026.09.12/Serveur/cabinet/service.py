@@ -13,6 +13,7 @@ from psycopg.types.json import Jsonb
 from .domain import Refus, patient_valide, date_fr, chevauche, creneau, montant, empreinte, comparer_clinique, plier, valider_nir
 from .files import Documents
 from .contract import validate
+from .maintenance import resultat_rejouable
 from .actes import FIELDS as ACTE_FIELDS, normaliser as normaliser_acte
 
 READS = {'table.read', 'record.get', 'attentes', 'reprises', 'publications', 'whoami',
@@ -70,11 +71,14 @@ class Service:
                 # Petit cabinet : serialiser les mutations evite les courses inter-tables.
                 # Verrou libere automatiquement au commit ou rollback, jamais par son age.
                 db.execute('SELECT pg_advisory_xact_lock(20260912)')
+                compte = db.execute('SELECT actif,roles FROM comptes WHERE identifiant=%s FOR SHARE', (acteur['identifiant'],)).fetchone()
+                if not compte or not compte['actif'] or set(compte['roles']) != roles:
+                    raise Refus('Compte revoque ou modifie ; reconnectez le poste.', 401)
                 old = db.execute('SELECT empreinte,resultat FROM commandes WHERE compte=%s AND id=%s',
                                  (acteur['identifiant'],request_id)).fetchone()
                 if old:
                     if old['empreinte'] != digest: raise Refus('Identifiant de commande reutilise avec un contenu different.')
-                    return old['resultat']
+                    return resultat_rejouable(old['resultat'])
             result = self._operation(db, acteur, operation, params)
             if changing:
                 db.execute('INSERT INTO commandes(compte,id,empreinte,resultat) VALUES (%s,%s,%s,%s)',
@@ -167,10 +171,10 @@ class Service:
         if op == 'whoami':
             schema = db.execute('SELECT max(version) AS version FROM schema_version').fetchone()['version']
             return {'ID':actor['identifiant'],'roles':actor['roles'],'version':'2026.09.12',
-                    'protocole':2,'schema':schema,'revision':'2026.09.14-u1'}
+                    'protocole':2,'schema':schema,'revision':'2026.09.15-u2'}
         if op == 'command.result':
             row = db.execute('SELECT resultat FROM commandes WHERE compte=%s AND id=%s', (actor['identifiant'], p['id'])).fetchone()
-            return {'trouve': row is not None, 'resultat': row['resultat'] if row else None}
+            return {'trouve': row is not None, 'resultat': resultat_rejouable(row['resultat']) if row else None}
         if op == 'record.get': return self._record(db,p['genre'],p['id'])
         if op in {'table.add','table.update','correspondent.save'}:
             genre='CORRESPONDANTS' if op=='correspondent.save' else p['genre']

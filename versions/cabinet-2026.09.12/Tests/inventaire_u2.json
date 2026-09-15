@@ -1,0 +1,4394 @@
+{
+  "composants": [
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "ThisDocument",
+      "source": "Src/Prod6/ThisDocument.cls",
+      "lignes": 8,
+      "sha256": "6d7b7fd22869872b04bcc106514b36a55fb7bf8d9fa8eceb59a213b2770db4ba",
+      "entrees_publiques": []
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "frmCTDestination",
+      "source": "Src/Prod6/frmCTDestination.vba",
+      "lignes": 152,
+      "sha256": "1d2f26456daa9f424139c153f5534779b30d212629e138f322f6b5275673019d",
+      "entrees_publiques": []
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modAnonymisation",
+      "source": "Src/Prod6/modAnonymisation.bas",
+      "lignes": 645,
+      "sha256": "2c0edc11aaa0bdd4b90f63f1807deb52521040f5af2a9d6a0c6a1f0855fcbe88",
+      "entrees_publiques": [
+        "AnonymiserPatientDansRange",
+        "EstFormuleAppel",
+        "EstParagrapheDateCourrier",
+        "EstParagraphePatient",
+        "EstSignature",
+        "ExtrairePatientDepuisParagraphe",
+        "LocaliserCorpsCourrier",
+        "RestaurerPatientDansTexte",
+        "TesterAnonymisationToutesOccurrencesHF1"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modBaseCorrespondants",
+      "source": "Src/Prod6/modBaseCorrespondants.bas",
+      "lignes": 60,
+      "sha256": "ae5cfa3585806742364fd5d1b0174e16cf114cdab8b701163c2bf146be0fe2f0",
+      "entrees_publiques": [
+        "ChampDestination",
+        "DecrireDestinationParDefaut",
+        "DestinationParDefautPourTypeExamen",
+        "PROD_FichierExiste",
+        "RechercherDestinationsParTypeExamen",
+        "RecordCorrespondant"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modDemandesAnnexes",
+      "source": "Src/Prod6/modDemandesAnnexes.bas",
+      "lignes": 452,
+      "sha256": "b4b73917a6ac8a41d7c193d7cf5a802878c52cff5f3a96a4ed7d5cc5c57df4f8",
+      "entrees_publiques": [
+        "CT_ConstruireCollectionDemandes",
+        "CT_ForcerDestinationACompleterPourTest",
+        "CT_RenseignerPremiereDestinationManquante",
+        "CT_RestaurerReponseApresTestDestination",
+        "CT_TesterDemandesMemorisees"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modDestinations",
+      "source": "Src/Prod6/modDestinations.bas",
+      "lignes": 31,
+      "sha256": "386ff0c13833096e3304ed1fc43eb50447d638783168696a4aea470b00fc6b00",
+      "entrees_publiques": [
+        "CT_DestinationParCle",
+        "CT_ListeDestinationsPourSelection"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modCommandesDDERAC",
+      "source": "Src/Prod6/modCommandesDDERAC.bas",
+      "lignes": 330,
+      "sha256": "8fdc6842aabcfcbc7fa3a7065642a9c59ce7eaab5640a2e29184e56a9e61db68",
+      "entrees_publiques": [
+        "DDE_AjouterDeclencheurSelection",
+        "DDE_AjouterExamenSelection",
+        "DDE_AjouterExclusionSelection",
+        "DDE_CommandesPubliquesVersion",
+        "DDE_TesterConfiguration",
+        "DDE_TesterFauxPositifs",
+        "DDE_TesterFormulationsInitiales",
+        "RAC_AfficherRaccourcis",
+        "RAC_AjouterDeclencheur",
+        "RAC_AjouterExamen",
+        "RAC_AjouterExclusion",
+        "RAC_GrasSelection",
+        "RAC_InstallerCtrlPSecretariat",
+        "RAC_InstallerRaccourcis",
+        "RAC_SupprimerRaccourcis",
+        "RAC_ValiderGras",
+        "RAC_VerifierMacrosDDEEtRAC"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modDetectionDemandesDico",
+      "source": "Src/Prod6/modDetectionDemandesDico.bas",
+      "lignes": 409,
+      "sha256": "a137a9aaad79fdbae45726d34355cc08648e38c3a7f710aeb2dd3084985bc82f",
+      "entrees_publiques": [
+        "DDE_ContientDeclencheur",
+        "DDE_ContientDemandeEligible",
+        "DDE_ContientExamen",
+        "DDE_ContientExclusion",
+        "DDE_Core_AjouterDeclencheurSelection",
+        "DDE_Core_AjouterExamenSelection",
+        "DDE_Core_AjouterExclusionSelection",
+        "DDE_Core_TesterConfiguration",
+        "DDE_Core_TesterFauxPositifs",
+        "DDE_Core_TesterFormulationsInitiales"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modEnregistrementCorrespondants",
+      "source": "Src/Prod6/modEnregistrementCorrespondants.bas",
+      "lignes": 5,
+      "sha256": "535e57d7991a670f6a53bb3f2e96311abc46e71100d8a5ae219a069c64d1710b",
+      "entrees_publiques": [
+        "NCE_EnregistrerCorrespondant"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modGenerationDemandes",
+      "source": "Src/Prod6/modGenerationDemandes.bas",
+      "lignes": 866,
+      "sha256": "d9d6141c130f175e1b21d9e10ae001cef25f88d3856d014208e6e1b99f2113a4",
+      "entrees_publiques": [
+        "CreerCopieDocumentActifPourDemande",
+        "CreerCopieDocumentSourcePourDemande",
+        "LocaliserBlocDestinataireAvantDate",
+        "LocaliserFormuleAppelApresDate",
+        "RemplacerBlocDestinataireDansDocument",
+        "RemplacerCorpsDansDocument",
+        "RemplacerFormuleAppelDansDocument",
+        "RemplacerFormulePolitesseDansDocument",
+        "RetablirMiseEnPageSignature",
+        "TesterCreationCopieDemande",
+        "TesterDeuxCopiesDepuisMemeOriginal",
+        "TesterFormulesLoshkajianDansCopie",
+        "TesterLocaliserBlocDestinataire",
+        "TesterRemplacementBlocDestinataireDansCopie",
+        "TesterRemplacementCompletDansCopie",
+        "TesterRemplacementDestinataireEtFormuleDansCopie",
+        "TesterRetraitSignature8cm"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modGlobals",
+      "source": "Src/Prod6/modGlobals.bas",
+      "lignes": 109,
+      "sha256": "e7dfd0affcc2382b061f63e07b284b72bb513b465d42472a628f71bc80b022f9",
+      "entrees_publiques": [
+        "CHEMIN_BASE_CORRESPONDANTS",
+        "ReinitialiserContexteTraitement"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modInsertion",
+      "source": "Src/Prod6/modInsertion.bas",
+      "lignes": 263,
+      "sha256": "4873abdf727ed1059413a8129aeacea01231a413a809cbe78f8c227164156d66",
+      "entrees_publiques": [
+        "ConvertirMarkdownGrasDansRange",
+        "ExtraireBlocBalise",
+        "GarantirRetourParagrapheFinal",
+        "MettreIdentitePatientEnGrasDansRange",
+        "NettoyerBlocExtrait",
+        "RemplacerCorpsOriginalParTexte"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modLettresComplementairesModele",
+      "source": "Src/Prod6/modLettresComplementairesModele.bas",
+      "lignes": 1223,
+      "sha256": "57186d7b8da7eecfda55763e0bac2a5b323f56031129184f0ab7aad594c13a88",
+      "entrees_publiques": [
+        "LCM_ChoisirModeleLettreComplementaire",
+        "LCM_CreerLettreDepuisModele",
+        "LCM_TesterModeleLettreComplementaire",
+        "LCM_TesterOuvertureModele",
+        "LCM_TesterSeparationECGNarratif"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modMiseEnPageFinale",
+      "source": "Src/Prod6/modMiseEnPageFinale.bas",
+      "lignes": 863,
+      "sha256": "2d5993d3dd62a03f25035d46b6b70ef2ec3dcdb2f1a72ea1df6ece34c1f8fb0c",
+      "entrees_publiques": [
+        "MPF_AppliquerMiseEnPageCourrier",
+        "MPF_GarantirEnteteDepuisSource",
+        "MPF_NormaliserRetoursTexte",
+        "MPF_ReappliquerEnteteApresFusion",
+        "MPF_SecuriserToutesSignatures"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modNormalisationGrasLocal",
+      "source": "Src/Prod6/modNormalisationGrasLocal.bas",
+      "lignes": 59,
+      "sha256": "177713a5d9821032ed2718470da73e3caba51f393e365e253b69c642ef7b370f",
+      "entrees_publiques": [
+        "NGL_NormaliserDocument",
+        "NGL_TesterConfiguration"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modOpenAI_v22_corrige",
+      "source": "Src/Prod6/modOpenAI_v22_corrige.bas",
+      "lignes": 919,
+      "sha256": "ed2ef032cb7cf544a281fd828283c4c55a6e4bf5f4d1ad7ffec6b0191d054d71",
+      "entrees_publiques": [
+        "AppelerOpenAI",
+        "AppelerOpenAIStructure",
+        "CleOpenAIDisponible",
+        "CompleterReponseAvecDemandeExamenSiNecessaire",
+        "ConstruireJsonResponsesAPI",
+        "ExtraireTexteOpenAI",
+        "JsonEscape",
+        "LireCleOpenAI",
+        "PreparerRequeteSortante",
+        "TesterDetectionSortieVideComplete",
+        "TesterExtractionTexteOpenAIOrdreChamps",
+        "ValiderStructure"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modProdRapide",
+      "source": "Src/Prod6/modProdRapide.bas",
+      "lignes": 1271,
+      "sha256": "fe5bd82cabe8d8a1d0062317594e2742cdd07a7d68b2ab502fcb5478dd330694",
+      "entrees_publiques": [
+        "PR_AjouterDemandesAuDocumentPrincipal",
+        "PR_CorrigerReferentPatientOrientationCCN",
+        "PR_CorrigerToutEnUnClic",
+        "PR_EnCours",
+        "PR_ReinitialiserSuiviMultipage",
+        "PR_SupprimerDemandesDejaAjoutees",
+        "TesterAbsenceForcageCCNHistorique",
+        "TesterCorrectionReferentPatientCCN",
+        "TesterForcageCorrespondantCCN"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modPrompts",
+      "source": "Src/Prod6/modPrompts.bas",
+      "lignes": 543,
+      "sha256": "01ca059b62885151338a8a73dd7f4f1ad744a9cf0664d7d6e4654ad729f5791c",
+      "entrees_publiques": [
+        "ConstruireConsignesDemandesExamensDetaillees",
+        "ConstruireConsignesDemandesStructureesAPI",
+        "ConstruirePromptDemandeExamenSeule",
+        "ConstruirePromptReecritureMedicale",
+        "TesterAbsenceDeclenchementMentionRythmologie",
+        "TesterDetectionDictionnairesDDE1",
+        "TesterDetectionDirigerCCNAblation",
+        "TesterDetectionJeProposeEchodopplerVeineux",
+        "TesterPromptCorpus4307",
+        "TexteContientDemandeExamenEligible"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modSaisieCorrespondants",
+      "source": "Src/Prod6/modSaisieCorrespondants.bas",
+      "lignes": 24,
+      "sha256": "f1c644ee8f0b51b6fb12837974e3e5fab7c39d93163871879436a7ad9159372a",
+      "entrees_publiques": [
+        "NC_OuvrirNouveauCorrespondant"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modSaisieStructures",
+      "source": "Src/Prod6/modSaisieStructures.bas",
+      "lignes": 5,
+      "sha256": "51aa1784c5066b39b646b48f831a3c069170a544ec8367b36d9ae3f8035fc0a7",
+      "entrees_publiques": [
+        "NS_OuvrirNouvelleStructure"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modSortieDragon",
+      "source": "Src/Prod6/modSortieDragon.bas",
+      "lignes": 521,
+      "sha256": "48c2770cf627204c7dbcefc64376413855201dc2e818a86ed3d3bd7e6fec92a3",
+      "entrees_publiques": [
+        "SD_CopierRevisionFinale",
+        "SD_EnregistrerCourrierFinal",
+        "SD_TesterAccesDossierNAS"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modUtilitaires",
+      "source": "Src/Prod6/modUtilitaires.bas",
+      "lignes": 85,
+      "sha256": "dc574f7a1fc7621fc1af61f7348f5a0c8ecd606c34c47d6d23acaf13102eac13",
+      "entrees_publiques": [
+        "CommencePar",
+        "CopierTexteSimpleDansPressePapiers",
+        "LireTexteDepuisPressePapiersWord",
+        "NettoyerTexteParagraphe"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modAnonymise",
+      "source": "Src/Word/modAnonymise.bas",
+      "lignes": 267,
+      "sha256": "b40022cf9f3f3752a7277c67119863dce3f954ec16a7d8131c886326e594567d",
+      "entrees_publiques": [
+        "AjouterCorrespondant",
+        "Anonymiser",
+        "Construire",
+        "Reinjecter",
+        "ScanResiduel",
+        "VerifierBalisesRetour"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modBase",
+      "source": "Src/Word/modBase.bas",
+      "lignes": 19,
+      "sha256": "c04ac90da7a8e5936ebdcbc62ac140aa441f0898e63cd4566eef7668b05f3184",
+      "entrees_publiques": [
+        "ChargerBases",
+        "CorrespondantParID",
+        "Correspondants",
+        "PatientParID",
+        "patients"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modApiConfiguration",
+      "source": "Src/Word/modApiConfiguration.bas",
+      "lignes": 139,
+      "sha256": "c87a6a730407061c67416b8b735a6541a7b5c92514861fe548cce7b5f1ac91cd",
+      "entrees_publiques": [
+        "AppelerClaude",
+        "ChargerPrompt",
+        "CorrespondantDuDocument",
+        "CorrigerCourrier",
+        "CorrigerDocument",
+        "FournisseurApi",
+        "LireCleApi",
+        "LireCleOpenAICabinet",
+        "NettoyerReponse",
+        "PatientDuDocument"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modConfig",
+      "source": "Src/Commun/modConfig.bas",
+      "lignes": 173,
+      "sha256": "2b4417a29f6f77c2a8e350141e7d15be1919e5829406ddf906c5c3b8c26524c7",
+      "entrees_publiques": [
+        "CheminNasConfigure",
+        "Config",
+        "ConfigBool",
+        "ConfigNum",
+        "DefinirRacine",
+        "EcrireCheminRacine",
+        "FichierAgenda",
+        "FichierJournal",
+        "FichierNomenclature",
+        "FichierPatients",
+        "RechargerConfig",
+        "chemin",
+        "racine"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modCourrier",
+      "source": "Src/Word/modCourrier.bas",
+      "lignes": 624,
+      "sha256": "35f26a15b105e9595d5d9ad56a651491ef062a6573cced8a811d0d73f4ae40ca",
+      "entrees_publiques": [
+        "AllerAppel",
+        "AllerCorps",
+        "AllerDestinataire",
+        "AppelAuto",
+        "AppelParDefaut",
+        "CalculerAge",
+        "CorpsRange",
+        "CreerCourrierPour",
+        "CreerCourrierRapide",
+        "CreerCourrierRapidePour",
+        "EnSautsDeLigne",
+        "EstTutoye",
+        "FigerChampsDate",
+        "InsererPatient",
+        "MettreEnFormeDestinataire",
+        "NormaliserModele",
+        "NouveauCourrier",
+        "PlacerCurseurCorps",
+        "PolitesseAuto",
+        "PolitesseParDefaut",
+        "PreparerStyleCorps",
+        "ReconnaitreDestinataire",
+        "RecupererCorps",
+        "RemplacerCorps",
+        "RemplirEnTete",
+        "RemplirSignet",
+        "ResserrerDestinataire",
+        "TexteIdentitePatient"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modDemandes",
+      "source": "Src/Word/modDemandes.bas",
+      "lignes": 537,
+      "sha256": "c3ac084dabdd22670a00afce8e9018989dc501816f5144eed27148b3798c77ef",
+      "entrees_publiques": [
+        "ChargerProfil",
+        "ConsignesProfil",
+        "DecouperPhrases",
+        "DetecterDemandes",
+        "DossierDemandes",
+        "DossierProfils",
+        "ExamensDansPhrase",
+        "GenererDemandesAutomatiques",
+        "LibelleProfil",
+        "ListerProfils",
+        "ModalitesProfil",
+        "MotifCorrespond",
+        "Normaliser",
+        "ProfilExiste",
+        "TexteExamen",
+        "ValeurProfil"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modDerivees",
+      "source": "Src/Word/modDerivees.bas",
+      "lignes": 187,
+      "sha256": "b169a58e21e0bd874e80927aceeaa1fdde03578f770f7e2049cf9dc7a5be1edc",
+      "entrees_publiques": [
+        "ConstruirePrompt",
+        "CorrespondantsPourTypes",
+        "DestinataireAutomatique",
+        "GenererDepuisProfil",
+        "LettreDerivee"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modEcg",
+      "source": "Src/Word/modEcg.bas",
+      "lignes": 26,
+      "sha256": "bda7e2dcdc3025cb98bfc55b6da2c87c75b3abcf85f710a113735053c9b29811",
+      "entrees_publiques": [
+        "EnvoyerECG"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modFichiers",
+      "source": "Src/Commun/modFichiers.bas",
+      "lignes": 304,
+      "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9",
+      "entrees_publiques": [
+        "AcquerirVerrou",
+        "CopieLocale",
+        "DossierExiste",
+        "DossierTempLocal",
+        "EcrireCelluleTexte",
+        "EcrireDrapeau",
+        "EcrireTexteAnsi",
+        "EcrireTexteUTF8",
+        "EnsureDossier",
+        "FichierExiste",
+        "IdUnique",
+        "LireDrapeau",
+        "LireTexteUTF8",
+        "ListerFichiers",
+        "NomFichierSur",
+        "Pause",
+        "RelacherVerrou",
+        "RenommerAtomique",
+        "SauvegardeHorodatee",
+        "SupprimerTemporaire",
+        "VerifierIdentifiantFichier"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modGdt",
+      "source": "Src/Commun/modGdt.bas",
+      "lignes": 107,
+      "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34",
+      "entrees_publiques": [
+        "ConstruireGdt",
+        "EcrireGdtPatient"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modGras",
+      "source": "Src/Word/modGras.bas",
+      "lignes": 193,
+      "sha256": "18f266fa40ef6491292ea4a36d7212c2fc580323e6bc8c8da434c6412232d351",
+      "entrees_publiques": [
+        "AppliquerGras",
+        "AppliquerGrasDocumentComplet",
+        "FichierExpressions",
+        "FichierMedicaments",
+        "InvaliderCache",
+        "MettreEnGras",
+        "NbExpressions",
+        "NbMedicaments",
+        "OuvrirDictionnaireExpressions",
+        "OuvrirDictionnaireMedicaments"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modJson",
+      "source": "Src/Commun/modJson.bas",
+      "lignes": 240,
+      "sha256": "95a7c2ceb1c7d4041ffdc6b92e144d1a0066523d89a3836bd0c383bdf0317636",
+      "entrees_publiques": [
+        "JsonEchapper",
+        "JsonErreurMessage",
+        "JsonParse",
+        "JsonTexteReponse",
+        "JsonTexteReponseOpenAI"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modLog",
+      "source": "Src/Commun/modLog.bas",
+      "lignes": 92,
+      "sha256": "487da3c9f9fa8266aef430a63f92422787a28f0bc1d12ef7cfd0c9cb94e2faf8",
+      "entrees_publiques": [
+        "DerniereEtape",
+        "Diagnostic",
+        "Etape",
+        "LogErreur",
+        "LogInfo",
+        "TestDebut",
+        "TestResultat",
+        "Verifier"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modPatient",
+      "source": "Src/Word/modPatient.bas",
+      "lignes": 73,
+      "sha256": "01a8553d774e7df3cbbfd9d39b9ba106006b9d6ce0b5e041e8608bb0daf2d1b6",
+      "entrees_publiques": [
+        "ChoisirCorrespondant",
+        "ChoisirPatient",
+        "DossierPatient"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modPowerMic",
+      "source": "Src/Word/modPowerMic.bas",
+      "lignes": 37,
+      "sha256": "4f22aa1ec058f8663fdba691405ab887f9ff6c77666a59f5c61873fa5e572da3",
+      "entrees_publiques": [
+        "Cabinet_A_NouvelleLettre",
+        "Cabinet_B_FormuleAppel",
+        "Cabinet_Corps",
+        "Cabinet_D_Finaliser",
+        "Cabinet_Destinataire",
+        "Cabinet_P_Patient"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modRaccourcis",
+      "source": "Src/Word/modRaccourcis.bas",
+      "lignes": 113,
+      "sha256": "7a375fdcaed4e0351254c8a5bc8b423d3fc89e33d6090fb63975c3f26e23dc1a",
+      "entrees_publiques": [
+        "AideCabinet",
+        "AutoExec",
+        "DiagnosticCabinet",
+        "ModeleUnifie",
+        "ReinstallerRaccourcis",
+        "SondeRaccourci"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modRuban",
+      "source": "Src/Word/modRuban.bas",
+      "lignes": 36,
+      "sha256": "d1ff7bf10a4d6c0a7cb2c9fa56f4e828763f475ca0a69c135e940aa072d8abb4",
+      "entrees_publiques": [
+        "Ruban_Action"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modSchemas",
+      "source": "Src/Word/modSchemas.bas",
+      "lignes": 39,
+      "sha256": "45fb971cbf846a2af4993756e471fa1ef40fc7cd6f5f9ddc55a042f104938ed6",
+      "entrees_publiques": [
+        "EntetesCorrespondants",
+        "EntetesDe",
+        "EntetesPatients",
+        "FeuillesBasePatients"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modSubstitutions",
+      "source": "Src/Word/modSubstitutions.bas",
+      "lignes": 41,
+      "sha256": "a24ae57953c43e2c2bafd09e539d13badb46f5d8d417b37a162694b9fc94c302",
+      "entrees_publiques": [
+        "AppliquerSubstitutions"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modTexte",
+      "source": "Src/Commun/modTexte.bas",
+      "lignes": 165,
+      "sha256": "cf753d80d6ee8d5b009ac35a05e42a6c9fb1b6cae24358249a7d4061d97f9fc7",
+      "entrees_publiques": [
+        "Civilite",
+        "CiviliteCourte",
+        "DateFr",
+        "DateFrValide",
+        "DdnPatient",
+        "HeureValide",
+        "IntervallesSeChevauchent",
+        "JoursDuMois",
+        "MinutesDepuisMinuit",
+        "NeLe",
+        "Plier",
+        "SexeNormalise",
+        "SexePatient"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modValidation",
+      "source": "Src/Word/modValidation.bas",
+      "lignes": 118,
+      "sha256": "c3cf2412edc314995d706e61c5a36f94bc955535730e30558a93ae8373aa9d4a",
+      "entrees_publiques": [
+        "FinaliserCourrier",
+        "ValiderCourrier",
+        "ValiderDocument"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "ufListe",
+      "source": "Src/Word/ufListe.vba",
+      "lignes": 114,
+      "sha256": "fd55bbfcc0c18450f1d5ff2739aaa5f266c2b52d40b7fbcee5358c520c683113",
+      "entrees_publiques": [
+        "Configurer"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "ufProgression",
+      "source": "Src/Word/ufProgression.vba",
+      "lignes": 16,
+      "sha256": "49b383108d2e7c85f27b4f4aadd438c0251042e412cc36c06a60adb7a611f6b2",
+      "entrees_publiques": [
+        "Definir"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modAttenteLocale",
+      "source": "Src/Integration/modAttenteLocale.bas",
+      "lignes": 65,
+      "sha256": "1069e93b6e2b01993d5981674e09d6a16b7ff26a8271a9e4b372b2a056446254",
+      "entrees_publiques": [
+        "ChoisirAttente",
+        "ConsommerAttente",
+        "EnregistrerBrouillon",
+        "FiltrerEtTrier",
+        "LibererReservation",
+        "SynchroniserAttentes"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modIntegrationUnifie",
+      "source": "Src/Integration/modIntegrationUnifie.bas",
+      "lignes": 175,
+      "sha256": "55c401062d1a85e79a57932178773b69394f814080704ae9bbabd6129d678d98",
+      "entrees_publiques": [
+        "FixerVariable",
+        "InitialiserPatientProd",
+        "LocaliserCorpsUnifie",
+        "PatientVerifie",
+        "SauvegarderBrouillon",
+        "TransmettreSecretariat",
+        "Unifie_AfficherArriveesAnciennes",
+        "Unifie_ReprendreBrouillon",
+        "VariableDoc"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modPowerMicUnifie",
+      "source": "Src/Integration/modPowerMicUnifie.bas",
+      "lignes": 73,
+      "sha256": "3948b45445aaccc4896508a1f50e99dcd04b6da9e30f3ee95b029a52b61c486d",
+      "entrees_publiques": [
+        "Unifie_A_NouvelleLettre",
+        "Unifie_B_FormuleAppel",
+        "Unifie_C_InsererPatient",
+        "Unifie_D_Finaliser"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modServiceNas",
+      "source": "Src/Commun/modServiceNas.bas",
+      "lignes": 165,
+      "sha256": "89b6cfc06e8c8d95937164d85d906693cc32a5e806309cc8d2a3f203b6239205",
+      "entrees_publiques": [
+        "Appeler",
+        "CommandeID",
+        "DecoderReponse",
+        "EstLecture",
+        "ItemsValides",
+        "JsonValeur",
+        "LireID",
+        "LirePages",
+        "LireTable",
+        "OctetsUTF8",
+        "Parametres",
+        "SHA256",
+        "TexteUTF8"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modControleCourrier",
+      "source": "Src/Integration/modControleCourrier.bas",
+      "lignes": 88,
+      "sha256": "7c317c4c792bed9085b68237cdec7a9fc8a014973c4cd64a96da9816b79e2bd5",
+      "entrees_publiques": [
+        "EmpreinteCourrier",
+        "PreparerRelecture",
+        "ValiderEtTransmettre"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modEtatCourrier",
+      "source": "Src/Integration/modEtatCourrier.bas",
+      "lignes": 152,
+      "sha256": "1f50c4dc21dd2a4d868462edb7dc01e41b4232984e6423b8c3d30993b2794005",
+      "entrees_publiques": [
+        "AvantAppel",
+        "Charger",
+        "DefinirDossierTests",
+        "DestinationConfirmee",
+        "EcrireProtege",
+        "LibererVerrou",
+        "LireProtege",
+        "PrendreVerrou",
+        "PublicationPrete",
+        "Sauver"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modRechercheWord",
+      "source": "Src/Integration/modRechercheWord.bas",
+      "lignes": 32,
+      "sha256": "63137fbff9b20f04070e95829f8ce032be5c14190c2b4eea0418c7e55b3ef4fa",
+      "entrees_publiques": [
+        "Trouver"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modDonneesTransport",
+      "source": "Src/Commun/modDonneesTransport.bas",
+      "lignes": 111,
+      "sha256": "1148e5774c2854b2788f647cba5288821d6213c3af20e62eecbfa0459ee1e616",
+      "entrees_publiques": [
+        "DecoderUTF8",
+        "EmpreinteSHA256",
+        "EncoderUTF8",
+        "SerialiserJson"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modCommandesLocales",
+      "source": "Src/Commun/modCommandesLocales.bas",
+      "lignes": 56,
+      "sha256": "14b16ee820dd6bfe339bfeb96710e262c5f6a8d935123e34b68859e17e0cc009",
+      "entrees_publiques": [
+        "CleCommandeLocale",
+        "ObtenirCommandeLocale"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modCycleCourrier",
+      "source": "Src/Integration/modCycleCourrier.bas",
+      "lignes": 119,
+      "sha256": "71fcc6d27c439656da9b500e781aa3a97f34fd5dd21b4460185aa21993984175",
+      "entrees_publiques": [
+        "CycleEnCours",
+        "DocumentSource",
+        "ExecuterCycleCourrier"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "recette",
+      "module": "modAuditTests",
+      "source": "Tests/Vba/word/modAuditTests.bas",
+      "lignes": 123,
+      "sha256": "a87d4d6082bdaa5d231eb59f114d9b9da7971b9b1951733b8021f9c536bcc75a",
+      "entrees_publiques": [
+        "Audit_LancerTests",
+        "Audit_TestsSansReseau"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "recette",
+      "module": "modRecetteU0",
+      "source": "Tests/Vba/word/modRecetteU0.bas",
+      "lignes": 57,
+      "sha256": "75fe44170262584fc150b0417451e0d87d2b4d9b4cfa7a98f4b738a57f56f1a5",
+      "entrees_publiques": [
+        "Unifie_U0_EssaisLocaux"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "recette",
+      "module": "modRecetteU1",
+      "source": "Tests/Vba/word/modRecetteU1.bas",
+      "lignes": 169,
+      "sha256": "b95d2117183781dd201e060d05f19d66a959d5133d35cfab6679d0c6d7d10922",
+      "entrees_publiques": [
+        "Executer"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "recette",
+      "module": "modRecetteU2",
+      "source": "Tests/Vba/word/modRecetteU2.bas",
+      "lignes": 53,
+      "sha256": "790546a66eaa7058d70575cff411f3ad6011e8e1f7da03d38160cca23871d56c",
+      "entrees_publiques": [
+        "ExecuterU2"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "Feuil1",
+      "source": "Src/Excel/Feuil1.cls",
+      "lignes": 8,
+      "sha256": "8b6d1fc4f872634510d7a8323acaeca8b89024c115aac0c3e7c5dcfd25331905",
+      "entrees_publiques": []
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "FeuilAgenda",
+      "source": "Src/Excel/FeuilAgenda.cls",
+      "lignes": 10,
+      "sha256": "52f6239f0b04aea0e6b65e6cb30459592791d31b99ee490bb75ffe067d10fd63",
+      "entrees_publiques": []
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "ThisWorkbook",
+      "source": "Src/Excel/ThisWorkbook.cls",
+      "lignes": 32,
+      "sha256": "9f3a8a8c43e263590484651c2dea8863fd61e7032cc27a100e3a80cb14612717",
+      "entrees_publiques": []
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modActes",
+      "source": "Src/Excel/modActes.bas",
+      "lignes": 177,
+      "sha256": "4eb2de602cb1b48fa86f9999033e676712f16561c8b6d1e5d3a74a5db5c100f3",
+      "entrees_publiques": [
+        "ActeParCode",
+        "EnregistrerSeance",
+        "ImprimerSeanceEnregistree",
+        "LignesPourImpression",
+        "Nomenclature",
+        "TotalActes"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modAgenda",
+      "source": "Src/Excel/modAgenda.bas",
+      "lignes": 78,
+      "sha256": "c9a4208489534fb7339b2986fa067f22d863e0569f1ebd7fca828488be48d8bf",
+      "entrees_publiques": [
+        "AjouterRdv",
+        "AssurerAgendaAnnee",
+        "EntetesRdv",
+        "MarquerStatut",
+        "RdvDuJour"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modAgendaVue",
+      "source": "Src/Excel/modAgendaVue.bas",
+      "lignes": 365,
+      "sha256": "c2517971cd4726c75c47725ff3f50aefc7f0bbbc631ce69f6d2b6ac7567197da",
+      "entrees_publiques": [
+        "AfficherAgenda",
+        "AgendaAujourdhui",
+        "AgendaRetourAccueil",
+        "AgendaSemainePrecedente",
+        "AgendaSemaineSuivante",
+        "ClicCreneau",
+        "CreneauLibre",
+        "Rendre"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modBaseIO",
+      "source": "Src/Excel/modBaseIO.bas",
+      "lignes": 56,
+      "sha256": "bcfb87f0d09b5e62127385030a16fd627d1ac49d9221f32fc73e35aefd5c172a",
+      "entrees_publiques": [
+        "AjouterLigne",
+        "AjouterLignes",
+        "CreerClasseurSiAbsent",
+        "EnregistrerActes",
+        "LireJournal",
+        "LireTableX",
+        "ModifierLigne"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modCerfaPrint",
+      "source": "Src/Excel/modCerfaPrint.bas",
+      "lignes": 287,
+      "sha256": "f490a8b96223751ec601d8e2191af2445ccdbe2b79369b66cf35ba4f5c2eb291",
+      "entrees_publiques": [
+        "AnalyserPositions",
+        "CalageCerfa",
+        "ImprimerFeuille",
+        "VerifierAvantFacturation"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modConfig",
+      "source": "Src/Commun/modConfig.bas",
+      "lignes": 173,
+      "sha256": "2b4417a29f6f77c2a8e350141e7d15be1919e5829406ddf906c5c3b8c26524c7",
+      "entrees_publiques": [
+        "CheminNasConfigure",
+        "Config",
+        "ConfigBool",
+        "ConfigNum",
+        "DefinirRacine",
+        "EcrireCheminRacine",
+        "FichierAgenda",
+        "FichierJournal",
+        "FichierNomenclature",
+        "FichierPatients",
+        "RechargerConfig",
+        "chemin",
+        "racine"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modEchange",
+      "source": "Src/Excel/modEchange.bas",
+      "lignes": 123,
+      "sha256": "fbcfa55845fdaacf87330f1c6e07b8108e6b75b2d4f9f00462b4f3932a2cd318",
+      "entrees_publiques": [
+        "ArreterScrutation",
+        "CourriersEnAttente",
+        "DemarrerScrutation",
+        "DeplacerVersTraites",
+        "NombreEnAttente",
+        "OuvrirCourrier",
+        "PublierArrivee",
+        "RetirerArrivee",
+        "SignalerArrivee",
+        "TickScrutation",
+        "VerifierEchange"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modFichiers",
+      "source": "Src/Commun/modFichiers.bas",
+      "lignes": 304,
+      "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9",
+      "entrees_publiques": [
+        "AcquerirVerrou",
+        "CopieLocale",
+        "DossierExiste",
+        "DossierTempLocal",
+        "EcrireCelluleTexte",
+        "EcrireDrapeau",
+        "EcrireTexteAnsi",
+        "EcrireTexteUTF8",
+        "EnsureDossier",
+        "FichierExiste",
+        "IdUnique",
+        "LireDrapeau",
+        "LireTexteUTF8",
+        "ListerFichiers",
+        "NomFichierSur",
+        "Pause",
+        "RelacherVerrou",
+        "RenommerAtomique",
+        "SauvegardeHorodatee",
+        "SupprimerTemporaire",
+        "VerifierIdentifiantFichier"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modGdt",
+      "source": "Src/Commun/modGdt.bas",
+      "lignes": 107,
+      "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34",
+      "entrees_publiques": [
+        "ConstruireGdt",
+        "EcrireGdtPatient"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modJournal",
+      "source": "Src/Excel/modJournal.bas",
+      "lignes": 54,
+      "sha256": "8c9f0edb62936cef2aff6ddeb2edbbf465f49b0154ae7dec7f768bbcace32129",
+      "entrees_publiques": [
+        "Ajouter",
+        "AssurerJournalAnnee",
+        "EntetesJournal",
+        "OuvrirJournal"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modJson",
+      "source": "Src/Commun/modJson.bas",
+      "lignes": 240,
+      "sha256": "95a7c2ceb1c7d4041ffdc6b92e144d1a0066523d89a3836bd0c383bdf0317636",
+      "entrees_publiques": [
+        "JsonEchapper",
+        "JsonErreurMessage",
+        "JsonParse",
+        "JsonTexteReponse",
+        "JsonTexteReponseOpenAI"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modLog",
+      "source": "Src/Commun/modLog.bas",
+      "lignes": 92,
+      "sha256": "487da3c9f9fa8266aef430a63f92422787a28f0bc1d12ef7cfd0c9cb94e2faf8",
+      "entrees_publiques": [
+        "DerniereEtape",
+        "Diagnostic",
+        "Etape",
+        "LogErreur",
+        "LogInfo",
+        "TestDebut",
+        "TestResultat",
+        "Verifier"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modTexte",
+      "source": "Src/Commun/modTexte.bas",
+      "lignes": 165,
+      "sha256": "cf753d80d6ee8d5b009ac35a05e42a6c9fb1b6cae24358249a7d4061d97f9fc7",
+      "entrees_publiques": [
+        "Civilite",
+        "CiviliteCourte",
+        "DateFr",
+        "DateFrValide",
+        "DdnPatient",
+        "HeureValide",
+        "IntervallesSeChevauchent",
+        "JoursDuMois",
+        "MinutesDepuisMinuit",
+        "NeLe",
+        "Plier",
+        "SexeNormalise",
+        "SexePatient"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modUI",
+      "source": "Src/Excel/modUI.bas",
+      "lignes": 211,
+      "sha256": "34cbddaffe84d129c70a3963e73fb3d2b0c34b17f51cdd4e5ed16a2009357906",
+      "entrees_publiques": [
+        "ChoisirPatientX",
+        "UI_Agenda",
+        "UI_ArriveePatient",
+        "UI_AssurePatient",
+        "UI_CalageCerfa",
+        "UI_Correspondants",
+        "UI_CourriersATraiter",
+        "UI_EncaisserSeance",
+        "UI_ModifierPatient",
+        "UI_NouveauPatient",
+        "UI_NouveauRdv",
+        "UI_OuvrirJournal",
+        "UI_ParametresDestinataire"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "ufChoixActe",
+      "source": "Src/Excel/ufChoixActe.vba",
+      "lignes": 144,
+      "sha256": "78034d6f1452d6e090b6bfff06bfb1ac28e485c618cb719864eb7e526fd86114",
+      "entrees_publiques": [
+        "Charger",
+        "ReimprimerFeuille"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "ufCorrespEdit",
+      "source": "Src/Excel/ufCorrespEdit.vba",
+      "lignes": 98,
+      "sha256": "376b40235220f678a9fcad44318a393e846413fc1e96275f0d5f4c300c0ab170",
+      "entrees_publiques": [
+        "ChargerExistant",
+        "ChargerNouveau"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "ufListe",
+      "source": "Src/Excel/ufListe.vba",
+      "lignes": 114,
+      "sha256": "1d40b76607705d85decc2a7d25da79d224c6dba6171fdc0701396f5812c4ebd7",
+      "entrees_publiques": [
+        "Configurer"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "ufPatientEdit",
+      "source": "Src/Excel/ufPatientEdit.vba",
+      "lignes": 157,
+      "sha256": "8781bc6a97c74b9b422e2af04e529258b6916b5d8a7ce0d4404faf5a9df307e6",
+      "entrees_publiques": [
+        "ChargerExistant",
+        "ChargerNouveau"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "ufRdvEdit",
+      "source": "Src/Excel/ufRdvEdit.vba",
+      "lignes": 102,
+      "sha256": "b77490776a98c3caf72ef8eacd20d2cb94e2799a4b4b45c5e8eef88fed79655d",
+      "entrees_publiques": [
+        "Prefixer"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modServiceNas",
+      "source": "Src/Commun/modServiceNas.bas",
+      "lignes": 165,
+      "sha256": "89b6cfc06e8c8d95937164d85d906693cc32a5e806309cc8d2a3f203b6239205",
+      "entrees_publiques": [
+        "Appeler",
+        "CommandeID",
+        "DecoderReponse",
+        "EstLecture",
+        "ItemsValides",
+        "JsonValeur",
+        "LireID",
+        "LirePages",
+        "LireTable",
+        "OctetsUTF8",
+        "Parametres",
+        "SHA256",
+        "TexteUTF8"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modDonneesTransport",
+      "source": "Src/Commun/modDonneesTransport.bas",
+      "lignes": 111,
+      "sha256": "1148e5774c2854b2788f647cba5288821d6213c3af20e62eecbfa0459ee1e616",
+      "entrees_publiques": [
+        "DecoderUTF8",
+        "EmpreinteSHA256",
+        "EncoderUTF8",
+        "SerialiserJson"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modCommandesLocales",
+      "source": "Src/Commun/modCommandesLocales.bas",
+      "lignes": 56,
+      "sha256": "14b16ee820dd6bfe339bfeb96710e262c5f6a8d935123e34b68859e17e0cc009",
+      "entrees_publiques": [
+        "CleCommandeLocale",
+        "ObtenirCommandeLocale"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "recette",
+      "module": "modRecetteU1Excel",
+      "source": "Tests/Vba/excel/modRecetteU1Excel.bas",
+      "lignes": 26,
+      "sha256": "0ee18a0ce94f9d93379129c377679084d6698a5bf7cf67e4f3c026978921d8d6",
+      "entrees_publiques": [
+        "Executer"
+      ]
+    }
+  ],
+  "liaisons_qualifiees": [
+    {
+      "hote": "word",
+      "source": "modAnonymisation",
+      "cible": "modIntegrationUnifie",
+      "membre": "LocaliserCorpsUnifie"
+    },
+    {
+      "hote": "word",
+      "source": "modAnonymisation",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modBaseCorrespondants",
+      "cible": "modBase",
+      "membre": "Correspondants"
+    },
+    {
+      "hote": "word",
+      "source": "modBaseCorrespondants",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modBaseCorrespondants",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modBaseCorrespondants",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandesAnnexes",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandesAnnexes",
+      "cible": "modOpenAI_v22_corrige",
+      "membre": "ValiderStructure"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandesAnnexes",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modDestinations",
+      "cible": "modBase",
+      "membre": "Correspondants"
+    },
+    {
+      "hote": "word",
+      "source": "modDestinations",
+      "cible": "modBaseCorrespondants",
+      "membre": "RecordCorrespondant"
+    },
+    {
+      "hote": "word",
+      "source": "modDestinations",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modDestinations",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modCommandesDDERAC",
+      "cible": "modGras",
+      "membre": "MettreEnGras"
+    },
+    {
+      "hote": "word",
+      "source": "modCommandesDDERAC",
+      "cible": "modRaccourcis",
+      "membre": "ModeleUnifie"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modConfig",
+      "membre": "CheminNasConfigure"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "AcquerirVerrou"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "RelacherVerrou"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "RenommerAtomique"
+    },
+    {
+      "hote": "word",
+      "source": "modDetectionDemandesDico",
+      "cible": "modFichiers",
+      "membre": "SupprimerTemporaire"
+    },
+    {
+      "hote": "word",
+      "source": "modEnregistrementCorrespondants",
+      "cible": "modSaisieCorrespondants",
+      "membre": "NC_OuvrirNouveauCorrespondant"
+    },
+    {
+      "hote": "word",
+      "source": "modGenerationDemandes",
+      "cible": "modRechercheWord",
+      "membre": "Trouver"
+    },
+    {
+      "hote": "word",
+      "source": "modGlobals",
+      "cible": "modConfig",
+      "membre": "CheminNasConfigure"
+    },
+    {
+      "hote": "word",
+      "source": "modInsertion",
+      "cible": "modRechercheWord",
+      "membre": "Trouver"
+    },
+    {
+      "hote": "word",
+      "source": "modLettresComplementairesModele",
+      "cible": "modConfig",
+      "membre": "CheminNasConfigure"
+    },
+    {
+      "hote": "word",
+      "source": "modLettresComplementairesModele",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modLettresComplementairesModele",
+      "cible": "modRechercheWord",
+      "membre": "Trouver"
+    },
+    {
+      "hote": "word",
+      "source": "modNormalisationGrasLocal",
+      "cible": "modGras",
+      "membre": "AppliquerGrasDocumentComplet"
+    },
+    {
+      "hote": "word",
+      "source": "modNormalisationGrasLocal",
+      "cible": "modGras",
+      "membre": "NbExpressions"
+    },
+    {
+      "hote": "word",
+      "source": "modNormalisationGrasLocal",
+      "cible": "modGras",
+      "membre": "NbMedicaments"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modAnonymise",
+      "membre": "AjouterCorrespondant"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modAnonymise",
+      "membre": "Anonymiser"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modAnonymise",
+      "membre": "Construire"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modAnonymise",
+      "membre": "Reinjecter"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modAnonymise",
+      "membre": "ScanResiduel"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modAnonymise",
+      "membre": "VerifierBalisesRetour"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modApiConfiguration",
+      "membre": "LireCleOpenAICabinet"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modBase",
+      "membre": "CorrespondantParID"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modConfig",
+      "membre": "ConfigNum"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modCycleCourrier",
+      "membre": "DocumentSource"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modFichiers",
+      "membre": "Pause"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modIntegrationUnifie",
+      "membre": "PatientVerifie"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modJson",
+      "membre": "JsonEchapper"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modJson",
+      "membre": "JsonTexteReponseOpenAI"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modServiceNas",
+      "membre": "TexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modCycleCourrier",
+      "membre": "CycleEnCours"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modCycleCourrier",
+      "membre": "DocumentSource"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modCycleCourrier",
+      "membre": "ExecuterCycleCourrier"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modEtatCourrier",
+      "membre": "Charger"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modEtatCourrier",
+      "membre": "DestinationConfirmee"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modEtatCourrier",
+      "membre": "Sauver"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modGras",
+      "membre": "AppliquerGrasDocumentComplet"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modSaisieCorrespondants",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modSaisieCorrespondants",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modSaisieStructures",
+      "cible": "modSaisieCorrespondants",
+      "membre": "NC_OuvrirNouveauCorrespondant"
+    },
+    {
+      "hote": "word",
+      "source": "modSortieDragon",
+      "cible": "modConfig",
+      "membre": "CheminNasConfigure"
+    },
+    {
+      "hote": "word",
+      "source": "modSortieDragon",
+      "cible": "modFichiers",
+      "membre": "NomFichierSur"
+    },
+    {
+      "hote": "word",
+      "source": "modSortieDragon",
+      "cible": "modIntegrationUnifie",
+      "membre": "PatientVerifie"
+    },
+    {
+      "hote": "word",
+      "source": "modBase",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modBase",
+      "cible": "modServiceNas",
+      "membre": "LireID"
+    },
+    {
+      "hote": "word",
+      "source": "modBase",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "word",
+      "source": "modBase",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modBase",
+      "membre": "CorrespondantParID"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modBase",
+      "membre": "PatientParID"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modFichiers",
+      "membre": "ListerFichiers"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modPatient",
+      "membre": "DossierPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modApiConfiguration",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_D_Finaliser"
+    },
+    {
+      "hote": "word",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modBase",
+      "membre": "CorrespondantParID"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modConfig",
+      "membre": "ConfigNum"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modLog",
+      "membre": "LogErreur"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_A_NouvelleLettre"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_C_InsererPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "Civilite"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "CiviliteCourte"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "DdnPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "NeLe"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "Plier"
+    },
+    {
+      "hote": "word",
+      "source": "modCourrier",
+      "cible": "modTexte",
+      "membre": "SexePatient"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modConfig",
+      "membre": "racine"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modFichiers",
+      "membre": "ListerFichiers"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modLog",
+      "membre": "LogErreur"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modLog",
+      "membre": "LogInfo"
+    },
+    {
+      "hote": "word",
+      "source": "modDemandes",
+      "cible": "modTexte",
+      "membre": "Plier"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modApiConfiguration",
+      "membre": "ChargerPrompt"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modBase",
+      "membre": "Correspondants"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modConfig",
+      "membre": "racine"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modCourrier",
+      "membre": "AppelParDefaut"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modCourrier",
+      "membre": "PolitesseParDefaut"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modDemandes",
+      "membre": "ConsignesProfil"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modDemandes",
+      "membre": "LibelleProfil"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modDemandes",
+      "membre": "ValeurProfil"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modDerivees",
+      "cible": "modLog",
+      "membre": "LogInfo"
+    },
+    {
+      "hote": "word",
+      "source": "modEcg",
+      "cible": "modGdt",
+      "membre": "EcrireGdtPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modEcg",
+      "cible": "modIntegrationUnifie",
+      "membre": "PatientVerifie"
+    },
+    {
+      "hote": "word",
+      "source": "modEcg",
+      "cible": "modLog",
+      "membre": "LogErreur"
+    },
+    {
+      "hote": "word",
+      "source": "modFichiers",
+      "cible": "modConfig",
+      "membre": "Chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "DossierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteAnsi"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "RenommerAtomique"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "SupprimerTemporaire"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modLog",
+      "membre": "LogInfo"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "SexeNormalise"
+    },
+    {
+      "hote": "word",
+      "source": "modGras",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modGras",
+      "cible": "modLog",
+      "membre": "LogErreur"
+    },
+    {
+      "hote": "word",
+      "source": "modGras",
+      "cible": "modLog",
+      "membre": "LogInfo"
+    },
+    {
+      "hote": "word",
+      "source": "modGras",
+      "cible": "modRechercheWord",
+      "membre": "Trouver"
+    },
+    {
+      "hote": "word",
+      "source": "modGras",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modGras",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "word",
+      "source": "modGras",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modLog",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modLog",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modPatient",
+      "cible": "modBase",
+      "membre": "Correspondants"
+    },
+    {
+      "hote": "word",
+      "source": "modPatient",
+      "cible": "modBase",
+      "membre": "patients"
+    },
+    {
+      "hote": "word",
+      "source": "modPatient",
+      "cible": "modConfig",
+      "membre": "Chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modPatient",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modPatient",
+      "cible": "modFichiers",
+      "membre": "VerifierIdentifiantFichier"
+    },
+    {
+      "hote": "word",
+      "source": "modPatient",
+      "cible": "modLog",
+      "membre": "Etape"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMic",
+      "cible": "modCourrier",
+      "membre": "AllerCorps"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMic",
+      "cible": "modCourrier",
+      "membre": "AllerDestinataire"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMic",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_A_NouvelleLettre"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMic",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_B_FormuleAppel"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMic",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_C_InsererPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMic",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_D_Finaliser"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteAnsi"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modLog",
+      "membre": "Diagnostic"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modLog",
+      "membre": "LogErreur"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modLog",
+      "membre": "LogInfo"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modele",
+      "membre": "Saved"
+    },
+    {
+      "hote": "word",
+      "source": "modRuban",
+      "cible": "modLog",
+      "membre": "LogErreur"
+    },
+    {
+      "hote": "word",
+      "source": "modSubstitutions",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "word",
+      "source": "modSubstitutions",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modSubstitutions",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modApiConfiguration",
+      "membre": "CorrespondantDuDocument"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modEtatCourrier",
+      "membre": "EcrireProtege"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modEtatCourrier",
+      "membre": "PublicationPrete"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modFichiers",
+      "membre": "NomFichierSur"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modIntegrationUnifie",
+      "membre": "PatientVerifie"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modLog",
+      "membre": "LogInfo"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modPatient",
+      "membre": "DossierPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_D_Finaliser"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modTexte",
+      "membre": "DdnPatient"
+    },
+    {
+      "hote": "word",
+      "source": "ufListe",
+      "cible": "modTexte",
+      "membre": "Plier"
+    },
+    {
+      "hote": "word",
+      "source": "modAttenteLocale",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modAttenteLocale",
+      "cible": "modServiceNas",
+      "membre": "CommandeID"
+    },
+    {
+      "hote": "word",
+      "source": "modAttenteLocale",
+      "cible": "modServiceNas",
+      "membre": "ItemsValides"
+    },
+    {
+      "hote": "word",
+      "source": "modAttenteLocale",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modAttenteLocale",
+      "membre": "EnregistrerBrouillon"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modBase",
+      "membre": "PatientParID"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modCourrier",
+      "membre": "CalculerAge"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modFichiers",
+      "membre": "NomFichierSur"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modPatient",
+      "membre": "DossierPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modServiceNas",
+      "membre": "ItemsValides"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modTexte",
+      "membre": "Civilite"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modTexte",
+      "membre": "Plier"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modTexte",
+      "membre": "SexeNormalise"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modValidation",
+      "membre": "ValiderDocument"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modAttenteLocale",
+      "membre": "ChoisirAttente"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modAttenteLocale",
+      "membre": "ConsommerAttente"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modAttenteLocale",
+      "membre": "LibererReservation"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modBase",
+      "membre": "PatientParID"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modControleCourrier",
+      "membre": "ValiderEtTransmettre"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modCourrier",
+      "membre": "AllerAppel"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modCourrier",
+      "membre": "AllerDestinataire"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modCourrier",
+      "membre": "CreerCourrierRapidePour"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modCourrier",
+      "membre": "TexteIdentitePatient"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modGdt",
+      "membre": "EcrireGdtPatient"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modIntegrationUnifie",
+      "membre": "InitialiserPatientProd"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modIntegrationUnifie",
+      "membre": "PatientVerifie"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modIntegrationUnifie",
+      "membre": "SauvegarderBrouillon"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modProdRapide",
+      "membre": "PR_CorrigerToutEnUnClic"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modProdRapide",
+      "membre": "PR_EnCours"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modCommandesLocales",
+      "membre": "CleCommandeLocale"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modCommandesLocales",
+      "membre": "ObtenirCommandeLocale"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "DecoderUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "EmpreinteSHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "EncoderUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "SerialiserJson"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modFichiers",
+      "membre": "SupprimerTemporaire"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modServiceNas",
+      "cible": "modLog",
+      "membre": "Diagnostic"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modBase",
+      "membre": "CorrespondantParID"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modCourrier",
+      "membre": "MettreEnFormeDestinataire"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modCourrier",
+      "membre": "RemplirSignet"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "InitialiserPatientProd"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "TransmettreSecretariat"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modControleCourrier",
+      "cible": "modServiceNas",
+      "membre": "SHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modFichiers",
+      "membre": "SupprimerTemporaire"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "PatientVerifie"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modServiceNas",
+      "membre": "OctetsUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modServiceNas",
+      "membre": "SHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modEtatCourrier",
+      "cible": "modServiceNas",
+      "membre": "TexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modDonneesTransport",
+      "cible": "modJson",
+      "membre": "JsonEchapper"
+    },
+    {
+      "hote": "word",
+      "source": "modCommandesLocales",
+      "cible": "modDonneesTransport",
+      "membre": "EmpreinteSHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modCommandesLocales",
+      "cible": "modDonneesTransport",
+      "membre": "SerialiserJson"
+    },
+    {
+      "hote": "word",
+      "source": "modCommandesLocales",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modCommandesLocales",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modCommandesLocales",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modAnonymisation",
+      "membre": "LocaliserCorpsCourrier"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modControleCourrier",
+      "membre": "PreparerRelecture"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modEtatCourrier",
+      "membre": "AvantAppel"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modEtatCourrier",
+      "membre": "Charger"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modEtatCourrier",
+      "membre": "LibererVerrou"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modEtatCourrier",
+      "membre": "LireProtege"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modEtatCourrier",
+      "membre": "PrendreVerrou"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modEtatCourrier",
+      "membre": "Sauver"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modGlobals",
+      "membre": "ReinitialiserContexteTraitement"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modGras",
+      "membre": "AppliquerGrasDocumentComplet"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modInsertion",
+      "membre": "RemplacerCorpsOriginalParTexte"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "InitialiserPatientProd"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "SauvegarderBrouillon"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modLog",
+      "membre": "Diagnostic"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modMiseEnPageFinale",
+      "membre": "MPF_AppliquerMiseEnPageCourrier"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modMiseEnPageFinale",
+      "membre": "MPF_NormaliserRetoursTexte"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modMiseEnPageFinale",
+      "membre": "MPF_SecuriserToutesSignatures"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modOpenAI_v22_corrige",
+      "membre": "AppelerOpenAIStructure"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modProdRapide",
+      "membre": "PR_AjouterDemandesAuDocumentPrincipal"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modProdRapide",
+      "membre": "PR_CorrigerReferentPatientOrientationCCN"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modProdRapide",
+      "membre": "PR_ReinitialiserSuiviMultipage"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modProdRapide",
+      "membre": "PR_SupprimerDemandesDejaAjoutees"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modPrompts",
+      "membre": "ConstruirePromptDemandeExamenSeule"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modPrompts",
+      "membre": "ConstruirePromptReecritureMedicale"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modPrompts",
+      "membre": "TexteContientDemandeExamenEligible"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modServiceNas",
+      "membre": "SHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modConfig",
+      "membre": "DefinirRacine"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modFichiers",
+      "membre": "NomFichierSur"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modGdt",
+      "membre": "ConstruireGdt"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modIntegrationUnifie",
+      "membre": "LocaliserCorpsUnifie"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modJson",
+      "membre": "JsonEchapper"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modTexte",
+      "membre": "IntervallesSeChevauchent"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modTexte",
+      "membre": "SexeNormalise"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modAnonymise",
+      "membre": "AjouterCorrespondant"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modAnonymise",
+      "membre": "Construire"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modAnonymise",
+      "membre": "Reinjecter"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modAnonymise",
+      "membre": "ScanResiduel"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modAnonymise",
+      "membre": "VerifierBalisesRetour"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteAnsi"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modGdt",
+      "membre": "ConstruireGdt"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU0",
+      "cible": "modOpenAI_v22_corrige",
+      "membre": "PreparerRequeteSortante"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modAttenteLocale",
+      "membre": "FiltrerEtTrier"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modControleCourrier",
+      "membre": "EmpreinteCourrier"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modEtatCourrier",
+      "membre": "DefinirDossierTests"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modEtatCourrier",
+      "membre": "DestinationConfirmee"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modEtatCourrier",
+      "membre": "EcrireProtege"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modEtatCourrier",
+      "membre": "LibererVerrou"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modEtatCourrier",
+      "membre": "LireProtege"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modEtatCourrier",
+      "membre": "PrendreVerrou"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modOpenAI_v22_corrige",
+      "membre": "ValiderStructure"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modRechercheWord",
+      "membre": "Trouver"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modServiceNas",
+      "membre": "DecoderReponse"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modServiceNas",
+      "membre": "OctetsUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modServiceNas",
+      "membre": "SHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modServiceNas",
+      "membre": "TexteUTF8"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modTexte",
+      "membre": "HeureValide"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
+      "cible": "modTexte",
+      "membre": "MinutesDepuisMinuit"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modCommandesLocales",
+      "membre": "CleCommandeLocale"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modCommandesLocales",
+      "membre": "ObtenirCommandeLocale"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modCycleCourrier",
+      "membre": "CycleEnCours"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modCycleCourrier",
+      "membre": "DocumentSource"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modServiceNas",
+      "membre": "SHA256"
+    },
+    {
+      "hote": "excel",
+      "source": "ThisWorkbook",
+      "cible": "modAgendaVue",
+      "membre": "ClicCreneau"
+    },
+    {
+      "hote": "excel",
+      "source": "ThisWorkbook",
+      "cible": "modEchange",
+      "membre": "ArreterScrutation"
+    },
+    {
+      "hote": "excel",
+      "source": "ThisWorkbook",
+      "cible": "modEchange",
+      "membre": "DemarrerScrutation"
+    },
+    {
+      "hote": "excel",
+      "source": "ThisWorkbook",
+      "cible": "modLog",
+      "membre": "Diagnostic"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modBaseIO",
+      "membre": "CreerClasseurSiAbsent"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modBaseIO",
+      "membre": "EnregistrerActes"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modBaseIO",
+      "membre": "LireTableX"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modCerfaPrint",
+      "membre": "ImprimerFeuille"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modCerfaPrint",
+      "membre": "VerifierAvantFacturation"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modConfig",
+      "membre": "FichierJournal"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modConfig",
+      "membre": "FichierNomenclature"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modJournal",
+      "membre": "EntetesJournal"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modServiceNas",
+      "membre": "CommandeID"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modActes",
+      "membre": "ActeParCode"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modBaseIO",
+      "membre": "AjouterLigne"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modBaseIO",
+      "membre": "CreerClasseurSiAbsent"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modConfig",
+      "membre": "FichierAgenda"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modServiceNas",
+      "membre": "CommandeID"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modServiceNas",
+      "membre": "LireID"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modTexte",
+      "membre": "HeureValide"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgenda",
+      "cible": "modTexte",
+      "membre": "MinutesDepuisMinuit"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modAgenda",
+      "membre": "MarquerStatut"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modAgenda",
+      "membre": "RdvDuJour"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modConfig",
+      "membre": "ConfigNum"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modEchange",
+      "membre": "SignalerArrivee"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modServiceNas",
+      "membre": "LireID"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modTexte",
+      "membre": "IntervallesSeChevauchent"
+    },
+    {
+      "hote": "excel",
+      "source": "modAgendaVue",
+      "cible": "modTexte",
+      "membre": "MinutesDepuisMinuit"
+    },
+    {
+      "hote": "excel",
+      "source": "modBaseIO",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "excel",
+      "source": "modBaseIO",
+      "cible": "modServiceNas",
+      "membre": "LirePages"
+    },
+    {
+      "hote": "excel",
+      "source": "modBaseIO",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "excel",
+      "source": "modBaseIO",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modCerfaPrint",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "excel",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "excel",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "excel",
+      "source": "modConfig",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modConfig",
+      "membre": "ConfigNum"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modLog",
+      "membre": "LogErreur"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modServiceNas",
+      "membre": "CommandeID"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "modFichiers",
+      "cible": "modConfig",
+      "membre": "Chemin"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "DossierExiste"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteAnsi"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "RenommerAtomique"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modFichiers",
+      "membre": "SupprimerTemporaire"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modLog",
+      "membre": "LogInfo"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "SexeNormalise"
+    },
+    {
+      "hote": "excel",
+      "source": "modJournal",
+      "cible": "modBaseIO",
+      "membre": "AjouterLignes"
+    },
+    {
+      "hote": "excel",
+      "source": "modJournal",
+      "cible": "modBaseIO",
+      "membre": "CreerClasseurSiAbsent"
+    },
+    {
+      "hote": "excel",
+      "source": "modJournal",
+      "cible": "modBaseIO",
+      "membre": "LireJournal"
+    },
+    {
+      "hote": "excel",
+      "source": "modJournal",
+      "cible": "modConfig",
+      "membre": "FichierJournal"
+    },
+    {
+      "hote": "excel",
+      "source": "modJournal",
+      "cible": "modFichiers",
+      "membre": "EcrireCelluleTexte"
+    },
+    {
+      "hote": "excel",
+      "source": "modLog",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "excel",
+      "source": "modLog",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modAgenda",
+      "membre": "RdvDuJour"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modAgendaVue",
+      "membre": "AfficherAgenda"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modBaseIO",
+      "membre": "LireTableX"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modCerfaPrint",
+      "membre": "CalageCerfa"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modConfig",
+      "membre": "FichierPatients"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modEchange",
+      "membre": "CourriersEnAttente"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modEchange",
+      "membre": "SignalerArrivee"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modEchange",
+      "membre": "VerifierEchange"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modJournal",
+      "membre": "OuvrirJournal"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modServiceNas",
+      "membre": "CommandeID"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modActes",
+      "membre": "EnregistrerSeance"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modActes",
+      "membre": "ImprimerSeanceEnregistree"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modActes",
+      "membre": "LignesPourImpression"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modActes",
+      "membre": "Nomenclature"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modActes",
+      "membre": "TotalActes"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modCerfaPrint",
+      "membre": "VerifierAvantFacturation"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modEchange",
+      "membre": "DeplacerVersTraites"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modEchange",
+      "membre": "OuvrirCourrier"
+    },
+    {
+      "hote": "excel",
+      "source": "ufCorrespEdit",
+      "cible": "modBaseIO",
+      "membre": "AjouterLigne"
+    },
+    {
+      "hote": "excel",
+      "source": "ufCorrespEdit",
+      "cible": "modBaseIO",
+      "membre": "ModifierLigne"
+    },
+    {
+      "hote": "excel",
+      "source": "ufCorrespEdit",
+      "cible": "modConfig",
+      "membre": "FichierPatients"
+    },
+    {
+      "hote": "excel",
+      "source": "ufListe",
+      "cible": "modTexte",
+      "membre": "Plier"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modAgendaVue",
+      "membre": "AfficherAgenda"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modBaseIO",
+      "membre": "AjouterLigne"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modBaseIO",
+      "membre": "LireTableX"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modBaseIO",
+      "membre": "ModifierLigne"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modConfig",
+      "membre": "FichierPatients"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "excel",
+      "source": "ufPatientEdit",
+      "cible": "modTexte",
+      "membre": "SexeNormalise"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modActes",
+      "membre": "Nomenclature"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modAgenda",
+      "membre": "AjouterRdv"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modAgendaVue",
+      "membre": "AfficherAgenda"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modConfig",
+      "membre": "ConfigNum"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modLog",
+      "membre": "Diagnostic"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modTexte",
+      "membre": "HeureValide"
+    },
+    {
+      "hote": "excel",
+      "source": "ufRdvEdit",
+      "cible": "modUI",
+      "membre": "ChoisirPatientX"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modCommandesLocales",
+      "membre": "CleCommandeLocale"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modCommandesLocales",
+      "membre": "ObtenirCommandeLocale"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "DecoderUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "EmpreinteSHA256"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "EncoderUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modDonneesTransport",
+      "membre": "SerialiserJson"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modFichiers",
+      "membre": "SupprimerTemporaire"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "excel",
+      "source": "modServiceNas",
+      "cible": "modLog",
+      "membre": "Diagnostic"
+    },
+    {
+      "hote": "excel",
+      "source": "modDonneesTransport",
+      "cible": "modJson",
+      "membre": "JsonEchapper"
+    },
+    {
+      "hote": "excel",
+      "source": "modCommandesLocales",
+      "cible": "modDonneesTransport",
+      "membre": "EmpreinteSHA256"
+    },
+    {
+      "hote": "excel",
+      "source": "modCommandesLocales",
+      "cible": "modDonneesTransport",
+      "membre": "SerialiserJson"
+    },
+    {
+      "hote": "excel",
+      "source": "modCommandesLocales",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "excel",
+      "source": "modCommandesLocales",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "excel",
+      "source": "modCommandesLocales",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modCerfaPrint",
+      "membre": "AnalyserPositions"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modServiceNas",
+      "membre": "SHA256"
+    }
+  ],
+  "appels_dynamiques_a_qualifier": [
+    {
+      "source": "Src/Prod6/modCommandesDDERAC.bas",
+      "ligne": 157
+    },
+    {
+      "source": "Src/Word/modRaccourcis.bas",
+      "ligne": 67
+    },
+    {
+      "source": "Src/Word/modRaccourcis.bas",
+      "ligne": 71
+    },
+    {
+      "source": "Src/Word/modRaccourcis.bas",
+      "ligne": 72
+    },
+    {
+      "source": "Src/Word/modRaccourcis.bas",
+      "ligne": 73
+    },
+    {
+      "source": "Src/Word/modRaccourcis.bas",
+      "ligne": 76
+    },
+    {
+      "source": "Src/Word/modRuban.bas",
+      "ligne": 31
+    },
+    {
+      "source": "Src/Integration/modRechercheWord.bas",
+      "ligne": 12
+    },
+    {
+      "source": "Src/Integration/modRechercheWord.bas",
+      "ligne": 21
+    },
+    {
+      "source": "Tests/Vba/word/modRecetteU1.bas",
+      "ligne": 143
+    },
+    {
+      "source": "Tests/Vba/word/modRecetteU1.bas",
+      "ligne": 146
+    },
+    {
+      "source": "Tests/Vba/word/modRecetteU1.bas",
+      "ligne": 151
+    },
+    {
+      "source": "Tests/Vba/word/modRecetteU1.bas",
+      "ligne": 160
+    },
+    {
+      "source": "Src/Excel/modEchange.bas",
+      "ligne": 23
+    },
+    {
+      "source": "Src/Excel/modEchange.bas",
+      "ligne": 35
+    }
+  ],
+  "archives_exclues": [
+    {
+      "module": "modCabinetTestDemandes",
+      "source": "Archives/Vba/modCabinetTestDemandes.bas",
+      "sha256": "7b62a9a4add74ff13689067c702f3718ff1fae1ef8d8aa2c13802247e614a762"
+    },
+    {
+      "module": "modCabinetTestDestinations",
+      "source": "Archives/Vba/modCabinetTestDestinations.bas",
+      "sha256": "3ac7897f2ddbc37cad35f611a91a976dc7d42f2ed780a16f7c1ca5608e48710b"
+    },
+    {
+      "module": "modClaude",
+      "source": "Archives/Vba/modClaude.bas",
+      "sha256": "ee5b2c971ad47e60d98e2741d50ec1ab052a18d1dab662b8910cc5c7154fc361"
+    }
+  ],
+  "erreurs": [],
+  "limite": "Inventaire de sources ; compilation Office et commandes Dragon du poste non verifiees."
+}
