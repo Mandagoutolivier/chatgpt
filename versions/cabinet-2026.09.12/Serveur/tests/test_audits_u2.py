@@ -15,7 +15,8 @@ def mixed_bill(s):
     rpc(s, 'publish', data, 'medecin')
     rpc(s, 'table.add', {'genre':'ACTES','data':{'Code':'TIERS','Tarif':'7.20'}})
     lines = [ligne(arr, pat), dict(ligne(arr, pat), CodeActe='TIERS', Montant='7.20', TiersPayant='O')]
-    return rpc(s, 'bill', {'id':arr['ID'], 'publication_id':data['PublicationID'], 'lignes':lines})
+    rpc(s, 'bill', {'id':arr['ID'], 'publication_id':data['PublicationID'], 'lignes':lines})
+    return rpc(s, 'billing.get', {'id':arr['ID']})
 
 
 def payment(saved, **overrides):
