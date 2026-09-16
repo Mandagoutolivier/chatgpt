@@ -14,7 +14,7 @@ services:
       timeout: 5s
       retries: 30
   verifier:
-    image: cabinet-maintenance:2026.09.14-u0
+    image: "${CABINET_MAINTENANCE_IMAGE:-cabinet-maintenance:2026.09.16-u2b}"
     environment:
       PGHOST: verification-db
       PGUSER: postgres

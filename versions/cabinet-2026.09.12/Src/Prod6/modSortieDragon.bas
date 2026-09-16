@@ -506,23 +506,37 @@ Private Function SD_MajusculeInitialesPrenom( _
 End Function
 
 Private Function SD_DOSSIER_SORTIE() As String
-    SD_DOSSIER_SORTIE = modConfig.CheminNasConfigure("SORTIE", "Dossier", "Sorties")
+    SD_DOSSIER_SORTIE = modConfig.CheminNasConfigure("SORTIE", "Dossier", "")
 End Function
 
 Public Function SD_CopierRevisionFinale(ByVal doc As Document, ByVal source As String, ByVal publicationID As String, ByRef destination As String) As Boolean
-    Dim pat As Object, fso As Object, base As String, actif As String, temporaire As String, empreinte As String
-    Dim numero As Long, description As String
+    Dim pat As Object, fso As Object, base As String, actif As String, modeNom As String
+    Dim temporaire As String, empreinte As String, nomPatient As String, prenomPatient As String
+    Dim numero As Long, description As String, identiteNom As String, longueurIdentite As Long
     On Error GoTo Echec
     destination = ""
-    actif = Trim$(modConfig.Config("SORTIE", "ExportActif", "0"))
+    actif = Trim$(modConfig.Config("SORTIE", "ExportActif", ""))
+    If Len(actif) = 0 Then Err.Raise vbObjectError + 1168, , "SORTIE/ExportActif n est pas configure. Choisissez explicitement 0 ou 1 avant utilisation."
+    If actif <> "0" And actif <> "1" Then Err.Raise vbObjectError + 1168, , "SORTIE/ExportActif doit valoir 0 ou 1."
+    modeNom = LCase$(Trim$(modConfig.Config("SORTIE", "NomFichier", "")))
+    If modeNom <> "publicationid" And modeNom <> "identitepublication" Then Err.Raise vbObjectError + 1168, , "SORTIE/NomFichier doit valoir PublicationID ou IdentitePublication."
     If actif = "0" Then
         SD_CopierRevisionFinale = True
         Exit Function
     End If
-    If actif <> "1" Then Err.Raise vbObjectError + 1168, , "SORTIE/ExportActif doit valoir 0 ou 1."
     Set pat = modIntegrationUnifie.PatientVerifie(doc)
     base = modFichiers.NomFichierSur(publicationID)
     If Len(base) = 0 Or base <> publicationID Then Err.Raise vbObjectError + 1168, , "Identifiant de publication invalide."
+    If modeNom = "identitepublication" Then
+        nomPatient = SD_NettoyerPartieNomFichier(CStr(pat("Nom")))
+        prenomPatient = SD_NettoyerPartieNomFichier(CStr(pat("Prenom")))
+        If Len(nomPatient) = 0 Or Len(prenomPatient) = 0 Then Err.Raise vbObjectError + 1168, , "Identite requise pour nommer la copie de sortie."
+        identiteNom = modFichiers.NomFichierSur(UCase$(nomPatient) & " " & SD_MajusculeInitialesPrenom(prenomPatient))
+        longueurIdentite = 119 - Len(publicationID)
+        If longueurIdentite < 1 Then Err.Raise vbObjectError + 1168, , "Identifiant de publication trop long pour le nom de fichier."
+        base = Left$(identiteNom, longueurIdentite) & " " & publicationID
+        If Right$(base, Len(publicationID)) <> publicationID Then Err.Raise vbObjectError + 1168, , "Identifiant de publication tronque."
+    End If
     SD_CreerDossierSiNecessaire SD_DOSSIER_SORTIE
     destination = SD_DOSSIER_SORTIE & "\" & base & ".docx"
     Set fso = CreateObject("Scripting.FileSystemObject")

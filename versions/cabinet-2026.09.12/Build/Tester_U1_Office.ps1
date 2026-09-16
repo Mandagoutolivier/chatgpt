@@ -48,8 +48,7 @@ try{
     if($RecetteU2){
         $resultU2=$word.Run('modRecetteU2.ExecuterU2',[ref]$testArgument)
         Trace-U1 ('Tests U2 : '+[string]$resultU2)
-        $u2=ConvertFrom-Json -InputObject ([string]$resultU2) -ErrorAction Stop
-        if($null -eq $u2 -or $u2.echec -ne $false -or [int]$u2.reussis -ne 10){throw ('Recette U2 incomplete ou en echec : '+[string]$u2.description)}
+        $u2=Verifier-ResultatRecetteOffice ([string]$resultU2) 'Recette U2 Word'
     }
     $doc.Close([ref]$noSave);$doc=$null;$word.Quit([ref]$noSave);$word=$null
     Attendre-FermetureOffice
@@ -64,8 +63,7 @@ try{
     $wb=$excel.Workbooks.Open((Join-Path $Sortie 'Cabinet.xlsm'),0,$false)
     $resultExcel=$excel.Run("'"+$wb.Name+"'!modRecetteU1Excel.Executer")
     Trace-U1 ('Tests Excel : '+[string]$resultExcel)
-    $recetteExcel=ConvertFrom-Json -InputObject ([string]$resultExcel) -ErrorAction Stop
-    if($null -eq $recetteExcel -or $recetteExcel.echec -ne $false -or [int]$recetteExcel.reussis -ne 10){throw ('Recette Excel incomplete ou en echec : '+[string]$recetteExcel.description)}
+    $recetteExcel=Verifier-ResultatRecetteOffice ([string]$resultExcel) 'Recette Excel'
     $wb.Close($false);$wb=$null;$excel.Quit();$excel=$null
     $testsValides=$true
 }catch{

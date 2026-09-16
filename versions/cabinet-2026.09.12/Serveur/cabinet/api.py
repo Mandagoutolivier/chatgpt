@@ -11,6 +11,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ConfigDict, Field
+from . import APPLICATION_VERSION, PROTOCOL_VERSION
 from .domain import Refus
 from .files import Documents
 from .service import Service, READS, SECRETARIAT, MEDECIN, SHARED
@@ -39,7 +40,7 @@ def create_app(service: Service | None=None):
         if app.state.service is None:app.state.service=service_environnement()
         app.state.service.initialiser()
         yield
-    app=FastAPI(title='Cabinet NAS',version='2026.09.12',lifespan=lifespan,
+    app=FastAPI(title='Cabinet NAS',version=APPLICATION_VERSION,lifespan=lifespan,
                 docs_url=None,redoc_url=None,openapi_url=None)
     app.state.service=service
     logger=logging.getLogger('cabinet');logger.setLevel(logging.INFO)
@@ -71,7 +72,7 @@ def create_app(service: Service | None=None):
     def health():
         try:
             with app.state.service.connexion() as db:db.execute('SELECT 1')
-            return {'status':'ok','version':'2026.09.12','protocole':2}
+            return {'status':'ok','version':APPLICATION_VERSION,'protocole':PROTOCOL_VERSION}
         except psycopg.Error:return JSONResponse({'status':'indisponible'},status_code=503)
 
     @app.post('/v1/rpc')

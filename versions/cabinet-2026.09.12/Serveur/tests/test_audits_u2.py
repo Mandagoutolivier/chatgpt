@@ -13,8 +13,13 @@ from test_migration import workbook
 def mixed_bill(s):
     arr, pat, data = publication(s)
     rpc(s, 'publish', data, 'medecin')
-    rpc(s, 'table.add', {'genre':'ACTES','data':{'Code':'TIERS','Tarif':'7.20'}})
-    lines = [ligne(arr, pat), dict(ligne(arr, pat), CodeActe='TIERS', Montant='7.20', TiersPayant='O')]
+    acte=next(x for x in rpc(s,'table.read',{'genre':'ACTES'})['items'] if x['Code']=='TEST')
+    rpc(s,'table.update',{'genre':'ACTES','data':dict(acte,CodeAssocie='TESTA',TarifAssocie='2.70')})
+    rpc(s, 'table.add', {'genre':'ACTES','data':{'Code':'TIERS','Tarif':'7.20','CodeAssocie':'TIERSA','TarifAssocie':'0.80'}})
+    lines = [ligne(arr, pat),
+             dict(ligne(arr, pat), CodeActe='TESTA', Montant='2.70'),
+             dict(ligne(arr, pat), CodeActe='TIERS', Montant='7.20', TiersPayant='O'),
+             dict(ligne(arr, pat), CodeActe='TIERSA', Montant='0.80', TiersPayant='O')]
     rpc(s, 'bill', {'id':arr['ID'], 'publication_id':data['PublicationID'], 'lignes':lines})
     return rpc(s, 'billing.get', {'id':arr['ID']})
 
@@ -25,26 +30,30 @@ def payment(saved, **overrides):
 
 def test_mixed_payment_preserves_other_payer_and_retry(service):
     saved = mixed_bill(service)
-    args = payment(saved, payeur='Patient', montant='12.30')
+    args = payment(saved, payeur='Patient', montant='15.00')
     request_id = uuid.uuid4().hex
     first = rpc(service, 'payment', args, rid=request_id)
-    assert [x['Paye'] for x in first['lignes']] == ['O','N']
-    assert first['lignes'][1] == saved['lignes'][1]
+    assert [x['Paye'] for x in first['lignes']] == ['O','O','N','N']
+    assert first['lignes'][2:] == saved['lignes'][2:]
     assert rpc(service, 'payment', args, rid=request_id) == first
     with pytest.raises(Refus, match='rechargez'):
         rpc(service, 'payment', args)
     with pytest.raises(Refus, match='Aucune ligne'):
-        rpc(service, 'payment', payment(first, payeur='Patient', montant='12.30'))
-    last = rpc(service, 'payment', payment(first, payeur='Organisme', montant='7,20'))
-    assert last['lignes'][0] == first['lignes'][0]
-    assert [x['PayeurReglement'] for x in last['lignes']] == ['Patient','Organisme']
-    assert [x['Paye'] for x in last['lignes']] == ['O','O']
+        rpc(service, 'payment', payment(first, payeur='Patient', montant='15.00'))
+    last = rpc(service, 'payment', payment(first, payeur='Organisme', montant='8,00'))
+    assert last['lignes'][:2] == first['lignes'][:2]
+    assert [x['PayeurReglement'] for x in last['lignes']] == ['Patient','Patient','Organisme','Organisme']
+    assert [x['Paye'] for x in last['lignes']] == ['O','O','O','O']
+    journal=rpc(service,'journal.read',{'id':saved['ID']})['items']
+    assert [(x['CodeActe'],x['Montant'],x['TiersPayant'],x['Paye'],x.get('PayeurReglement','')) for x in journal] == [
+        ('TEST','12.30','N','O','Patient'),('TESTA','2.70','N','O','Patient'),
+        ('TIERS','7.20','O','O','Organisme'),('TIERSA','0.80','O','O','Organisme')]
     with service.connexion() as db:
         assert db.execute('SELECT count(*) n FROM reglements_audit').fetchone()['n'] == 2
 
 
 @pytest.mark.parametrize('fields', [{}, {'payeur':'Patient'}, {'montant':'12.30'},
-    {'payeur':'Patient','montant':'19.50'}, {'payeur':'Organisme','montant':'1.00'},
+    {'payeur':'Patient','montant':'23.00'}, {'payeur':'Organisme','montant':'1.00'},
     {'payeur':'Patient','montant':'12.300'}, {'payeur':'Inconnu','montant':'12.30'}])
 def test_mixed_payment_refuses_ambiguous_or_partial_without_changes(service, fields):
     saved = mixed_bill(service)
@@ -88,10 +97,24 @@ def test_publication_minimised_but_billing_identity_preserved(service):
     pub=rpc(service,'publish',data,'medecin')
     assert pub['Nom']==pat['Nom'] and pub['Sexe']=='F'
     assert not {'NIR','AssureNIR','Adresse1','Tel','Patient_Nom'} & pub.keys()
+    acte=next(x for x in rpc(service,'table.read',{'genre':'ACTES'})['items'] if x['Code']=='TEST')
+    rpc(service,'table.update',{'genre':'ACTES','data':dict(acte,LibelleCerfa='TEST CERFA')})
+    with pytest.raises(Refus,match='Libelle CERFA'):
+        rpc(service,'bill',{'id':arr['ID'],'publication_id':data['PublicationID'],
+                            'lignes':[dict(ligne(arr,pat),CodeCerfa='AUTRE')]})
     saved=rpc(service,'bill',{'id':arr['ID'],'publication_id':data['PublicationID'],'lignes':[ligne(arr,pat)]})
     assert saved['lignes'][0]['NIR']==nir
-    rpc(service,'table.update',{'genre':'PATIENTS','data':dict(pat,NIR='')})
-    assert rpc(service,'billing.get',{'id':arr['ID']})['lignes'][0]['NIR']==nir
+    assert saved['lignes'][0]['CodeCerfa']=='TEST CERFA'
+    first_print=rpc(service,'print.request',{'id':arr['ID'],'reimpression_confirmee':False})
+    rpc(service,'printed',{'id':arr['ID'],'tentative':first_print['tentative'],'confirmee':True})
+    rpc(service,'table.update',{'genre':'PATIENTS','data':dict(pat,Nom='NOUVEAU NOM',Prenom='Nouveau',DDN='02/02/1982',NIR='')})
+    acte=rpc(service,'record.get',{'genre':'ACTES','id':acte['ID']})
+    rpc(service,'table.update',{'genre':'ACTES','data':dict(acte,LibelleCerfa='AUTRE LIBELLE')})
+    frozen=rpc(service,'billing.get',{'id':arr['ID']})['lignes'][0]
+    assert (frozen['Nom'],frozen['Prenom'],frozen['DDN'],frozen['NIR']) == (pat['Nom'],pat['Prenom'],pat['DDN'],nir)
+    assert frozen['CodeCerfa']=='TEST CERFA'
+    retry=rpc(service,'print.request',{'id':arr['ID'],'reimpression_confirmee':True})
+    assert retry['tentative'] != first_print['tentative']
 
 
 def files(root):

@@ -1,3 +1,23 @@
+function Verifier-ResultatRecetteOffice([string]$Json,[string]$Nom) {
+    try { $r=ConvertFrom-Json -InputObject $Json -ErrorAction Stop } catch { throw ($Nom+' : resultat JSON invalide.') }
+    if ($null -eq $r -or $r -is [Array]) { throw ($Nom+' : resultat absent ou non objet.') }
+    $props=@($r.PSObject.Properties.Name)
+    foreach ($propriete in @('reussis','attendus','echec')) {
+        if ($propriete -notin $props) { throw ($Nom+' : champ '+$propriete+' absent.') }
+    }
+    if ($r.echec -isnot [bool]) { throw ($Nom+' : champ echec invalide.') }
+    [int]$reussis=0
+    [int]$attendus=0
+    if (-not [int]::TryParse([string]$r.reussis,[ref]$reussis) -or -not [int]::TryParse([string]$r.attendus,[ref]$attendus)) {
+        throw ($Nom+' : compteurs invalides.')
+    }
+    $detail=if ('description' -in $props) { [string]$r.description } else { '' }
+    if ($r.echec -or $attendus -lt 1 -or $reussis -ne $attendus) {
+        throw ($Nom+' incomplete ou en echec ('+$reussis+'/'+$attendus+') : '+$detail)
+    }
+    return $r
+}
+
 function Compiler-ProjetU1($application, $projet) {
     Add-Type -AssemblyName UIAutomationClient
     Add-Type -AssemblyName UIAutomationTypes

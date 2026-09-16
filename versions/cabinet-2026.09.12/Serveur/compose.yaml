@@ -1,3 +1,4 @@
+name: ${CABINET_PROJECT_NAME:?Renseigner un nom de projet Compose distinct}
 services:
   db:
     image: postgres:17.11-bookworm
@@ -21,7 +22,7 @@ services:
       context: ..
       dockerfile: Serveur/Dockerfile
     restart: unless-stopped
-    user: ${CABINET_UID:-1026}:${CABINET_GID:-100}
+    user: ${CABINET_UID:?Renseigner l UID API}:${CABINET_GID:?Renseigner le GID API}
     depends_on:
       db:
         condition: service_healthy
@@ -36,7 +37,7 @@ services:
     volumes:
       - ${CABINET_DATA_VOLUME:?Renseigner le chemin LOCAL du partage NAS}:/data
     ports:
-      - 127.0.0.1:8765:8765
+      - "127.0.0.1:${CABINET_API_PORT:?Renseigner le port API local}:8765"
     logging:
       driver: json-file
       options:
@@ -46,7 +47,7 @@ services:
     tmpfs: [/tmp]
     security_opt: [no-new-privileges:true]
   maintenance:
-    image: cabinet-maintenance:2026.09.14-u0
+    image: "${CABINET_MAINTENANCE_IMAGE:-cabinet-maintenance:2026.09.16-u2b}"
     build:
       context: ..
       dockerfile: Serveur/Dockerfile.maintenance

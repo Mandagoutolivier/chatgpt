@@ -1,527 +1,642 @@
 [
   {
+    "role": "production",
     "host": "word",
     "module": "ThisDocument",
     "source": "Src/Prod6/ThisDocument.cls",
-    "lines": 8,
-    "sha256": "6d7b7fd22869872b04bcc106514b36a55fb7bf8d9fa8eceb59a213b2770db4ba"
+    "lines": 9,
+    "sha256": "57dd069f9e8a9661fce5c9bb00e0a46ba4a28f1e02e30901f662ffcbf7dff8d8"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "frmCTDestination",
     "source": "Src/Prod6/frmCTDestination.vba",
-    "lines": 152,
-    "sha256": "1d2f26456daa9f424139c153f5534779b30d212629e138f322f6b5275673019d"
+    "lines": 153,
+    "sha256": "1a9c0eb44e03f87faceba13d15d3ad399fb15124ca7e4f163be1a1a0402e0ef7"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modAnonymisation",
     "source": "Src/Prod6/modAnonymisation.bas",
-    "lines": 645,
-    "sha256": "2c0edc11aaa0bdd4b90f63f1807deb52521040f5af2a9d6a0c6a1f0855fcbe88"
+    "lines": 646,
+    "sha256": "f73c34b54a8114fc56ff998e884b6a8b0d2785195c3b49d52612a6001c1ee2aa"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modBaseCorrespondants",
     "source": "Src/Prod6/modBaseCorrespondants.bas",
-    "lines": 52,
-    "sha256": "65770068f1af13f50007cdc36df8c9622996cbbfae3927bb582e61e5612e0ab8"
+    "lines": 61,
+    "sha256": "09b1a349a7c7e16347fbbf7c3f4b547eaefc176d94b5f9480ebfbfda5812a7df"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modDemandesAnnexes",
     "source": "Src/Prod6/modDemandesAnnexes.bas",
-    "lines": 517,
-    "sha256": "769992c4d53166a3b98825054e1d03ce58ff2d0c74fe33c6ac67c24908d63eb8"
+    "lines": 453,
+    "sha256": "445c3a3d4898eab2811f8681f1ad71ee523f0119cc0ed180d7c086a54b649663"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modDestinations",
     "source": "Src/Prod6/modDestinations.bas",
-    "lines": 22,
-    "sha256": "66f5181006ba957fa02b7226b40545889c0963c2b3bf02ccde9a9576bbb3aa9c"
+    "lines": 32,
+    "sha256": "c9310ba4c9d64c28adde4789ed0720ac111484a95430e72b41eca9ff81922f0b"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modCommandesDDERAC",
     "source": "Src/Prod6/modCommandesDDERAC.bas",
-    "lines": 303,
-    "sha256": "a7672487958bf29026454d78f4e24a98399347828fbf63d6ffb2b95a7fcbddbb"
+    "lines": 331,
+    "sha256": "6a4dd6189dc13ce1b6808c8ccf63255b2141f9934f54729cb4b2e97cd8d440c9"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modDetectionDemandesDico",
     "source": "Src/Prod6/modDetectionDemandesDico.bas",
-    "lines": 409,
-    "sha256": "a137a9aaad79fdbae45726d34355cc08648e38c3a7f710aeb2dd3084985bc82f"
+    "lines": 410,
+    "sha256": "6f24947ffa43e3b50a8772e67e5e5114eead488a3bf3421798029e7f160f6f4c"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modEnregistrementCorrespondants",
     "source": "Src/Prod6/modEnregistrementCorrespondants.bas",
-    "lines": 5,
-    "sha256": "535e57d7991a670f6a53bb3f2e96311abc46e71100d8a5ae219a069c64d1710b"
+    "lines": 6,
+    "sha256": "cfa8bd06a6219aa267b8b90ce3fb2f47d73d2032610806874bbdf90a0249c372"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modGenerationDemandes",
     "source": "Src/Prod6/modGenerationDemandes.bas",
-    "lines": 884,
-    "sha256": "d426719dd9d36a3948e4b96e353aa7c89d66c10720dc58a64213e963b0778c49"
+    "lines": 867,
+    "sha256": "df3cf5cff78e7748d0bf0733b68538f5d0215ab51f569024df9fe05746a3f3b1"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modGlobals",
     "source": "Src/Prod6/modGlobals.bas",
-    "lines": 111,
-    "sha256": "8c65a454418cf93fe126f67ba8c0758c2058ed7c6fc9ca818581d223102c8770"
+    "lines": 110,
+    "sha256": "b6ef4b8d1c1a85d225bce77250260b98a9c2e4ce1a7c3c1d72f16d926d1bfc6a"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modInsertion",
     "source": "Src/Prod6/modInsertion.bas",
-    "lines": 289,
-    "sha256": "e058f9cef6cb76222792679a80b23791cc97a072a84363f68016fde5087aa896"
+    "lines": 264,
+    "sha256": "d7d86cb5ace6a2734808a811c75f2dce188052d6f1eb0b9ed56ed7f8cab6d1f6"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modLettresComplementairesModele",
     "source": "Src/Prod6/modLettresComplementairesModele.bas",
-    "lines": 1237,
-    "sha256": "91de776840af3b328d294ff697b5392644ecd1285de1944f48cc5b4edee2c259"
+    "lines": 1224,
+    "sha256": "c9fe349f14981ea3677b21ef85b73095d5c4a131bf380b507bbc1795bd880e6e"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modMiseEnPageFinale",
     "source": "Src/Prod6/modMiseEnPageFinale.bas",
-    "lines": 863,
-    "sha256": "2d5993d3dd62a03f25035d46b6b70ef2ec3dcdb2f1a72ea1df6ece34c1f8fb0c"
+    "lines": 864,
+    "sha256": "737a97d99d2a9dc8c71a7408ee8868a13ab550780262a796615771f10f745051"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modNormalisationGrasLocal",
     "source": "Src/Prod6/modNormalisationGrasLocal.bas",
-    "lines": 59,
-    "sha256": "177713a5d9821032ed2718470da73e3caba51f393e365e253b69c642ef7b370f"
+    "lines": 60,
+    "sha256": "5617213baa60ec7114f6de5ad4ce10409892ba1156a64bd7bc4f1c04aecda996"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modOpenAI_v22_corrige",
     "source": "Src/Prod6/modOpenAI_v22_corrige.bas",
-    "lines": 851,
-    "sha256": "d2f862e3c6f2d351d1b1b501bc3bf7b81381398cea730fc2062f3f776e835d1a"
+    "lines": 920,
+    "sha256": "d85a149222de390bc60598f5651cb26ab8e34225c902b0044416ab55f1bd7009"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modProdRapide",
     "source": "Src/Prod6/modProdRapide.bas",
-    "lines": 1483,
-    "sha256": "dc273ce4bedd936d465364d66ce6debb8bf77a99ba0cef78805690b174d640b3"
+    "lines": 1276,
+    "sha256": "ac4f88c5fadfef3d1afbca8a390bf7ca6e26b4be1b1a52fc247d6c54813f613d"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modPrompts",
     "source": "Src/Prod6/modPrompts.bas",
-    "lines": 539,
-    "sha256": "d568c847de55a11efcd723fac74689146100b6747a71a65ec52423d66a265ecb"
+    "lines": 544,
+    "sha256": "da18a372b35a9c5972d3271f5cbd8057cb8993e165e15beb2af3e614933c0ff3"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modSaisieCorrespondants",
     "source": "Src/Prod6/modSaisieCorrespondants.bas",
-    "lines": 24,
-    "sha256": "f1c644ee8f0b51b6fb12837974e3e5fab7c39d93163871879436a7ad9159372a"
+    "lines": 25,
+    "sha256": "c6f38d5087bd0d7a2184e37951bb50901383955ee24a3f9e937ff3f7159a7991"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modSaisieStructures",
     "source": "Src/Prod6/modSaisieStructures.bas",
-    "lines": 5,
-    "sha256": "51aa1784c5066b39b646b48f831a3c069170a544ec8367b36d9ae3f8035fc0a7"
+    "lines": 6,
+    "sha256": "b568ea03323efb0c6e49c38bc929e449064157968b20dc9628f3032ed4f58715"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modSortieDragon",
     "source": "Src/Prod6/modSortieDragon.bas",
-    "lines": 510,
-    "sha256": "eeccbc81af7c56fba610eb7c86b658dbabc2e1f7aba7fe9b1310e69783a3aae1"
+    "lines": 561,
+    "sha256": "0bd0cf550bec8944cdb23156b76595e2f2e9b3843f95fb9063b91708e9b606f2"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modUtilitaires",
     "source": "Src/Prod6/modUtilitaires.bas",
-    "lines": 85,
-    "sha256": "dc574f7a1fc7621fc1af61f7348f5a0c8ecd606c34c47d6d23acaf13102eac13"
+    "lines": 86,
+    "sha256": "5200ffc1c821b45c835060dec088eba004b8c12695c9e94336829245d23ad2f5"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modAnonymise",
     "source": "Src/Word/modAnonymise.bas",
-    "lines": 267,
-    "sha256": "b40022cf9f3f3752a7277c67119863dce3f954ec16a7d8131c886326e594567d"
+    "lines": 268,
+    "sha256": "7a4a8bad02e055d24bf486c2a69bd31dcb158246c1fb717baa9d1802dd58beb4"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modBase",
     "source": "Src/Word/modBase.bas",
-    "lines": 19,
-    "sha256": "c04ac90da7a8e5936ebdcbc62ac140aa441f0898e63cd4566eef7668b05f3184"
+    "lines": 20,
+    "sha256": "242addbcf0445cd4a9867118a61ec5e1adc9dfd716cd8ab534beac24ac1891c1"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modApiConfiguration",
     "source": "Src/Word/modApiConfiguration.bas",
-    "lines": 228,
-    "sha256": "4b9ff64a318592959b55703823116faf022d4dbb5e47b92738f0be5b93b96b9a"
+    "lines": 140,
+    "sha256": "6707e85afb2f998c08519751aebc398ddfdc77b0b76ee6eaf20d37f5b499162d"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modConfig",
     "source": "Src/Commun/modConfig.bas",
-    "lines": 173,
-    "sha256": "73e8313d9142637a94b629a2d92d04d68fb77eef8d43f963a0f0127403057d19"
+    "lines": 174,
+    "sha256": "22f032e835516ef31a436053eb6bc4ffeb2403366e2f8c10ee8cfb6095b9076e"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modCourrier",
     "source": "Src/Word/modCourrier.bas",
-    "lines": 623,
-    "sha256": "912a1cd399d635cc5b382254ab8e89c74b883e16a5b11c6b4e58a419adc48a72"
+    "lines": 625,
+    "sha256": "6b0d57a4d405b8f89a59f86552735fc77fb035cfff1a22fe5fac61660e7b0eb4"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modDemandes",
     "source": "Src/Word/modDemandes.bas",
-    "lines": 537,
-    "sha256": "c3ac084dabdd22670a00afce8e9018989dc501816f5144eed27148b3798c77ef"
+    "lines": 538,
+    "sha256": "6ca372cb2e04c474ae5b951f441110f0a2d32313baa31f028558952e5c9b4249"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modDerivees",
     "source": "Src/Word/modDerivees.bas",
-    "lines": 259,
-    "sha256": "0961570d433349b9b518afd6c063bf462b79b646a3fb381c03ec9c6fdb64cf0c"
+    "lines": 188,
+    "sha256": "a112733b3a6f49ba63bc8544610388ba074658b80a5e5da113aa98b508929435"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modEcg",
     "source": "Src/Word/modEcg.bas",
-    "lines": 26,
-    "sha256": "bda7e2dcdc3025cb98bfc55b6da2c87c75b3abcf85f710a113735053c9b29811"
+    "lines": 27,
+    "sha256": "b7739928ffffb39003cb49282fcd9cbf45aa877c1bdd0105eefa273d44ac5fae"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modFichiers",
     "source": "Src/Commun/modFichiers.bas",
-    "lines": 304,
-    "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9"
+    "lines": 305,
+    "sha256": "98914c4523acb67b6a4d33116b3551ec37ccffc133fdf1e7137eb3cd3fd6f8fa"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modGdt",
     "source": "Src/Commun/modGdt.bas",
-    "lines": 107,
-    "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34"
+    "lines": 108,
+    "sha256": "4928befb79ac8ab6abcf2de8cdd6ed62e84e875c62036723bdc89b6b35e45ad4"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modGras",
     "source": "Src/Word/modGras.bas",
-    "lines": 204,
-    "sha256": "90bbc5b2416ee212cb5d8f9fd6ed5a09548ab521995ce845fe4ac01c9014c6a9"
+    "lines": 194,
+    "sha256": "6b548b92fd174d53be3c453803bfe66fff75a0a7e91a418aa702c85afb631f64"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modJson",
     "source": "Src/Commun/modJson.bas",
-    "lines": 240,
-    "sha256": "95a7c2ceb1c7d4041ffdc6b92e144d1a0066523d89a3836bd0c383bdf0317636"
+    "lines": 241,
+    "sha256": "a1feef1b30af1c80323aea8d8840a0290b8f80052b61a0959a8fba3275c8c853"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modLog",
     "source": "Src/Commun/modLog.bas",
-    "lines": 66,
-    "sha256": "71df3a5a8df115a7757f32f4b7f979263e744597dc429500115711db53afb961"
+    "lines": 93,
+    "sha256": "80a929b872103e4e549561f7e11450938b1009b40a324813d0669b869af9fdea"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modPatient",
     "source": "Src/Word/modPatient.bas",
-    "lines": 73,
-    "sha256": "01a8553d774e7df3cbbfd9d39b9ba106006b9d6ce0b5e041e8608bb0daf2d1b6"
+    "lines": 74,
+    "sha256": "5b12d12147b4f0e83b6f475d2ab7d7df76c3ca174e753ff35775e3c4d763f762"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modPowerMic",
     "source": "Src/Word/modPowerMic.bas",
-    "lines": 37,
-    "sha256": "4f22aa1ec058f8663fdba691405ab887f9ff6c77666a59f5c61873fa5e572da3"
+    "lines": 38,
+    "sha256": "9264752194d59322f971ff669f725b87ff2ff0375d54db04c7710bfd4c37b594"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modRaccourcis",
     "source": "Src/Word/modRaccourcis.bas",
-    "lines": 120,
-    "sha256": "1e918155d53beee84eb657ec7131a2e3aeb9d6b95a61c9dbe7179e10e0ec64ad"
+    "lines": 114,
+    "sha256": "f8d9875162c14f455e92325206f03d94b90344d062b5f3a2b444413fe099457b"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modRuban",
     "source": "Src/Word/modRuban.bas",
-    "lines": 35,
-    "sha256": "39e62d77f674ef5e58b590b2244b42abd365c4e4f82733f4e0512d711de84e48"
+    "lines": 37,
+    "sha256": "4fcdc21e9856f4769b82a3ee42d1750603d541660c84d3925179635525f992bb"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modSchemas",
     "source": "Src/Word/modSchemas.bas",
-    "lines": 39,
-    "sha256": "45fb971cbf846a2af4993756e471fa1ef40fc7cd6f5f9ddc55a042f104938ed6"
+    "lines": 40,
+    "sha256": "b0166788eed5619282933605eab906e70c63092d891cdb478a07c22a2f362465"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modSubstitutions",
     "source": "Src/Word/modSubstitutions.bas",
-    "lines": 41,
-    "sha256": "a24ae57953c43e2c2bafd09e539d13badb46f5d8d417b37a162694b9fc94c302"
+    "lines": 42,
+    "sha256": "00dabfdbf6e4769c2fa38716e44fe751772b8288ad954640fdaad2ac29ac7d4a"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modTexte",
     "source": "Src/Commun/modTexte.bas",
-    "lines": 165,
-    "sha256": "505d95a246a545e914b13e121f907d61b23d635a8fa95c24b308c1d4f43e3726"
+    "lines": 166,
+    "sha256": "5ce3c58f1cb6c782efdadf3217f39500f79e27f5a26cec1711a3b4dda1de2daa"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modValidation",
     "source": "Src/Word/modValidation.bas",
-    "lines": 122,
-    "sha256": "f345d12214367bd59666cd960b782662182085333dbffb94414cff5a94dd748d"
+    "lines": 117,
+    "sha256": "7bc23182e660968150cedea2ca7956cc97ac7360105881b1d94f40140be46927"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "ufListe",
     "source": "Src/Word/ufListe.vba",
-    "lines": 114,
-    "sha256": "fd55bbfcc0c18450f1d5ff2739aaa5f266c2b52d40b7fbcee5358c520c683113"
+    "lines": 115,
+    "sha256": "50ed640a592ce3ba4706c30305e77f67b8f4d21a7c06edca68866c64cf78ec2e"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "ufProgression",
     "source": "Src/Word/ufProgression.vba",
-    "lines": 16,
-    "sha256": "49b383108d2e7c85f27b4f4aadd438c0251042e412cc36c06a60adb7a611f6b2"
+    "lines": 17,
+    "sha256": "f55b9fb7747a386132e2b8673f9097e3e5b1830456bad504f0b35b5ebc97da71"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modAttenteLocale",
     "source": "Src/Integration/modAttenteLocale.bas",
-    "lines": 140,
-    "sha256": "d151c3434d09bcb7c8b49109070ddfbd34165e27c6b8dd0ffea6554d50c6188f"
+    "lines": 66,
+    "sha256": "6d18396517a94b87d9b993f4ce32a827b9a321c7418ccbfcb8dd51daf1c6dfa1"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modIntegrationUnifie",
     "source": "Src/Integration/modIntegrationUnifie.bas",
-    "lines": 155,
-    "sha256": "8f0834b6cca2a4e47742e8e480f94a78f8b79f44dfad155a36703e2d67db685b"
+    "lines": 176,
+    "sha256": "c59ac5936c43337a0821b606b657ac643bcefbc132f2f9a67ff1c33e500f7909"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modPowerMicUnifie",
     "source": "Src/Integration/modPowerMicUnifie.bas",
-    "lines": 72,
-    "sha256": "daf004b3d3d542c4f59e6c0aae93135297f77a3747be59ff08625574bcd9bf1d"
+    "lines": 74,
+    "sha256": "d61eb8516ff9964f63ea66a1f1f8bfb7a7c3edf2ee4edc70ced0c7d540f25b84"
   },
   {
-    "host": "word",
-    "module": "modAuditTests",
-    "source": "Src/Integration/modAuditTests.bas",
-    "lines": 123,
-    "sha256": "a87d4d6082bdaa5d231eb59f114d9b9da7971b9b1951733b8021f9c536bcc75a"
-  },
-  {
+    "role": "production",
     "host": "word",
     "module": "modServiceNas",
     "source": "Src/Commun/modServiceNas.bas",
-    "lines": 99,
-    "sha256": "0d1ac8803018e92ab26c8d1a31e0e7f5b6891743280c1c6d00541745df898121"
+    "lines": 166,
+    "sha256": "535ef6d18580ad890e95f691ea360d3a70109326c8dd172e5dec83602abfb595"
   },
   {
+    "role": "production",
     "host": "word",
     "module": "modControleCourrier",
     "source": "Src/Integration/modControleCourrier.bas",
-    "lines": 52,
-    "sha256": "64286eed3730b9fd98f1406b014298433eba102d762f28f9f8bda46d75ea87cf"
+    "lines": 97,
+    "sha256": "1a7882361e76db703b1b793bf8ddf6015ba907223cbc181f0ffcab6a81682875"
   },
   {
+    "role": "production",
     "host": "word",
-    "module": "modRecetteU0",
-    "source": "Src/Integration/modRecetteU0.bas",
-    "lines": 57,
-    "sha256": "75fe44170262584fc150b0417451e0d87d2b4d9b4cfa7a98f4b738a57f56f1a5"
+    "module": "modEtatCourrier",
+    "source": "Src/Integration/modEtatCourrier.bas",
+    "lines": 153,
+    "sha256": "643a638c023865aa39f3c3a5dd50573f522e43387fc2b5b5d769b3828a7d8cfc"
   },
   {
+    "role": "production",
+    "host": "word",
+    "module": "modRechercheWord",
+    "source": "Src/Integration/modRechercheWord.bas",
+    "lines": 33,
+    "sha256": "a132d4caf9462e875a202560b2a466ea74e3a54344b1736f72db17a91fc53d1b"
+  },
+  {
+    "role": "production",
+    "host": "word",
+    "module": "modDonneesTransport",
+    "source": "Src/Commun/modDonneesTransport.bas",
+    "lines": 136,
+    "sha256": "1e0470aff33e5f8866b69e4118b300661f07cac62176f3d329920eaafa61af80"
+  },
+  {
+    "role": "production",
+    "host": "word",
+    "module": "modCommandesLocales",
+    "source": "Src/Commun/modCommandesLocales.bas",
+    "lines": 57,
+    "sha256": "255aea12d487e79593da994f42465298f3398fddb27f0c2569a46f4890be40a0"
+  },
+  {
+    "role": "production",
+    "host": "word",
+    "module": "modCycleCourrier",
+    "source": "Src/Integration/modCycleCourrier.bas",
+    "lines": 131,
+    "sha256": "ea037ead608c839f1a7e909b921fd78f07dee16f292edf59e8f6c6f80b6e89fd"
+  },
+  {
+    "role": "production",
     "host": "excel",
     "module": "Feuil1",
     "source": "Src/Excel/Feuil1.cls",
-    "lines": 8,
-    "sha256": "8b6d1fc4f872634510d7a8323acaeca8b89024c115aac0c3e7c5dcfd25331905"
+    "lines": 9,
+    "sha256": "a2eac364c07f07878514c6d728b2dc584f4ede1ca59f6a49ef9e2bfae1e7d5c0"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "FeuilAgenda",
     "source": "Src/Excel/FeuilAgenda.cls",
-    "lines": 10,
-    "sha256": "52f6239f0b04aea0e6b65e6cb30459592791d31b99ee490bb75ffe067d10fd63"
+    "lines": 11,
+    "sha256": "3d0882fde4d1b7ec03bbf9df237287189cc5befa76f32d1beef5e2a514c95f46"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "ThisWorkbook",
     "source": "Src/Excel/ThisWorkbook.cls",
-    "lines": 28,
-    "sha256": "8a39e77a2c2842d1eda5907a62a7f0cebfa380b1d35abdb0593bbda426bbadb1"
+    "lines": 33,
+    "sha256": "3823c4d50f653d86c3e2640dbd5859d96c3c7a0429bb8cd0119e433a78f32dbd"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modActes",
     "source": "Src/Excel/modActes.bas",
-    "lines": 161,
-    "sha256": "f7e03c810c5cd63997497fee15ca10d98b45fcc7ad2d10321deae4fef94e70e0"
+    "lines": 251,
+    "sha256": "077ca6c7c9bd653d24ae395551f6661f07010888aad7441c63df967b77010ccd"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modAgenda",
     "source": "Src/Excel/modAgenda.bas",
-    "lines": 77,
-    "sha256": "ad6db082342afaa3becad334e94da6d3b414d607e9bd056ca63e7cf450cb2926"
+    "lines": 79,
+    "sha256": "63d8e87c0a03321e94100556e3efb50c65dca94a9f4d97e10e9a622f7f6c4b07"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modAgendaVue",
     "source": "Src/Excel/modAgendaVue.bas",
-    "lines": 367,
-    "sha256": "a10adeb8fb77e217b84b85a8e66495911ab234ea2d1763bd6b2285262a4e6caf"
+    "lines": 370,
+    "sha256": "21dae910b6125baede4cb042b05336fb4cf0f44218cd67abc7bd55cc4cb51a10"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modBaseIO",
     "source": "Src/Excel/modBaseIO.bas",
-    "lines": 68,
-    "sha256": "e18573dbfdec4e7daf8e89da66175f12eec7ec82f8e410a06af044e0deeaeeea"
+    "lines": 57,
+    "sha256": "a0498d36b9bbb69f39fdf09d2d6d9a2e97f08ac391bfd2c2071625d004177bda"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modCerfaPrint",
     "source": "Src/Excel/modCerfaPrint.bas",
-    "lines": 243,
-    "sha256": "60e259b194cec30892333bf0fe0b5d93a54df352306bd59d9dd6263bc983c82c"
+    "lines": 313,
+    "sha256": "d82981a65e31abcf8569a0970ca8b2f0033cb36dd6887b5fc404d49d9706558b"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modConfig",
     "source": "Src/Commun/modConfig.bas",
-    "lines": 173,
-    "sha256": "73e8313d9142637a94b629a2d92d04d68fb77eef8d43f963a0f0127403057d19"
+    "lines": 174,
+    "sha256": "22f032e835516ef31a436053eb6bc4ffeb2403366e2f8c10ee8cfb6095b9076e"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modEchange",
     "source": "Src/Excel/modEchange.bas",
-    "lines": 112,
-    "sha256": "6ba940c4cda9506b98caab5abb4c73adb2838e2cc566c0c4d238f37c42383388"
+    "lines": 124,
+    "sha256": "1d3b215582f1c09392967f45ce9c1d93f3023caeb8c5e053522dd7551dc55ccb"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modFichiers",
     "source": "Src/Commun/modFichiers.bas",
-    "lines": 304,
-    "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9"
+    "lines": 305,
+    "sha256": "98914c4523acb67b6a4d33116b3551ec37ccffc133fdf1e7137eb3cd3fd6f8fa"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modGdt",
     "source": "Src/Commun/modGdt.bas",
-    "lines": 107,
-    "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34"
+    "lines": 108,
+    "sha256": "4928befb79ac8ab6abcf2de8cdd6ed62e84e875c62036723bdc89b6b35e45ad4"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modJournal",
     "source": "Src/Excel/modJournal.bas",
-    "lines": 49,
-    "sha256": "f6a070602dbc4ae3eed137c330e51309ea3c505543db2c663ca0e1c4e257dd9d"
+    "lines": 55,
+    "sha256": "0f54a1e661a66cc038eaa2344bf8e9dbc23ce4a5c9f6d7cb317d5338170f9eac"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modJson",
     "source": "Src/Commun/modJson.bas",
-    "lines": 240,
-    "sha256": "95a7c2ceb1c7d4041ffdc6b92e144d1a0066523d89a3836bd0c383bdf0317636"
+    "lines": 241,
+    "sha256": "a1feef1b30af1c80323aea8d8840a0290b8f80052b61a0959a8fba3275c8c853"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modLog",
     "source": "Src/Commun/modLog.bas",
-    "lines": 66,
-    "sha256": "71df3a5a8df115a7757f32f4b7f979263e744597dc429500115711db53afb961"
+    "lines": 93,
+    "sha256": "80a929b872103e4e549561f7e11450938b1009b40a324813d0669b869af9fdea"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modTexte",
     "source": "Src/Commun/modTexte.bas",
-    "lines": 165,
-    "sha256": "505d95a246a545e914b13e121f907d61b23d635a8fa95c24b308c1d4f43e3726"
+    "lines": 166,
+    "sha256": "5ce3c58f1cb6c782efdadf3217f39500f79e27f5a26cec1711a3b4dda1de2daa"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modUI",
     "source": "Src/Excel/modUI.bas",
-    "lines": 204,
-    "sha256": "196d2616e76db8923e6597f06f96020bebaff45a79fc5a9c5611d21cee90c08d"
+    "lines": 269,
+    "sha256": "21714a214b83266edcc230f586d5f0d180a0a4d264bc6f62fbe29d8cb62a6fd6"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "ufChoixActe",
     "source": "Src/Excel/ufChoixActe.vba",
-    "lines": 144,
-    "sha256": "e674782549d343de5994462d07b2f0cbaee5c916b4b7124264bdcb7129a1df55"
+    "lines": 217,
+    "sha256": "9fad5f9a277f3e8b629e71c4bb697b442f3079e5e3a6957ea945727ed962de27"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "ufCorrespEdit",
     "source": "Src/Excel/ufCorrespEdit.vba",
-    "lines": 98,
-    "sha256": "376b40235220f678a9fcad44318a393e846413fc1e96275f0d5f4c300c0ab170"
+    "lines": 99,
+    "sha256": "ddc3d516b48b73f18bcd09b7b25e34f1a4e1707abbf44d86fe96e8ef371fbcad"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "ufListe",
     "source": "Src/Excel/ufListe.vba",
-    "lines": 114,
-    "sha256": "1d40b76607705d85decc2a7d25da79d224c6dba6171fdc0701396f5812c4ebd7"
+    "lines": 115,
+    "sha256": "385e6ef5c9d3854dd3897f1b8005e170932a773d6842f9ed6098b6fe6ee88212"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "ufPatientEdit",
     "source": "Src/Excel/ufPatientEdit.vba",
-    "lines": 157,
-    "sha256": "8781bc6a97c74b9b422e2af04e529258b6916b5d8a7ce0d4404faf5a9df307e6"
+    "lines": 158,
+    "sha256": "ac221407fa8deb8f0d2e796eb2180e7290317399f562813d0bda7f890bcd9061"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "ufRdvEdit",
     "source": "Src/Excel/ufRdvEdit.vba",
-    "lines": 96,
-    "sha256": "70248dd9e8786a109786d0884e2d829638751522b8c5d998cf76dc10c347457f"
+    "lines": 103,
+    "sha256": "ffb483e52eeab8b14f86dee065e12c3d5ce1936a9578d98fe6c749eb61a3a775"
   },
   {
+    "role": "production",
     "host": "excel",
     "module": "modServiceNas",
     "source": "Src/Commun/modServiceNas.bas",
-    "lines": 99,
-    "sha256": "0d1ac8803018e92ab26c8d1a31e0e7f5b6891743280c1c6d00541745df898121"
+    "lines": 166,
+    "sha256": "535ef6d18580ad890e95f691ea360d3a70109326c8dd172e5dec83602abfb595"
+  },
+  {
+    "role": "production",
+    "host": "excel",
+    "module": "modDonneesTransport",
+    "source": "Src/Commun/modDonneesTransport.bas",
+    "lines": 136,
+    "sha256": "1e0470aff33e5f8866b69e4118b300661f07cac62176f3d329920eaafa61af80"
+  },
+  {
+    "role": "production",
+    "host": "excel",
+    "module": "modCommandesLocales",
+    "source": "Src/Commun/modCommandesLocales.bas",
+    "lines": 57,
+    "sha256": "255aea12d487e79593da994f42465298f3398fddb27f0c2569a46f4890be40a0"
   }
 ]

@@ -27,7 +27,7 @@ def service(tmp_path):
             db=super().connexion()
             db.execute(sql.SQL('SET search_path TO {}').format(sql.Identifier(schema)))
             return db
-    service=TestService(dsn,Documents(tmp_path,r'\\DS224\CabinetCardio'),lambda:datetime(2026,9,12,10,30,tzinfo=ZoneInfo('Europe/Paris')))
+    service=TestService(dsn,Documents(tmp_path,r'\\NAS-FICTIF\Cabinet'),lambda:datetime(2026,9,12,10,30,tzinfo=ZoneInfo('Europe/Paris')))
     service.initialiser()
     with service.connexion() as db:
         for ident,roles in [('medecin',['medecin']),('secretariat',['secretariat']),('autre',['medecin'])]:
@@ -58,7 +58,7 @@ def publication(s):
     with zipfile.ZipFile(root/'essai.docx','w') as z:z.writestr('word/document.xml','<document>FICTIF</document>')
     (root/'essai.pdf').write_bytes(b'%PDF-1.4\n% document fictif pour test de conservation')
     data={'ConsultationID':arr['ID'],'PublicationID':uuid.uuid4().hex,'PatientID':pat['ID'],'DestinataireID':cor['ID'],'DateActe':'12/09/2026',
-          'CheminDocx':r'\\DS224\CabinetCardio\essai.docx','CheminPdf':r'\\DS224\CabinetCardio\essai.pdf','Relu':True}
+          'CheminDocx':r'\\NAS-FICTIF\Cabinet\essai.docx','CheminPdf':r'\\NAS-FICTIF\Cabinet\essai.pdf','Relu':True}
     data.update({'Patient_'+k:pat[k] for k in ('Nom','Prenom','DDN','Sexe')})
     return arr,pat,data
 
@@ -88,7 +88,7 @@ def test_u0_explicit_correspondent_cannot_fall_back(service):
 
 def test_u0_service_release_contract(service):
     result=rpc(service,'whoami',role='medecin')
-    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.16-u2a'
+    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.16-u2b'
 
 
 def test_u0_rebase_sql_preserves_identity_and_cached_results(service):
@@ -144,7 +144,7 @@ def test_creneau_overlap_meme_patient(service):
 def test_reservation_et_reprise_brouillon(service):
     _,_,_,arr=parcours(service);rpc(service,'claim',{'id':arr['ID']},'medecin')
     path=service.documents.root/'brouillon.docx';path.write_bytes(b'test')
-    rpc(service,'draft',{'id':arr['ID'],'path':r'\\DS224\CabinetCardio\brouillon.docx'},'medecin')
+    rpc(service,'draft',{'id':arr['ID'],'path':r'\\NAS-FICTIF\Cabinet\brouillon.docx'},'medecin')
     assert rpc(service,'reprises',role='medecin')['items'][0]['CheminBrouillon'].endswith('brouillon.docx')
     with pytest.raises(Refus,match='Brouillon'):rpc(service,'release',{'id':arr['ID']},'medecin')
     with pytest.raises(Refus):rpc(service,'draft',{'id':arr['ID'],'path':str(path)},'autre')
@@ -170,7 +170,7 @@ def test_publication_identite_relecture_destinataire(service):
     with pytest.raises(Refus,match='Relecture'):rpc(service,'publish',dict(p,Relu=False),'medecin')
     with pytest.raises(Refus,match='Identite'):rpc(service,'publish',dict(p,Patient_DDN='02/01/1980'),'medecin')
     out=rpc(service,'publish',p,'medecin')
-    assert out['CheminDocx'].startswith(r'\\DS224\CabinetCardio\Documents')
+    assert out['CheminDocx'].startswith(r'\\NAS-FICTIF\Cabinet\Documents')
     assert len(out['sha_docx'])==64
 
 

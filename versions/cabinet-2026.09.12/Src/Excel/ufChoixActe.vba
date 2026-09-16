@@ -83,6 +83,71 @@ Private Sub btnOuvrir_Click()
     modEchange.OuvrirCourrier mDrapeau
 End Sub
 
+Private Sub AffecterPayeur(ByVal resultat As Object, ByVal code As String, ByVal organisme As Boolean)
+    code = Trim$(code)
+    If Len(code) > 0 Then resultat(code) = organisme
+End Sub
+
+Private Sub AffecterTousPayeurs(ByVal actes As Collection, ByVal resultat As Object, ByVal organisme As Boolean)
+    Dim a As Object
+    For Each a In actes
+        AffecterPayeur resultat, CStr(a("Code")), organisme
+        If Len(CStr(a("CodeAssocie"))) > 0 Then AffecterPayeur resultat, CStr(a("CodeAssocie")), organisme
+    Next a
+End Sub
+
+Private Function ChoisirPayeurActe(ByVal acte As Object, ByRef annule As Boolean) As Boolean
+    Dim reponse As VbMsgBoxResult, libelle As String, total As Double
+    libelle = CStr(acte("Code"))
+    total = Val(Replace(CStr(acte("Tarif")), ",", "."))
+    If Len(CStr(acte("CodeAssocie"))) > 0 Then
+        libelle = libelle & " (+ " & CStr(acte("CodeAssocie")) & ")"
+        total = total + Val(Replace(CStr(acte("TarifAssocie")), ",", "."))
+    End If
+    reponse = MsgBox("Qui doit regler l acte " & libelle & " (" & Format$(total, "0.00") & " EUR) ?" & vbCrLf & _
+                     "Oui : Organisme" & vbCrLf & "Non : Patient" & vbCrLf & "Annuler : aucune ecriture", _
+                     vbYesNoCancel + vbQuestion, "Repartition du tiers payant")
+    If reponse = vbCancel Then annule = True: Exit Function
+    ChoisirPayeurActe = (reponse = vbYes)
+End Function
+
+Private Function ChoisirRepartitionTiers(ByVal actes As Collection, ByRef annule As Boolean) As Object
+    Dim resultat As Object, reponse As VbMsgBoxResult, a As Object, organisme As Boolean, resume As String
+    Set resultat = CreateObject("Scripting.Dictionary"): resultat.CompareMode = 1
+    If Not CBool(chkTiers.Value) Then
+        AffecterTousPayeurs actes, resultat, False
+        Set ChoisirRepartitionTiers = resultat
+        Exit Function
+    End If
+    If actes.Count = 1 Then
+        AffecterTousPayeurs actes, resultat, True
+        Set ChoisirRepartitionTiers = resultat
+        Exit Function
+    End If
+    reponse = MsgBox("Le tiers payant concerne-t-il tous les actes selectionnes ?" & vbCrLf & _
+                     "Oui : tous Organisme" & vbCrLf & "Non : choisir acte par acte" & vbCrLf & _
+                     "Annuler : aucune ecriture", vbYesNoCancel + vbQuestion, "Repartition du tiers payant")
+    If reponse = vbCancel Then annule = True: Set ChoisirRepartitionTiers = resultat: Exit Function
+    If reponse = vbYes Then
+        AffecterTousPayeurs actes, resultat, True
+        Set ChoisirRepartitionTiers = resultat
+        Exit Function
+    End If
+    For Each a In actes
+        organisme = ChoisirPayeurActe(a, annule)
+        If annule Then Set ChoisirRepartitionTiers = resultat: Exit Function
+        AffecterPayeur resultat, CStr(a("Code")), organisme
+        resume = resume & CStr(a("Code")) & " : " & IIf(organisme, "Organisme", "Patient") & vbCrLf
+        If Len(CStr(a("CodeAssocie"))) > 0 Then
+            AffecterPayeur resultat, CStr(a("CodeAssocie")), organisme
+            resume = resume & "  + " & CStr(a("CodeAssocie")) & " : meme payeur" & vbCrLf
+        End If
+    Next a
+    If MsgBox("Confirmez la repartition :" & vbCrLf & vbCrLf & resume, vbYesNo + vbQuestion, _
+              "Repartition du tiers payant") <> vbYes Then annule = True
+    Set ChoisirRepartitionTiers = resultat
+End Function
+
 Private Sub btnOK_Click()
     On Error GoTo Erreur
     Dim actes As Collection, seanceID As String, a As Object, tarifZero As Boolean, deja As Boolean
@@ -100,9 +165,17 @@ Private Sub btnOK_Click()
                   vbYesNo + vbExclamation, "Cabinet") <> vbYes Then Exit Sub
     End If
 
-    If chkFds.Value Then modCerfaPrint.VerifierAvantFacturation mDrapeau, modActes.LignesPourImpression(actes)
+    Dim repartition As Object, annulePayeur As Boolean
+    Set repartition = ChoisirRepartitionTiers(actes, annulePayeur)
+    If annulePayeur Then Exit Sub
+    seanceID = Valeur("ConsultationID")
+    If Len(seanceID) = 0 Then seanceID = Valeur("SeanceID")
+    If chkFds.Value Then
+        If Not modActes.ExisteSeanceEnregistree(seanceID) Then _
+            modCerfaPrint.VerifierAvantFacturation mDrapeau, modActes.LignesPourImpression(actes)
+    End If
     seanceID = modActes.EnregistrerSeance(mDrapeau, actes, cmbPaiement.Text, _
-                                          chkTiers.Value, False, deja)
+                                          repartition, False, deja)
 
     Dim reponse As VbMsgBoxResult, impressionEnvoyee As Boolean
     If deja And chkFds.Value Then

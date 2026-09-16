@@ -2,7 +2,7 @@
 
 Le dossier maintenu dans ce dépôt est [cabinet-2026.09.12](versions/cabinet-2026.09.12/README.md), avec PostgreSQL comme autorité des données. L'ancienne livraison `cabinet-unifie` reste dans l'historique Git.
 
-Cette branche ajoute les [correctifs des audits U2](versions/cabinet-2026.09.12/U2_CORRECTIFS_AUDITS.md), révision `2026.09.16-u2a`. Elle sert à une **recette isolée**, sans remplacement de l'installation clinique actuelle. Les modèles de `ModelesSource` sont les originaux de construction.
+Cette branche ajoute les [correctifs des audits U2](versions/cabinet-2026.09.12/U2_CORRECTIFS_AUDITS.md), révision `2026.09.16-u2b`. Elle sert à une **recette isolée**, sans remplacement de l'installation clinique actuelle. Les modèles de `ModelesSource` sont les originaux de construction.
 
 Lire [U1_RECETTE.md](versions/cabinet-2026.09.12/U1_RECETTE.md) pour les changements, preuves et limites, ainsi que [U0_RECETTE.md](versions/cabinet-2026.09.12/U0_RECETTE.md) pour les conditions NAS, SMB et ECG avant bascule. Le lanceur est épinglé à un commit et ne remplace pas ces validations.
 

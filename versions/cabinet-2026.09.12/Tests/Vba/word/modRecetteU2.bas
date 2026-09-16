@@ -1,5 +1,6 @@
 Attribute VB_Name = "modRecetteU2"
 Option Explicit
+Private Const NOMBRE_ATTENDU_U2 As Long = 17
 Private mNombre As Long
 
 Private Sub ExigerU2(ByVal condition As Boolean, ByVal nom As String)
@@ -50,7 +51,8 @@ Public Function ExecuterU2(ByVal sortie As String) As String
     ExigerU2 modDonneesTransport.EmpreinteFichierSHA256(chemin) = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", "empreinte du contenu binaire"
     Set ts = fso.CreateTextFile(chemin, True, False): ts.Close
     ExigerU2 modDonneesTransport.EmpreinteFichierSHA256(chemin) = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "empreinte du fichier vide"
-    ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""echec"":false}"
+    If mNombre <> NOMBRE_ATTENDU_U2 Then Err.Raise vbObjectError + 1192, "Recette U2", "Nombre de controles inattendu."
+    ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_U2) & ",""echec"":false}"
 Sortie:
     On Error Resume Next
     If cree Then fso.DeleteFolder dossier, True
@@ -58,6 +60,6 @@ Sortie:
     Exit Function
 Echec:
     description = Err.Description
-    ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
+    ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_U2) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
     Resume Sortie
 End Function

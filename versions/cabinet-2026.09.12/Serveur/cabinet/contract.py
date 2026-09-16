@@ -34,7 +34,7 @@ for op in ('arrive', 'cancel_arrival', 'claim', 'release', 'ack', 'billing.get')
 
 LINE_REQUIRED = {'SeanceID', 'PatientID', 'Date', 'CodeActe', 'Montant', 'TiersPayant', 'Paye'}
 LINE_OPTIONAL = {'Nom', 'Prenom', 'DDN', 'NIR', 'AssureNom', 'AssurePrenom', 'AssureDDN',
-                 'AssureNIR', 'ModePaiement', 'DateEncaissement', 'FeuilleSoinsImprimee', 'Notes'}
+                 'AssureNIR', 'CodeCerfa', 'ModePaiement', 'DateEncaissement', 'FeuilleSoinsImprimee', 'Notes'}
 
 
 def validate(operation, params):

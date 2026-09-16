@@ -298,3 +298,16 @@ Public Sub VerifierAvantFacturation(ByVal infos As Object, ByVal actes As Collec
     Next cle
     ImprimerFeuille copie, actes, "", True
 End Sub
+
+Public Sub VerifierAvantReimpression(ByVal infos As Object, ByVal actes As Collection)
+    Dim cle As Variant
+    If actes.Count = 0 Then Err.Raise vbObjectError + 709, , "Aucune ligne pour la feuille de soins."
+    For Each cle In Array("PatientID", "Nom", "Prenom", "DDN", "NIR")
+        If Not infos.Exists(CStr(cle)) Then Err.Raise vbObjectError + 712, , "Identite figee incomplete : " & CStr(cle)
+    Next cle
+    If Len(Trim$(CStr(infos("PatientID")))) = 0 Then Err.Raise vbObjectError + 712, , "Patient fige absent."
+    If Len(Trim$(CStr(infos("Nom")))) = 0 Then Err.Raise vbObjectError + 712, , "Nom fige absent."
+    If Len(Trim$(CStr(infos("Prenom")))) = 0 Then Err.Raise vbObjectError + 712, , "Prenom fige absent."
+    If Not modTexte.DateFrValide(CStr(infos("DDN"))) Then Err.Raise vbObjectError + 712, , "Naissance figee invalide."
+    ImprimerFeuille infos, actes, "", True
+End Sub

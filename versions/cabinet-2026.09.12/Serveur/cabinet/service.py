@@ -10,6 +10,7 @@ import uuid
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
+from . import APPLICATION_VERSION, PROTOCOL_VERSION, SERVICE_REVISION
 from .domain import Refus, patient_valide, date_fr, chevauche, creneau, montant, empreinte, comparer_clinique, plier, valider_nir
 from .files import Documents
 from .contract import validate
@@ -170,8 +171,8 @@ class Service:
     def _operation(self, db, actor, op, p):
         if op == 'whoami':
             schema = db.execute('SELECT max(version) AS version FROM schema_version').fetchone()['version']
-            return {'ID':actor['identifiant'],'roles':actor['roles'],'version':'2026.09.12',
-                    'protocole':2,'schema':schema,'revision':'2026.09.16-u2a'}
+            return {'ID':actor['identifiant'],'roles':actor['roles'],'version':APPLICATION_VERSION,
+                    'protocole':PROTOCOL_VERSION,'schema':schema,'revision':SERVICE_REVISION}
         if op == 'command.result':
             row = db.execute('SELECT resultat FROM commandes WHERE compte=%s AND id=%s', (actor['identifiant'], p['id'])).fetchone()
             return {'trouve': row is not None, 'resultat': resultat_rejouable(row['resultat']) if row else None}
@@ -412,16 +413,22 @@ class Service:
             saved = self._seance(db, row['id'])
             return dict(saved, ajoute=False, selection_differente=self._empreinte_selection(saved['lignes']) != digest)
         # Verifier la nomenclature serveur avant la premiere comptabilisation.
-        tarifs={}
+        autorisations={}
         for item in db.execute("SELECT donnees FROM ressources WHERE genre='ACTES'"):
             a=item['donnees']
             if a.get('Actif')=='0':continue
             if a.get('Depassement') and montant(a['Depassement']) != 0:
                 if a.get('Code') in seen: raise Refus('Depassement historique non qualifie : verifier la nomenclature avant facturation.')
-            for code,tarif in ((a.get('Code'),a.get('Tarif')),(a.get('CodeAssocie'),a.get('TarifAssocie'))):
-                if code:tarifs.setdefault(code,set()).add(str(montant(tarif)))
+            couples=((a.get('Code'),a.get('Tarif'),a.get('LibelleCerfa') or a.get('Code')),
+                     (a.get('CodeAssocie'),a.get('TarifAssocie'),a.get('CodeAssocie')))
+            for code,tarif,cerfa in couples:
+                if code:autorisations.setdefault((code,str(montant(tarif))),set()).add(cerfa)
         for line in lines:
-            if line['Montant'] not in tarifs.get(line['CodeActe'],set()):raise Refus('Acte ou tarif different de la nomenclature NAS : rechargez la selection.')
+            cerfas=autorisations.get((line['CodeActe'],line['Montant']),set())
+            if len(cerfas)!=1:raise Refus('Acte, tarif ou libelle CERFA ambigu dans la nomenclature NAS : rechargez la selection.')
+            attendu=next(iter(cerfas))
+            if line.get('CodeCerfa','') not in {'',attendu}:raise Refus('Libelle CERFA different de la nomenclature NAS : rechargez la selection.')
+            line['CodeCerfa']=attendu
         # Figement de l identite et de l assure pour toutes les reimpressions.
         pat=self._record(db,'PATIENTS',row['patient_id'])
         if any(pub['donnees'].get(k,'') != pat.get(k,'') for k in ('Nom','Prenom','DDN')):

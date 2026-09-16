@@ -20,6 +20,7 @@ import psycopg
 from psycopg import sql
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
+from . import SERVICE_REVISION
 
 FORMAT = 1
 SUPPORTED_SCHEMAS = {1, 2}
@@ -236,7 +237,7 @@ def backup(root, backups, config, unc):
         require(regular_tree(root) == inventory and regular_tree(config) == configuration,
                 'Ecritures detectees pendant la sauvegarde : aucun marqueur TERMINE.')
         manifest = {'format': FORMAT, 'source_unc': unc, 'schema': schema,
-                    'revision': '2026.09.14-u1', 'fichiers': inventory,
+                    'revision': SERVICE_REVISION, 'fichiers': inventory,
                     'configuration': configuration, 'references': references,
                     'acl_synology': 'A sauvegarder et restaurer via DSM ; modes POSIX conserves.',
                     'ecritures_smb': 'Suspension declaree par operateur, controle de stabilite effectue.'}

@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory=$true)][ValidateSet('Domicile','CabinetSecretariat','CabinetMedecin')][string]$Profil,
     [ValidateSet('Preparation','Installation')][string]$Mode = 'Preparation',
     [Parameter(Mandatory=$true)][string]$RacineNas,
-    [string]$DossierGdt = 'C:\Mandagout',
+    [string]$DossierGdt = 'C:\ECG\GDT',
     [string]$DossierSources = '',
     [string]$DossierPrepare = '',
     [string]$UrlService = '',
@@ -22,7 +22,7 @@ $secretariat = $Profil -in @('Domicile','CabinetSecretariat')
 if ($RacineNas -notmatch '^\\\\[^\\]+\\[^\\]+') { throw 'Utilisez le chemin UNC du Synology pour RacineNas.' }
 . (Join-Path $PSScriptRoot 'outils_assistant.ps1')
 Attendre-FermetureOffice
-if (-not (Test-Path -LiteralPath $RacineNas -PathType Container)) { throw "NAS inaccessible : $RacineNas. A domicile, connectez le VPN Cabinet Freebox Pro." }
+if (-not (Test-Path -LiteralPath $RacineNas -PathType Container)) { throw "NAS inaccessible : $RacineNas. À domicile, connectez la liaison privée sécurisée du cabinet." }
 $local = Join-Path $env:APPDATA 'CabinetCardio'
 $identifiant = (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0,8)
 $stage = Join-Path $local ('Versions\' + $identifiant)
@@ -90,7 +90,7 @@ function Installer-ConnexionService {
     $body=@{operation='whoami';params=@{}} | ConvertTo-Json -Compress
     $response=Invoke-RestMethod -Method Post -Uri ($UrlService.TrimEnd('/')+'/v1/rpc') -Headers @{Authorization=('Bearer '+$token)} -ContentType 'application/json' -Body $body -MaximumRedirection 0 -TimeoutSec 20
     if ($response.result.protocole -ne 2) { throw 'Service NAS incompatible avec cette version.' }
-    if ($response.result.revision -ne '2026.09.16-u2a' -or $response.result.schema -ne 2) { throw 'Revision du service ou schema NAS incompatible avec la livraison U2 (migration ACTES requise).' }
+    if ($response.result.revision -ne '2026.09.16-u2b' -or $response.result.schema -ne 2) { throw 'Revision du service ou schema NAS incompatible avec la livraison U2 (migration ACTES requise).' }
     if ($medecin -and 'medecin' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role medecin.' }
     if ($secretariat -and 'secretariat' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role secretariat.' }
     Ecrire-Reglage $urlPath ($UrlService.TrimEnd('/')+"`r`n")
