@@ -22,11 +22,12 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
     Set valeurs = CreateObject("Scripting.Dictionary")
     valeurs.CompareMode = 1
     Dim assureDistinct As Boolean, nir As String, rpps As String, am As String
-    assureDistinct = Len(ValeurOuVide(infos, "AssureNom") & ValeurOuVide(infos, "AssurePrenom") & ValeurOuVide(infos, "AssureNIR")) > 0
+    ' Une DDN assuree isolee est une fiche incomplete, jamais le patient assure.
+    assureDistinct = Len(Trim$(ValeurOuVide(infos, "AssureNom") & ValeurOuVide(infos, "AssurePrenom") & ValeurOuVide(infos, "AssureDDN") & ValeurOuVide(infos, "AssureNIR"))) > 0
     valeurs("PATIENT_NOM") = Trim$(ValeurOuVide(infos, "Nom") & " " & ValeurOuVide(infos, "Prenom"))
     valeurs("PATIENT_DDN") = ValeurOuVide(infos, "DDN")
     If assureDistinct Then
-        If Len(ValeurOuVide(infos, "AssureNom")) = 0 Or Len(ValeurOuVide(infos, "AssurePrenom")) = 0 Or Not modTexte.DateFrValide(ValeurOuVide(infos, "AssureDDN")) Then Err.Raise vbObjectError + 703, , "Fiche de l assure incomplete."
+        If Len(Trim$(ValeurOuVide(infos, "AssureNom"))) = 0 Or Len(Trim$(ValeurOuVide(infos, "AssurePrenom"))) = 0 Or Not modTexte.DateFrValide(ValeurOuVide(infos, "AssureDDN")) Or Len(Trim$(ValeurOuVide(infos, "AssureNIR"))) = 0 Then Err.Raise vbObjectError + 703, , "Fiche de l assure incomplete ou invalide."
         valeurs("ASSURE_NOM") = Trim$(ValeurOuVide(infos, "AssureNom") & " " & ValeurOuVide(infos, "AssurePrenom"))
         valeurs("ASSURE_DDN") = ValeurOuVide(infos, "AssureDDN")
         nir = ValeurOuVide(infos, "AssureNIR")

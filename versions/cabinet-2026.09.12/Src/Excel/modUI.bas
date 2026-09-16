@@ -199,15 +199,21 @@ Public Function MontantReglement(ByVal texte As String) As Currency
     MontantReglement = CCur(morceaux(0)) + CCur(fraction) / 100@
 End Function
 
+Public Function DateEncaissement(ByVal texte As String) As String
+    If Not modTexte.DateFrValide(texte) Then Err.Raise vbObjectError + 661, , "Date invalide."
+    ' Le separateur litteral ne depend pas des parametres regionaux Windows.
+    DateEncaissement = Format$(modTexte.DateFr(texte), "dd""/""mm""/""yyyy")
+End Function
+
 Public Sub UI_EncaisserSeance()
     On Error GoTo Echec
     Dim id As String, mode As String, p As Object, r As Object, saved As Object, line As Object
     Dim patient As Currency, organisme As Currency, total As Currency, recu As Currency, saisie As String
     Dim detail As String, jour As String, payeur As String, choix As String
     Dim lignes As Collection, items As Collection, vus As Object, it As Object, f As ufListe
-    jour = Trim$(InputBox("Date de la seance (JJ/MM/AAAA) :", "Rechercher un encaissement", Format$(Date, "dd/mm/yyyy")))
+    jour = Trim$(InputBox("Date de la seance (JJ/MM/AAAA) :", "Rechercher un encaissement", Format$(Date, "dd""/""mm""/""yyyy")))
     If Len(jour) = 0 Then Exit Sub
-    If Not modTexte.DateFrValide(jour) Then Err.Raise vbObjectError + 661, , "Date invalide."
+    jour = DateEncaissement(jour)
     Set p = modServiceNas.Parametres(): p("date") = jour
     Set lignes = modServiceNas.LirePages("journal.read", p)
     Set items = New Collection: Set vus = CreateObject("Scripting.Dictionary")
@@ -258,7 +264,7 @@ Public Sub UI_EncaisserSeance()
     mode = Trim$(InputBox("Mode du reglement recu : CB, Cheque, Especes ou Virement", "Encaissement"))
     If Len(mode) = 0 Then Exit Sub
     If MsgBox(detail & vbCrLf & payeur & " : " & Format$(recu, "0.00") & " EUR par " & mode & vbCrLf & "Confirmer l encaissement a la date du jour ?", vbYesNo + vbQuestion, "Confirmer le reglement") <> vbYes Then Exit Sub
-    Set p = modServiceNas.Parametres(): p("id") = id: p("mode") = mode: p("date") = Format$(Date, "dd/mm/yyyy")
+    Set p = modServiceNas.Parametres(): p("id") = id: p("mode") = mode: p("date") = Format$(Date, "dd""/""mm""/""yyyy")
     p("empreinte") = CStr(saved("empreinte")): p("payeur") = payeur: p("montant") = Replace(Format$(recu, "0.00"), ",", ".")
     Set r = modServiceNas.Appeler("payment", p)
     MsgBox "Reglement enregistre.", vbInformation, "Cabinet"

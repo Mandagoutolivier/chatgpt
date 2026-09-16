@@ -74,7 +74,7 @@
       "module": "modDestinations",
       "source": "Src/Prod6/modDestinations.bas",
       "lignes": 31,
-      "sha256": "386ff0c13833096e3304ed1fc43eb50447d638783168696a4aea470b00fc6b00",
+      "sha256": "fafbc8f3de5c9c43c19ae3c77a7e594bd1ba39166619d4fb5611b93aa1db499b",
       "entrees_publiques": [
         "CT_DestinationParCle",
         "CT_ListeDestinationsPourSelection"
@@ -240,8 +240,8 @@
       "role": "production",
       "module": "modOpenAI_v22_corrige",
       "source": "Src/Prod6/modOpenAI_v22_corrige.bas",
-      "lignes": 919,
-      "sha256": "c6d01f15dbb5e612e2030dce76a84f344a20ac40937bd33d12a8712607fff98f",
+      "lignes": 942,
+      "sha256": "a74a543adfe6cbde3b906da5820b77cde40ec5cba7147b59b00058e7bd346e3b",
       "entrees_publiques": [
         "AppelerOpenAI",
         "AppelerOpenAIStructure",
@@ -254,7 +254,8 @@
         "PreparerRequeteSortante",
         "TesterDetectionSortieVideComplete",
         "TesterExtractionTexteOpenAIOrdreChamps",
-        "ValiderStructure"
+        "ValiderStructure",
+        "VerifierDestinataireAvantIA"
       ]
     },
     {
@@ -324,8 +325,8 @@
       "role": "production",
       "module": "modSortieDragon",
       "source": "Src/Prod6/modSortieDragon.bas",
-      "lignes": 547,
-      "sha256": "c56fdf38f935937e85ed9d1bf00b351a2a21d096b27e082cd585aa9199bb0efa",
+      "lignes": 561,
+      "sha256": "0bd0cf550bec8944cdb23156b76595e2f2e9b3843f95fb9063b91708e9b606f2",
       "entrees_publiques": [
         "SD_CopierRevisionFinale",
         "SD_EnregistrerCourrierFinal",
@@ -402,9 +403,10 @@
       "role": "production",
       "module": "modConfig",
       "source": "Src/Commun/modConfig.bas",
-      "lignes": 173,
-      "sha256": "2b4417a29f6f77c2a8e350141e7d15be1919e5829406ddf906c5c3b8c26524c7",
+      "lignes": 201,
+      "sha256": "1b4185d53f368160c731a978f636a029aa4d00e679fe48e78cf06868218477c3",
       "entrees_publiques": [
+        "AnalyserConfigurationIni",
         "CheminNasConfigure",
         "Config",
         "ConfigBool",
@@ -547,7 +549,7 @@
       "module": "modGdt",
       "source": "Src/Commun/modGdt.bas",
       "lignes": 107,
-      "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34",
+      "sha256": "fdcf14f9fdd26074345a970e812ca0979b1a11ee2e29754f3f33f053cd67ce5b",
       "entrees_publiques": [
         "ConstruireGdt",
         "EcrireGdtPatient"
@@ -941,8 +943,8 @@
       "role": "recette",
       "module": "modRecetteU2",
       "source": "Tests/Vba/word/modRecetteU2.bas",
-      "lignes": 63,
-      "sha256": "821678239bb178f1381ab53a7ddf22ee463915625300bc616106647167f5e8ee",
+      "lignes": 102,
+      "sha256": "30bb3f61463bdfe06fcdd97a291487d71ffcf52e592405fc74774756828def30",
       "entrees_publiques": [
         "ExecuterU2"
       ]
@@ -979,15 +981,20 @@
       "role": "production",
       "module": "modActes",
       "source": "Src/Excel/modActes.bas",
-      "lignes": 177,
-      "sha256": "4eb2de602cb1b48fa86f9999033e676712f16561c8b6d1e5d3a74a5db5c100f3",
+      "lignes": 265,
+      "sha256": "cd57f24d7d3bb51995e6b9732a8d35f087778d556f547a04577ed5fc52dc07e5",
       "entrees_publiques": [
         "ActeParCode",
+        "ConstruireLignesFacturation",
+        "DonneesImpressionFigees",
         "EnregistrerSeance",
+        "ExisteSeanceEnregistree",
         "ImprimerSeanceEnregistree",
         "LignesPourImpression",
         "Nomenclature",
-        "TotalActes"
+        "TiersPayantPourCode",
+        "TotalActes",
+        "TraitementPeutEtreCloture"
       ]
     },
     {
@@ -1045,13 +1052,14 @@
       "role": "production",
       "module": "modCerfaPrint",
       "source": "Src/Excel/modCerfaPrint.bas",
-      "lignes": 300,
-      "sha256": "3003471eda97d42d91ea1732f23ce3eca63df8cec95ef0d2b61c6e892449d754",
+      "lignes": 314,
+      "sha256": "0b8f5393191a2900cdd5e12b932751107ce566d82ef710e42adf9b8b63cd125f",
       "entrees_publiques": [
         "AnalyserPositions",
         "CalageCerfa",
         "ImprimerFeuille",
-        "VerifierAvantFacturation"
+        "VerifierAvantFacturation",
+        "VerifierAvantReimpression"
       ]
     },
     {
@@ -1059,9 +1067,10 @@
       "role": "production",
       "module": "modConfig",
       "source": "Src/Commun/modConfig.bas",
-      "lignes": 173,
-      "sha256": "2b4417a29f6f77c2a8e350141e7d15be1919e5829406ddf906c5c3b8c26524c7",
+      "lignes": 201,
+      "sha256": "1b4185d53f368160c731a978f636a029aa4d00e679fe48e78cf06868218477c3",
       "entrees_publiques": [
+        "AnalyserConfigurationIni",
         "CheminNasConfigure",
         "Config",
         "ConfigBool",
@@ -1135,7 +1144,7 @@
       "module": "modGdt",
       "source": "Src/Commun/modGdt.bas",
       "lignes": 107,
-      "sha256": "24c4c7e3251343482e1e961b94008fdbc09d1d7730fbd307a7e252328e049e34",
+      "sha256": "fdcf14f9fdd26074345a970e812ca0979b1a11ee2e29754f3f33f053cd67ce5b",
       "entrees_publiques": [
         "ConstruireGdt",
         "EcrireGdtPatient"
@@ -1216,10 +1225,11 @@
       "role": "production",
       "module": "modUI",
       "source": "Src/Excel/modUI.bas",
-      "lignes": 268,
-      "sha256": "818e2a0032d8c6ff3788ca58135af17e03ba578f2915ad1a4a66e6ac32c6dc54",
+      "lignes": 274,
+      "sha256": "271986da309ee11754c3e5c5529ee0c7700b6cde2d3a13391f5fe70ec38fadf1",
       "entrees_publiques": [
         "ChoisirPatientX",
+        "DateEncaissement",
         "MontantReglement",
         "UI_Agenda",
         "UI_ArriveePatient",
@@ -1240,8 +1250,8 @@
       "role": "production",
       "module": "ufChoixActe",
       "source": "Src/Excel/ufChoixActe.vba",
-      "lignes": 144,
-      "sha256": "78034d6f1452d6e090b6bfff06bfb1ac28e485c618cb719864eb7e526fd86114",
+      "lignes": 267,
+      "sha256": "cb86bb2bac665d01d02fc4e0011d8d7517c35580724ef25c1352339d5de38755",
       "entrees_publiques": [
         "Charger",
         "ReimprimerFeuille"
@@ -1252,8 +1262,8 @@
       "role": "production",
       "module": "ufCorrespEdit",
       "source": "Src/Excel/ufCorrespEdit.vba",
-      "lignes": 98,
-      "sha256": "376b40235220f678a9fcad44318a393e846413fc1e96275f0d5f4c300c0ab170",
+      "lignes": 100,
+      "sha256": "df69c57a58f3c79f239eea81da64c38d7d1802d921396076159a87b67a63005c",
       "entrees_publiques": [
         "ChargerExistant",
         "ChargerNouveau"
@@ -1348,8 +1358,8 @@
       "role": "recette",
       "module": "modRecetteU1Excel",
       "source": "Tests/Vba/excel/modRecetteU1Excel.bas",
-      "lignes": 38,
-      "sha256": "c0589d3fc9f0484afcdeabb038b05c2e36aceb5bc90d22bea7f39b9ef1f8ca40",
+      "lignes": 203,
+      "sha256": "aef0d609295b7196ccbd4d1c38e4433495098ee2eb93b6f6001161c1710f2990",
       "entrees_publiques": [
         "Executer"
       ]
@@ -3483,6 +3493,12 @@
     {
       "hote": "word",
       "source": "modRecetteU2",
+      "cible": "modOpenAI_v22_corrige",
+      "membre": "VerifierDestinataireAvantIA"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
       "cible": "modProdRapide",
       "membre": "PR_DoitForcerCorrespondantACompleterCCN"
     },
@@ -3556,7 +3572,7 @@
       "hote": "excel",
       "source": "modActes",
       "cible": "modCerfaPrint",
-      "membre": "VerifierAvantFacturation"
+      "membre": "VerifierAvantReimpression"
     },
     {
       "hote": "excel",
@@ -3587,6 +3603,12 @@
       "source": "modActes",
       "cible": "modServiceNas",
       "membre": "CommandeID"
+    },
+    {
+      "hote": "excel",
+      "source": "modActes",
+      "cible": "modServiceNas",
+      "membre": "ItemsValides"
     },
     {
       "hote": "excel",
@@ -4084,6 +4106,12 @@
       "hote": "excel",
       "source": "modUI",
       "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modUI",
+      "cible": "modTexte",
       "membre": "DateFrValide"
     },
     {
@@ -4091,6 +4119,12 @@
       "source": "ufChoixActe",
       "cible": "modActes",
       "membre": "EnregistrerSeance"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modActes",
+      "membre": "ExisteSeanceEnregistree"
     },
     {
       "hote": "excel",
@@ -4115,6 +4149,12 @@
       "source": "ufChoixActe",
       "cible": "modActes",
       "membre": "TotalActes"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modActes",
+      "membre": "TraitementPeutEtreCloture"
     },
     {
       "hote": "excel",
@@ -4359,8 +4399,38 @@
     {
       "hote": "excel",
       "source": "modRecetteU1Excel",
+      "cible": "modActes",
+      "membre": "ConstruireLignesFacturation"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modActes",
+      "membre": "DonneesImpressionFigees"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modActes",
+      "membre": "TraitementPeutEtreCloture"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
       "cible": "modCerfaPrint",
       "membre": "AnalyserPositions"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modCerfaPrint",
+      "membre": "ImprimerFeuille"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modConfig",
+      "membre": "AnalyserConfigurationIni"
     },
     {
       "hote": "excel",
@@ -4372,7 +4442,19 @@
       "hote": "excel",
       "source": "modRecetteU1Excel",
       "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modServiceNas",
       "membre": "SHA256"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modUI",
+      "membre": "DateEncaissement"
     },
     {
       "hote": "excel",

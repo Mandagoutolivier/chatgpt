@@ -45,3 +45,15 @@ Tester-ConfigurationSortie "[SORTIE]`nDossier=\\NAS-RECETTE\CabinetCardioTestU2\
 Tester-ConfigurationSortie "[SORTIE]`nExportActif=oui`nDossier=\\NAS-RECETTE\CabinetCardioTestU2\Echange\AEnvoyer`nNomFichier=PublicationID" $false 'activation invalide'
 Tester-ConfigurationSortie "[SORTIE]`nExportActif=1`nDossier=`nNomFichier=PublicationID" $false 'dossier absent'
 Tester-ConfigurationSortie "[SORTIE]`nExportActif=1`nDossier=\\NAS-RECETTE\CabinetCardioTestU2\Echange\AEnvoyer`nNomFichier=Ancien" $false 'strategie de nom absente'
+
+$sortieValide="[SORTIE]`nExportActif=1`nDossier=Echange\AEnvoyer`nNomFichier=PublicationID"
+Tester-ConfigurationSortie (";[SORTIE]`r`n# ExportActif=0`r`n[ `tsOrTiE`t ] ; commentaire`r`t ExportActif = 1 `t`rDossier=Echange\AEnvoyer`rNomFichier=PublicationID") $true 'casse espaces tabulations commentaires et fins de ligne'
+foreach($section in @('[SORTIE]', '[sortie]', "[ `tSoRtIe`t ] ; commentaire")){
+    Tester-ConfigurationSortie ($sortieValide+"`n[AUTRE]`nNomFichier=Autre`n"+$section) $false ('section en double '+$section)
+}
+foreach($cle in @('ExportActif','Dossier','NomFichier')){
+    $valeur=Lire-ValeurIni $sortieValide 'sortie' $cle
+    Tester-ConfigurationSortie ($sortieValide+"`n"+$cle+'='+$valeur) $false ('cle identique en double '+$cle)
+    Tester-ConfigurationSortie ($sortieValide+"`n `t"+$cle.ToLowerInvariant()+" `t=Autre") $false ('cle contradictoire en double '+$cle)
+}
+Tester-ConfigurationSortie ($sortieValide+"`n[AUTRE]`nExportActif=0`nExportActif=1") $true 'autres sections inchangees'

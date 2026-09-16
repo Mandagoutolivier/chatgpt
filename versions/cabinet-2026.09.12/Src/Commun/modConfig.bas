@@ -106,33 +106,61 @@ Public Sub RechargerConfig()
     mIniCharge = False
 End Sub
 
+' Parseur commun a la lecture effective et aux tests, sans acces au poste.
+' Les doublons SORTIE sont refuses, meme identiques : jamais premier/dernier gagne.
+Private Function NettoyerBordsIni(ByVal texte As String) As String
+    Do While Len(texte) > 0
+        If Left$(texte, 1) <> " " And Left$(texte, 1) <> vbTab Then Exit Do
+        texte = Mid$(texte, 2)
+    Loop
+    Do While Len(texte) > 0
+        If Right$(texte, 1) <> " " And Right$(texte, 1) <> vbTab Then Exit Do
+        texte = Left$(texte, Len(texte) - 1)
+    Loop
+    NettoyerBordsIni = texte
+End Function
+
+Public Function AnalyserConfigurationIni(ByVal contenu As String) As Object
+    Dim valeurs As Object, lignes() As String, sortieVue As Boolean
+    Dim i As Long, section As String, ligne As String, p As Long, cle As String, k As String
+    Set valeurs = CreateObject("Scripting.Dictionary")
+    contenu = Replace(contenu, vbCrLf, vbLf)
+    contenu = Replace(contenu, vbCr, vbLf)
+    lignes = Split(contenu, vbLf)
+    For i = LBound(lignes) To UBound(lignes)
+        ligne = NettoyerBordsIni(lignes(i))
+        If Len(ligne) = 0 Then
+            ' vide
+        ElseIf Left$(ligne, 1) = ";" Or Left$(ligne, 1) = "#" Then
+            ' commentaire
+        ElseIf Left$(ligne, 1) = "[" And InStr(ligne, "]") > 1 Then
+            section = LCase$(NettoyerBordsIni(Mid$(ligne, 2, InStr(ligne, "]") - 2)))
+            If section = "sortie" Then
+                If sortieVue Then Err.Raise vbObjectError + 106, "modConfig", "Configuration ambigue : section [SORTIE] en double."
+                sortieVue = True
+            End If
+        Else
+            p = InStr(ligne, "=")
+            If p > 0 Then
+                cle = LCase$(NettoyerBordsIni(Left$(ligne, p - 1)))
+                k = section & "|" & cle
+                If section = "sortie" And (cle = "exportactif" Or cle = "dossier" Or cle = "nomfichier") Then
+                    If valeurs.Exists(k) Then Err.Raise vbObjectError + 107, "modConfig", "Configuration ambigue : cle SORTIE/" & cle & " en double."
+                End If
+                valeurs(k) = NettoyerBordsIni(Mid$(ligne, p + 1))
+            End If
+        End If
+    Next i
+    Set AnalyserConfigurationIni = valeurs
+End Function
+
 Private Sub ChargerIni()
     Dim cheminIni As String, contenu As String, lignes() As String
     Dim i As Long, section As String, ligne As String, p As Long
     If mIniCharge Then Exit Sub
-    Set mIni = CreateObject("Scripting.Dictionary")
     cheminIni = chemin("Config") & "\config.ini"
-    If modFichiers.FichierExiste(cheminIni) Then
-        contenu = modFichiers.LireTexteUTF8(cheminIni)
-        contenu = Replace(contenu, vbCrLf, vbLf)
-        contenu = Replace(contenu, vbCr, vbLf)
-        lignes = Split(contenu, vbLf)
-        For i = LBound(lignes) To UBound(lignes)
-            ligne = Trim$(lignes(i))
-            If Len(ligne) = 0 Then
-                ' vide
-            ElseIf Left$(ligne, 1) = ";" Or Left$(ligne, 1) = "#" Then
-                ' commentaire
-            ElseIf Left$(ligne, 1) = "[" And InStr(ligne, "]") > 1 Then
-                section = LCase$(Mid$(ligne, 2, InStr(ligne, "]") - 2))
-            Else
-                p = InStr(ligne, "=")
-                If p > 0 Then
-                    mIni(section & "|" & LCase$(Trim$(Left$(ligne, p - 1)))) = Trim$(Mid$(ligne, p + 1))
-                End If
-            End If
-        Next i
-    End If
+    If modFichiers.FichierExiste(cheminIni) Then contenu = modFichiers.LireTexteUTF8(cheminIni)
+    Set mIni = AnalyserConfigurationIni(contenu)
     ' Ces reglages dependent du poste. Les donnees partagees restent sur le NAS.
     cheminIni = Environ$("APPDATA") & "\CabinetCardio\poste.ini"
     If modFichiers.FichierExiste(cheminIni) Then

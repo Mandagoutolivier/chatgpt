@@ -5,14 +5,15 @@ Effectuer cette recette sur un PC secondaire, avec le projet NAS `cabinetcardio-
 | Essai | Résultat attendu |
 |---|---|
 | Projet Compose et volumes | Projet `cabinetcardio-test-u2`, port `8766`, données, PostgreSQL, sauvegardes et secrets distincts |
-| Service `/health` | Protocole 2, schéma 2 et révision `2026.09.16-u2b` |
+| Service `/health` | Statut `ok`, version applicative et protocole 2 |
+| RPC authentifié `whoami` | Rôles attendus, schéma 2 et révision `2026.09.16-u2b` |
 | Service clinique pendant la recette | Toujours accessible séparément ; aucun arrêt, changement de port ou changement de volume |
 | Préparation des profils Domicile, Secretariat et Cabinet | Binaires dans un dossier de préparation ; anciens fichiers actifs conservés |
 | Word/Excel : Débogage > Compiler, fermer/rouvrir | Aucune erreur, aucune référence manquante, sources conformes au manifeste |
-| Recette automatisée Word | Socle Word au moins `34`, puis extension U2 exactement `17/17`, aucun échec |
-| Recette automatisée Excel | Exactement `25/25`, aucun échec |
+| Recette automatisée Word | Socle Word au moins `34`, puis extension U2 exactement `29/29`, aucun échec |
+| Recette automatisée Excel | Exactement `70/70`, aucun échec |
 | Total Office annoncé faux, incomplet ou incohérent | Validation refusée |
-| Word : `Audit_TestsSansReseau()` puis recette U2 | Socle au moins `34`, puis U2 `17/17` ; aucun appel API/NAS/imprimante par la suite hors réseau |
+| Word : `Audit_TestsSansReseau()` puis recette U2 | Socle au moins `34`, puis U2 `29/29` ; aucun appel API/NAS/imprimante par la suite hors réseau |
 | `[SORTIE]` avec `ExportActif=0`, `Dossier` et `NomFichier` | Configuration acceptée, aucune copie secondaire |
 | Clé `[SORTIE]` absente ou valeur inconnue | Erreur explicite ; aucun export silencieusement désactivé |
 | Source ou binaire modifié après validation | Activation refusée ; nouvelle préparation/validation nécessaire |
@@ -24,7 +25,7 @@ Effectuer cette recette sur un PC secondaire, avec le projet NAS `cabinetcardio-
 | Deux RDV distincts du même patient le même jour | Deux arrivées distinctes dans le cache et le service |
 | Deux médecins sélectionnent la même arrivée | Une seule réservation réussit |
 | A puis dictée du destinataire, B puis corps, C | Signets et formule d'appel corrects ; identité/âge du patient réservé |
-| Export GDT, accents et identité fictive | Bon patient dans Resting12Lead ; aucune lettre ni import attribué à une autre fiche |
+| Export GDT, accents et identité fictive | Fichier correct dans le dossier U2b dédié ; import uniquement via un profil ECG de test distinct, jamais via le profil clinique |
 | D : sortie complète de l'API, puis relecture et D | Texte et annexes proposés ; rien dans la file avant confirmation ; toutes les pages relues |
 | Réponse API incomplète, refus, JSON invalide, annexe vide | Erreur explicite ; aucun courrier incomplet publié |
 | Négation/dose/nombre changé | Différence signalée ; relire même si aucun signal n'apparaît |
@@ -49,7 +50,7 @@ Effectuer cette recette sur un PC secondaire, avec le projet NAS `cabinetcardio-
 
 Avec le lanceur autonome, fermer les applications après les essais et saisir **RECETTE** dans sa console. Il exécute la validation et l'activation sans commande à recopier. Pour tester le modèle Word, utiliser **Fichier > Ouvrir** sur le `.dotm` préparé ; un double-clic dans l'Explorateur crée un nouveau document. Les macros des fichiers ouverts par le constructeur sont désactivées : fermer puis rouvrir le fichier pour les essais, en respectant les autorisations Office du poste.
 
-La recette U2b n'est recevable que si les deux compilations Office réussissent, si le socle Word annonce au moins `34`, si l'extension Word U2 annonce `17/17`, si Excel annonce `25/25`, si le parcours fictif complet est validé et si le retour à l'installation précédente a été testé sur le PC d'essai.
+La recette U2b n'est recevable que si les deux compilations Office réussissent, si le socle Word annonce au moins `34`, si l'extension Word U2 annonce `29/29`, si Excel annonce `70/70`, si le parcours fictif complet est validé et si le retour à l'installation précédente a été testé sur le PC d'essai.
 
 Sur une installation neuve, les essais en réseau exigent auparavant un environnement d'essai configuré (service, partage, compte et configuration locale du client). Choisir **PAUSE** si cet environnement n'est pas disponible ; le lanceur ne crée pas un serveur de test sur le PC et ne confond pas essai et production.
 

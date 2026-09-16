@@ -1,10 +1,10 @@
 # Installer les trois profils
 
-**U2b (`2026.09.16-u2b`) reste en recette isolée. L'installation clinique actuelle doit être conservée. Les premiers essais ont lieu sur le PC de l'étage et sur `cabinetcardio-test-u2`, jamais sur le poste indispensable aux consultations du lendemain.**
+**U2b (`2026.09.16-u2b`) reste en recette isolée. L'installation clinique actuelle doit être conservée. Les premiers essais ont lieu sur un PC secondaire formellement identifié — le PC de l'étage s'il est bien distinct — et sur `cabinetcardio-test-u2`, jamais sur le poste indispensable aux consultations du lendemain.**
 
 ## Lanceur autonome conseillé
 
-Télécharger **[Demarrer_Installation_Cabinet.cmd](../../Installateur/Demarrer_Installation_Cabinet.cmd)** avec le bouton de téléchargement du fichier GitHub, ou utiliser la pièce jointe fournie dans la conversation. Un seul fichier suffit. Le lancer dans la session Windows habituelle, sans élévation administrateur.
+Télécharger **[Demarrer_Installation_Cabinet.cmd](../../Installateur/Demarrer_Installation_Cabinet.cmd)** avec le bouton de téléchargement du fichier GitHub, ou utiliser la pièce jointe fournie dans la conversation. Un seul fichier suffit. Pour U2b, le lancer exclusivement dans le compte Windows dédié à la recette du PC secondaire, jamais dans le profil clinique U0, et sans élévation administrateur.
 
 Le lanceur ouvre le navigateur pour télécharger une version précise du dépôt privé, repère le ZIP dans Téléchargements (ou ouvre un sélecteur), extrait la version, vérifie les SHA-256 et débloque ses fichiers. Votre navigateur doit être connecté à GitHub avec le compte autorisé ; en cas de page 404, se connecter puis rouvrir le lien affiché. Aucun jeton GitHub n'est demandé. Git et Python ne sont pas requis sur le PC.
 
@@ -45,7 +45,7 @@ Word et Excel sont contrôlés dans les trois profils. Le poste médecin reçoit
 
 Compiler les projets VBA Word et Excel préparés avec **Débogage > Compiler**, enregistrer, fermer et rouvrir. Dérouler [RECETTE_WINDOWS.md](RECETTE_WINDOWS.md). La préparation n'est pas une preuve de compilation. Exemple pour domicile :
 
-Exécuter ensuite `Build\Tester_U2_Office.ps1`. La recette automatisée n'est valide que si le socle Word réussit au moins **34 contrôles**, l'extension Word U2 exactement **17/17**, Excel exactement **25/25**, et qu'aucun échec ni essai manquant n'est signalé.
+Exécuter ensuite `Build\Tester_U2_Office.ps1`. La recette automatisée n'est valide que si le socle Word réussit au moins **34 contrôles**, l'extension Word U2 exactement **29/29**, Excel exactement **70/70**, et qu'aucun échec ni essai manquant n'est signalé.
 
 ```powershell
 .\Build\valider_preparation.ps1 -DossierPrepare 'C:\chemin\du\dossier\prepare' -CompilationWordValidee -CompilationExcelValidee -RecetteValidee
@@ -60,7 +60,7 @@ Le service doit avoir été initialisé et les classeurs importés avant cette a
 
 ## Réglages du poste médecin
 
-Le dossier ECG se règle avec `-DossierGdt 'C:\ECG\GDT'`. Vérifier dans Resting12Lead que ce dossier d'exemple et le nom `IMPORT.GDT` correspondent à son interface GDT. Le logiciel ne suppose pas un accès documenté à sa base interne propriétaire.
+Le dossier de recette ECG se règle avec `-DossierGdt 'C:\CabinetCardioTestU2\GDT'`. Il doit être réservé à U2b et ne jamais être surveillé par le profil Resting12Lead clinique. Si aucun profil ECG de test entièrement distinct n'est disponible, vérifier seulement la génération du fichier fictif `IMPORT.GDT`, sans l'importer dans Resting12Lead. Ne jamais utiliser `C:\ECG\GDT`, `C:\Mandagout` ou un autre dossier clinique pour cette recette. Le logiciel ne suppose pas un accès documenté à sa base interne propriétaire.
 
 Affecter les touches Dragon/PowerMic aux macros `Unifie_A_NouvelleLettre`, `Unifie_B_FormuleAppel`, `Unifie_C_InsererPatient`, `Unifie_D_Finaliser`. La clé OpenAI demeure locale au poste médecin, via `OPENAI_API_KEY` ou `%APPDATA%\CabinetCardio\openai.key`.
 

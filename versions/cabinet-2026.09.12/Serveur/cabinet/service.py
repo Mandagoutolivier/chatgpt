@@ -16,6 +16,7 @@ from .files import Documents
 from .contract import validate
 from .maintenance import resultat_rejouable
 from .actes import FIELDS as ACTE_FIELDS, normaliser as normaliser_acte
+from .correspondants import normaliser_indicateurs
 
 READS = {'table.read', 'record.get', 'attentes', 'reprises', 'publications', 'whoami',
          'correspondent.resolve', 'clinical.compare', 'dictionary.read', 'journal.read', 'nir.validate', 'command.result', 'billing.get', 'stale_arrivals'}
@@ -94,6 +95,7 @@ class Service:
         row = db.execute('SELECT donnees,revision FROM ressources WHERE genre=%s AND id=%s',(genre,ident)).fetchone()
         if not row: raise Refus('Enregistrement introuvable.',404)
         data = normaliser_acte(row['donnees'], ident) if genre == 'ACTES' else row['donnees']
+        if genre == 'CORRESPONDANTS': data = normaliser_indicateurs(data)
         return dict(data, _revision=str(row['revision']))
 
     def _save(self, db, genre: str, data: dict, update=False) -> dict:
@@ -126,9 +128,7 @@ class Service:
             if data.get('MedTraitantID'): self._record(db,'CORRESPONDANTS',data['MedTraitantID'])
         elif genre == 'CORRESPONDANTS':
             if not data['Nom'].strip(): raise Refus('Nom du correspondant requis.',422)
-            data['Actif']=data['Actif'] or '1'
-            for flag in ('Actif','AValider','ParDefaut'):
-                if data[flag] not in {'','0','1'}:raise Refus('Indicateur invalide : '+flag,422)
+            data = normaliser_indicateurs(data)
             data['CleDestination']=data['CleDestination'] or ident
             if not data['BlocDestinataire'].strip():
                 data['BlocDestinataire']='\n'.join(x.strip() for x in [data['Nom']+' '+data['Prenom'],data['Adresse1'],data['Adresse2'],data['CP']+' '+data['Ville']] if x.strip())
@@ -205,7 +205,7 @@ class Service:
                         if len(rows)>limit: break
             else:
                 rows=db.execute(query+' LIMIT %s OFFSET %s',args+[limit+1,offset]).fetchall()
-            return {'items':[dict(normaliser_acte(r['donnees'], r['donnees'].get('ID')) if genre == 'ACTES' else r['donnees'],_revision=str(r['revision'])) for r in rows[:limit]],
+            return {'items':[dict(normaliser_acte(r['donnees'], r['donnees'].get('ID')) if genre == 'ACTES' else normaliser_indicateurs(r['donnees']) if genre == 'CORRESPONDANTS' else r['donnees'],_revision=str(r['revision'])) for r in rows[:limit]],
                     'next':offset+limit if len(rows)>limit else None}
         if op=='arrive':
             rdv=self._record(db,'RDV',p['id']);pat=self._record(db,'PATIENTS',rdv['PatientID'])
@@ -270,7 +270,7 @@ class Service:
             if any(p.get('Patient_'+k)!=pat[k] for k in ('Nom','Prenom','DDN','Sexe')): raise Refus('Identite modifiee depuis la dictee.')
             if p.get('Relu') is not True: raise Refus('Relecture medicale requise avant publication.',422)
             cor=self._record(db,'CORRESPONDANTS',p['DestinataireID'])
-            if cor.get('Actif')=='0' or cor.get('AValider')=='1': raise Refus('Destinataire non valide.')
+            if cor['Actif']!='1' or cor['AValider']!='0': raise Refus('Destinataire non valide.')
             pub=str(p['PublicationID'])
             existing=db.execute('SELECT donnees FROM publications WHERE id=%s',(pub,)).fetchone()
             if existing:
@@ -362,8 +362,9 @@ class Service:
         if op=='correspondent.resolve':
             candidates=[]
             for r in db.execute("SELECT donnees,revision FROM ressources WHERE genre='CORRESPONDANTS'"):
-                d=r['donnees']
-                if d.get('Actif')=='0' or d.get('AValider')=='1':continue
+                try: d=normaliser_indicateurs(r['donnees'])
+                except Refus: continue  # Un statut inconnu ne peut jamais devenir eligible.
+                if d['Actif']!='1' or d['AValider']!='0':continue
                 if p.get('id'):
                     if d['ID']==p['id']:candidates.append(dict(d,_revision=str(r['revision'])))
                     continue  # Un ID explicite est autoritaire, meme absent/inactif.

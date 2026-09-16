@@ -11,6 +11,7 @@ Option Explicit
 Private mDrapeau As Object          ' dictionnaire du fichier-drapeau
 Private mNomenclature As Collection
 Private mInit As Boolean            ' vrai pendant le remplissage de la liste
+Private mSeanceEnregistree As Boolean
 
 Public Sub Charger(ByVal drapeau As Object)
     Dim modes As Variant, m As Variant
@@ -18,7 +19,17 @@ Public Sub Charger(ByVal drapeau As Object)
     lblInfo.Caption = Valeur("Prenom") & " " & Valeur("Nom") & _
                       IIf(Len(Valeur("DDN")) > 0, " - " & Valeur("DDN"), "") & vbCrLf & _
                       "Courrier : " & Valeur("TypeCourrier") & "  (" & Valeur("DateValidation") & ")"
-    lstItemsInit
+    ' Detecter la reprise AVANT de lire la nomenclature courante. Une seance
+    ' figee reste imprimable meme si ses actes ont ete retires ou modifies.
+    mSeanceEnregistree = modActes.ExisteSeanceEnregistree(IdentifiantSeance())
+    lstActes.Enabled = Not mSeanceEnregistree
+    cmbPaiement.Enabled = Not mSeanceEnregistree
+    chkTiers.Enabled = Not mSeanceEnregistree
+    If mSeanceEnregistree Then
+        ConfigurerReimpression
+    Else
+        lstItemsInit
+    End If
     cmbPaiement.Clear
     modes = Array("CB", "Cheque", "Especes", "Virement", "Impaye")
     For Each m In modes
@@ -26,6 +37,24 @@ Public Sub Charger(ByVal drapeau As Object)
     Next m
     cmbPaiement.ListIndex = 0
     chkFds.Value = True
+    MajTotal
+End Sub
+
+Private Function IdentifiantSeance() As String
+    IdentifiantSeance = Valeur("ConsultationID")
+    If Len(IdentifiantSeance) = 0 Then IdentifiantSeance = Valeur("SeanceID")
+    If Len(Trim$(IdentifiantSeance)) = 0 Then Err.Raise vbObjectError + 640, , "Courrier sans identifiant de consultation."
+End Function
+
+Private Sub ConfigurerReimpression()
+    mSeanceEnregistree = True
+    mInit = True
+    Set mNomenclature = Nothing
+    lstActes.Clear
+    lstActes.Enabled = False
+    cmbPaiement.Enabled = False
+    chkTiers.Enabled = False
+    mInit = False
     MajTotal
 End Sub
 
@@ -71,6 +100,10 @@ End Function
 
 Private Sub MajTotal()
     On Error Resume Next
+    If mSeanceEnregistree Then
+        lblTotal.Caption = "Reprise : actes et montants deja enregistres."
+        Exit Sub
+    End If
     lblTotal.Caption = "Total : " & Format$(modActes.TotalActes(ActesChoisis()), "0.00") & " EUR"
 End Sub
 
@@ -151,6 +184,14 @@ End Function
 Private Sub btnOK_Click()
     On Error GoTo Erreur
     Dim actes As Collection, seanceID As String, a As Object, tarifZero As Boolean, deja As Boolean
+    seanceID = IdentifiantSeance()
+    ' Recontroler au clic : un autre poste a pu facturer depuis l'ouverture.
+    ' Cette branche ne construit aucune selection et n'appelle jamais bill.
+    If modActes.ExisteSeanceEnregistree(seanceID) Then
+        ConfigurerReimpression
+        TraiterSeanceEnregistree seanceID
+        Exit Sub
+    End If
     Set actes = ActesChoisis()
     If actes.Count = 0 Then
         MsgBox "Cochez au moins un acte.", vbExclamation, "Cabinet"
@@ -168,38 +209,46 @@ Private Sub btnOK_Click()
     Dim repartition As Object, annulePayeur As Boolean
     Set repartition = ChoisirRepartitionTiers(actes, annulePayeur)
     If annulePayeur Then Exit Sub
-    seanceID = Valeur("ConsultationID")
-    If Len(seanceID) = 0 Then seanceID = Valeur("SeanceID")
-    If chkFds.Value Then
-        If Not modActes.ExisteSeanceEnregistree(seanceID) Then _
-            modCerfaPrint.VerifierAvantFacturation mDrapeau, modActes.LignesPourImpression(actes)
-    End If
+    If chkFds.Value Then modCerfaPrint.VerifierAvantFacturation mDrapeau, modActes.LignesPourImpression(actes)
     seanceID = modActes.EnregistrerSeance(mDrapeau, actes, cmbPaiement.Text, _
                                           repartition, False, deja)
 
-    Dim reponse As VbMsgBoxResult, impressionEnvoyee As Boolean
-    If deja And chkFds.Value Then
-        reponse = MsgBox("Cette consultation figure deja au journal. Reimprimer la feuille avec les actes et montants enregistres ?" & vbCrLf & _
-                        "Oui : reimprimer. Non : terminer sans reimprimer. Annuler : conserver le courrier en attente.", vbYesNoCancel + vbQuestion, "Reprise d une consultation")
-        If reponse = vbCancel Then Exit Sub
-        If reponse = vbYes Then
-            modActes.ImprimerSeanceEnregistree mDrapeau, seanceID
-            impressionEnvoyee = True
-        End If
-    ElseIf Not deja And chkFds.Value Then
-        modActes.ImprimerSeanceEnregistree mDrapeau, seanceID
-        impressionEnvoyee = True
+    If deja Then
+        ConfigurerReimpression
+        TraiterSeanceEnregistree seanceID
+        Exit Sub
     End If
-
-    If mDrapeau.Exists("_Chemin") Then modEchange.DeplacerVersTraites mDrapeau("_Chemin")
-
-    MsgBox "Consultation traitee" & IIf(impressionEnvoyee, " + impression envoyee", "") & _
-           "." & vbCrLf & "(" & Valeur("Prenom") & " " & Valeur("Nom") & ", " & actes.Count & _
-           " acte(s) coche(s))", vbInformation, "Cabinet"
-    Me.Hide
+    Dim papierConfirme As Boolean, impressionEnvoyee As Boolean
+    If chkFds.Value Then papierConfirme = modActes.ImprimerSeanceEnregistree(mDrapeau, seanceID, impressionEnvoyee)
+    TerminerTraitement papierConfirme, impressionEnvoyee
     Exit Sub
 Erreur:
     MsgBox "Erreur : " & Err.Description, vbCritical, "Cabinet"
+End Sub
+
+Private Sub TraiterSeanceEnregistree(ByVal seanceID As String)
+    Dim papierConfirme As Boolean, impressionEnvoyee As Boolean
+    If chkFds.Value Then
+        If MsgBox("Cette consultation figure deja au journal. Reprendre la feuille avec l identite, les actes et montants enregistres ?" & vbCrLf & _
+                  "Aucun acte ni payeur courant ne sera utilise. Non conserve le courrier en attente.", _
+                  vbYesNo + vbQuestion, "Reprise d une consultation") <> vbYes Then Exit Sub
+        papierConfirme = modActes.ImprimerSeanceEnregistree(mDrapeau, seanceID, impressionEnvoyee)
+    End If
+    TerminerTraitement papierConfirme, impressionEnvoyee
+End Sub
+
+Private Sub TerminerTraitement(ByVal papierConfirme As Boolean, ByVal impressionEnvoyee As Boolean)
+    If Not modActes.TraitementPeutEtreCloture(CBool(chkFds.Value), papierConfirme) Then Exit Sub
+    If mDrapeau.Exists("_Chemin") Then modEchange.DeplacerVersTraites mDrapeau("_Chemin")
+    Dim detail As String
+    If impressionEnvoyee Then
+        detail = " + impression envoyee et papier confirme"
+    ElseIf papierConfirme Then
+        detail = " + feuille anterieure confirmee (aucun nouvel envoi)"
+    End If
+    MsgBox "Consultation traitee" & detail & "." & vbCrLf & _
+           "(" & Valeur("Prenom") & " " & Valeur("Nom") & ")", vbInformation, "Cabinet"
+    Me.Hide
 End Sub
 
 Private Sub btnAnnuler_Click()
@@ -210,7 +259,8 @@ End Sub
 
 Public Sub ReimprimerFeuille()
     On Error GoTo Echec
-    modActes.ImprimerSeanceEnregistree mDrapeau, Valeur("ConsultationID")
+    Dim papierConfirme As Boolean
+    papierConfirme = modActes.ImprimerSeanceEnregistree(mDrapeau, IdentifiantSeance())
     Exit Sub
 Echec:
     MsgBox Err.Description, vbExclamation, "Reimpression"

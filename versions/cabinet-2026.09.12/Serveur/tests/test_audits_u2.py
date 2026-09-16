@@ -166,7 +166,9 @@ def test_excel_identifiers_keep_strings_and_normalise_numeric(value,expected):
 def legacy(root,sex='F',status='Prevu'):
     workbook(root/'Base/Patients.xlsx',{'PATIENTS':[['ID','Nom','Prenom','DDN','Sexe'],[1.0,'FICTIF','Essai','01/01/1980',sex]]})
     workbook(root/'Base/Agenda_2026.xlsx',{'RDV':[['ID','PatientID','Date','Heure','DureeMin','Statut'],[2.0,1.0,'12/09/2026','10:00',15.0,status]]})
-    workbook(root/'Actes/Journal_2026.xlsx',{'JOURNAL':[['SeanceID','PatientID','Date','Montant'],[3.0,1.0,'12/09/2026','1.00']]})
+    workbook(root/'Actes/Journal_2026.xlsx',{'JOURNAL':[
+        ['SeanceID','PatientID','Date','Montant','CodeActe','Nom','Prenom','DDN','NIR','TiersPayant','Paye','FeuilleSoinsImprimee'],
+        [3.0,1.0,'12/09/2026','1.00','ANCIEN','FICTIF','Essai','01/01/1980','180010100000192','N','N','N']]})
 
 
 def test_numeric_migration_links_and_status_validation(tmp_path):

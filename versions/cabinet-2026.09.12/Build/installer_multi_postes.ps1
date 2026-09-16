@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory=$true)][ValidateSet('Domicile','CabinetSecretariat','CabinetMedecin')][string]$Profil,
     [ValidateSet('Preparation','Installation')][string]$Mode = 'Preparation',
     [Parameter(Mandatory=$true)][string]$RacineNas,
-    [string]$DossierGdt = 'C:\ECG\GDT',
+    [string]$DossierGdt = 'C:\CabinetCardioTestU2\GDT',
     [string]$DossierSources = '',
     [string]$DossierPrepare = '',
     [string]$UrlService = '',

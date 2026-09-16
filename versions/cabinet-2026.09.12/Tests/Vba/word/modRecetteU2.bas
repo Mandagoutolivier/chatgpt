@@ -1,11 +1,47 @@
 Attribute VB_Name = "modRecetteU2"
 Option Explicit
-Private Const NOMBRE_ATTENDU_U2 As Long = 17
+Private Const NOMBRE_ATTENDU_U2 As Long = 29
 Private mNombre As Long
 
 Private Sub ExigerU2(ByVal condition As Boolean, ByVal nom As String)
     If Not condition Then Err.Raise vbObjectError + 1192, "Recette U2", nom
     mNombre = mNombre + 1
+End Sub
+
+Private Function DestinataireIARefuse(ByVal ident As String, ByVal cor As Object) As Boolean
+    Dim numero As Long
+    On Error Resume Next
+    modOpenAI_v22_corrige.VerifierDestinataireAvantIA ident, cor
+    numero = Err.Number: Err.Clear
+    On Error GoTo 0
+    DestinataireIARefuse = (numero = vbObjectError + 432)
+End Function
+
+Private Sub TesterDestinataireAvantIA()
+    Dim cor As Object
+    Set cor = modServiceNas.Parametres()
+    cor("ID") = "DEST_FICTIF": cor("Actif") = "1": cor("AValider") = "0"
+    modOpenAI_v22_corrige.VerifierDestinataireAvantIA " DEST_FICTIF ", cor
+    ExigerU2 True, "destinataire explicite actif et valide accepte"
+    ExigerU2 DestinataireIARefuse(" ", cor), "IA refuse un ID destinataire absent"
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", Nothing), "IA refuse un destinataire introuvable"
+    ExigerU2 DestinataireIARefuse("AUTRE_FICTIF", cor), "IA refuse un destinataire different de la selection"
+    cor("Actif") = "0"
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un destinataire desactive"
+    cor("Actif") = "1": cor("AValider") = "1"
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un destinataire restant a valider"
+    cor("AValider") = "0": cor.Remove "Actif"
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un statut actif absent"
+    cor("Actif") = "1": cor.Remove "AValider"
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un statut de validation absent"
+    cor("AValider") = ""
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un statut de validation vide non normalise par le serveur"
+    cor("AValider") = "inconnu"
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un statut de validation inconnu"
+    cor("AValider") = "0": cor("Actif") = ""
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un statut actif vide non normalise par le serveur"
+    cor("Actif") = "inconnu"
+    ExigerU2 DestinataireIARefuse("DEST_FICTIF", cor), "IA refuse un statut actif inconnu"
 End Sub
 
 Public Function ExecuterU2(ByVal sortie As String) As String
@@ -51,6 +87,7 @@ Public Function ExecuterU2(ByVal sortie As String) As String
     ExigerU2 modDonneesTransport.EmpreinteFichierSHA256(chemin) = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", "empreinte du contenu binaire"
     Set ts = fso.CreateTextFile(chemin, True, False): ts.Close
     ExigerU2 modDonneesTransport.EmpreinteFichierSHA256(chemin) = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "empreinte du fichier vide"
+    TesterDestinataireAvantIA
     If mNombre <> NOMBRE_ATTENDU_U2 Then Err.Raise vbObjectError + 1192, "Recette U2", "Nombre de controles inattendu."
     ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_U2) & ",""echec"":false}"
 Sortie:

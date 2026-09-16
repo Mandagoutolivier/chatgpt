@@ -1,4 +1,3 @@
-import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -37,12 +36,23 @@ class ArchitectureU2(unittest.TestCase):
         for name in ('compose.yaml','compose.recette.yaml','compose.verification.yaml'):
             self.assertNotIn('cabinet-maintenance:2026.09.14-u0',(root/'Serveur'/name).read_text(encoding='utf-8'))
 
+    def test_dossier_gdt_de_recette_est_isole_par_defaut(self):
+        root=audit_statique.ROOT
+        attendu=r'C:\CabinetCardioTestU2\GDT'
+        for path in ('Installer.ps1','Build/assistant_installation.ps1','Build/installer_multi_postes.ps1'):
+            texte=(root/path).read_text(encoding='utf-8-sig')
+            self.assertIn(attendu,texte)
+            self.assertNotIn(r'C:\ECG\GDT',texte)
+            self.assertNotIn(r'C:\Mandagout',texte)
+        config=(root/'Src/ConfigDefaut/config.ini').read_text(encoding='utf-8-sig')
+        self.assertRegex(config,r'(?m)^DossierGdt=$')
+
     def test_contrat_recette_office_est_declare_par_les_suites(self):
         root=audit_statique.ROOT
         word=(root/'Tests/Vba/word/modRecetteU2.bas').read_text(encoding='utf-8-sig')
         excel=(root/'Tests/Vba/excel/modRecetteU1Excel.bas').read_text(encoding='utf-8-sig')
-        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 17\b')
-        self.assertRegex(excel,r'NOMBRE_ATTENDU_EXCEL As Long = 25\b')
+        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 29\b')
+        self.assertRegex(excel,r'NOMBRE_ATTENDU_EXCEL As Long = 70\b')
         for source in (word,excel):
             self.assertIn('""attendus"":',source)
             self.assertRegex(source,r'(?:reussis|mNombre) <> NOMBRE_ATTENDU_')
@@ -61,21 +71,85 @@ class ArchitectureU2(unittest.TestCase):
         self.assertIn('Config("SORTIE", "ExportActif", "")',sortie)
         self.assertIn('Config("SORTIE", "NomFichier", "")',sortie)
         self.assertNotIn('Config("SORTIE", "ExportActif", "0")',sortie)
+        self.assertIn('SD_DOSSIER_SORTIE = modConfig.CheminNasConfigure("SORTIE", "Dossier", "")',sortie)
+        initialiser=(root/'Build/initialiser_nas.ps1').read_text(encoding='utf-8')
+        self.assertIn('Verifier-ConfigurationSortie $config',initialiser)
         actes=(root/'Src/Excel/modActes.bas').read_text(encoding='utf-8-sig')
-        debut=actes.index('Public Sub ImprimerSeanceEnregistree')
+        debut=actes.index('Public Function ImprimerSeanceEnregistree')
         reimpression=actes[debut:]
         self.assertIn('DonneesImpressionFigees',reimpression)
         self.assertNotIn('LireID("PATIENTS"',reimpression)
         self.assertIn('CodeCerfa',actes)
 
-    def test_inventaires_commis_sont_a_jour(self):
+    def test_identite_assuree_partielle_ne_devient_jamais_le_patient(self):
+        root=audit_statique.ROOT
+        actes=(root/'Src/Excel/modActes.bas').read_text(encoding='utf-8-sig')
+        cerfa=(root/'Src/Excel/modCerfaPrint.bas').read_text(encoding='utf-8-sig')
+        for source in (actes,cerfa):
+            declencheur=next(line for line in source.splitlines() if line.strip().startswith('assureDistinct ='))
+            for champ in ('AssureNom','AssurePrenom','AssureDDN','AssureNIR'):
+                self.assertIn('"'+champ+'"',declencheur)
+            validation=source.split('If assureDistinct Then',1)[1].split('Else',1)[0]
+            for champ in ('AssureNom','AssurePrenom','AssureDDN','AssureNIR'):
+                self.assertIn('"'+champ+'"',validation)
+            self.assertIn('modTexte.DateFrValide',validation)
+        impression=cerfa.split('Public Sub ImprimerFeuille',1)[1].split('End Sub',1)[0]
+        self.assertLess(impression.index('vbObjectError + 703'),impression.index('ExigerPositions'))
+        self.assertLess(impression.index('vbObjectError + 703'),impression.index('Appeler("nir.validate"'))
+        self.assertLess(impression.index('Appeler("nir.validate"'),impression.index('ImprimerDocumentCale'))
+
+    def test_reprise_excel_precede_selection_et_propage_annulation(self):
+        root=audit_statique.ROOT
+        form=(root/'Src/Excel/ufChoixActe.vba').read_text(encoding='utf-8-sig')
+        charger=form.split('Public Sub Charger',1)[1].split('End Sub',1)[0]
+        self.assertLess(charger.index('ExisteSeanceEnregistree'),charger.index('lstItemsInit'))
+        self.assertIn('If mSeanceEnregistree Then\n        ConfigurerReimpression\n    Else\n        lstItemsInit',charger)
+        clic=form.split('Private Sub btnOK_Click()',1)[1].split('End Sub',1)[0]
+        reprise=clic.split('Set actes = ActesChoisis()',1)[0]
+        self.assertIn('ExisteSeanceEnregistree(seanceID)',reprise)
+        self.assertIn('TraiterSeanceEnregistree seanceID\n        Exit Sub',reprise)
+        self.assertNotIn('EnregistrerSeance',reprise)
+        traitement=form.split('Private Sub TraiterSeanceEnregistree',1)[1].split('End Sub',1)[0]
+        for interdit in ('ActesChoisis','Nomenclature','EnregistrerSeance','ConstruireLignesFacturation','ChoisirRepartitionTiers'):
+            self.assertNotIn(interdit,traitement)
+        self.assertIn('papierConfirme = modActes.ImprimerSeanceEnregistree',traitement)
+        cloture=form.split('Private Sub TerminerTraitement',1)[1].split('End Sub',1)[0]
+        self.assertLess(cloture.index('TraitementPeutEtreCloture'),cloture.index('DeplacerVersTraites'))
+        self.assertIn('papierConfirme) Then Exit Sub',cloture)
+        self.assertEqual(form.count('DeplacerVersTraites'),1)
+        actes=(root/'Src/Excel/modActes.bas').read_text(encoding='utf-8-sig')
+        impression=actes.split('Public Function ImprimerSeanceEnregistree',1)[1]
+        self.assertIn('Optional ByRef impressionEnvoyee As Boolean = False) As Boolean',impression)
+        self.assertIn('If decision = vbCancel Then Exit Function',impression)
+        self.assertEqual(impression.count('ImprimerSeanceEnregistree = True'),2)
+        self.assertEqual(impression.count('Set r = modServiceNas.Appeler("printed", p)\n'),2)
+        self.assertNotIn('Exit Sub',impression)
+        self.assertIn('modCerfaPrint.ImprimerFeuille copie, lignes\n    impressionEnvoyee = True',impression)
+        self.assertNotIn('EnregistrerSeance',impression)
+        self.assertNotIn('ConstruireLignesFacturation',impression)
+        ui=(root/'Src/Excel/modUI.bas').read_text(encoding='utf-8-sig')
+        self.assertIn('p("date") = Format$(Date, "dd""/""mm""/""yyyy")',ui)
+        self.assertIn('d("DateEncaissement") = IIf(paye, Format$(Date, "dd""/""mm""/""yyyy"), "")',actes)
+
+    def test_repartition_mixte_precede_toute_ecriture(self):
+        root=audit_statique.ROOT
+        form=(root/'Src/Excel/ufChoixActe.vba').read_text(encoding='utf-8-sig')
+        clic=form.split('Private Sub btnOK_Click()',1)[1].split('End Sub',1)[0]
+        choix=clic.index('Set repartition = ChoisirRepartitionTiers(actes, annulePayeur)')
+        annulation=clic.index('If annulePayeur Then Exit Sub')
+        ecriture=clic.index('modActes.EnregistrerSeance')
+        self.assertLess(choix,annulation)
+        self.assertLess(annulation,ecriture)
+        appel=clic[ecriture:]
+        self.assertIn('repartition, False, deja',appel)
+        self.assertNotIn('chkTiers.Value',appel)
+
+    def test_inventaires_publies_correspondent_aux_sources(self):
         erreurs,sources=audit_statique.verifier(False)
         self.assertEqual(erreurs,[])
-        # Les condensats gardent le controle de fraicheur sans republier les inventaires internes detailles.
-        inventaire_sources=json.dumps(sources,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode('utf-8')
-        self.assertEqual(hashlib.sha256(inventaire_sources).hexdigest(),'d9a6645005fd8a0314ecca85df8a9d82551f93815400a5da8b5780cf5c43b933')
-        inventaire=json.dumps(inventorier(),sort_keys=True,ensure_ascii=False,separators=(',',':')).encode('utf-8')
-        self.assertEqual(hashlib.sha256(inventaire).hexdigest(),'857a0ee73cee6a592d3e6a934ee98f3eb64159adf753a1137dad32613035f0ff')
+        tests=audit_statique.ROOT/'Tests'
+        self.assertEqual(json.loads((tests/'inventaire_sources.json').read_text(encoding='utf-8')),sources)
+        self.assertEqual(json.loads((tests/'inventaire_u2.json').read_text(encoding='utf-8')),inventorier())
 
     def test_production_et_recette_sont_coherentes(self):
         for recette in [False,True]:

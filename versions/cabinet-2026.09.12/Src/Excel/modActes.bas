@@ -88,7 +88,7 @@ Private Function LigneJournal(ByVal seanceID As String, ByVal infos As Object, _
     Dim d As Object, paye As Boolean
     paye = Not tiersPayant And (LCase$(modePaiement) <> "impaye" And LCase$(modePaiement) <> "impayé")
     Set d = CreateObject("Scripting.Dictionary")
-    d("Date") = Format$(modTexte.DateFr(ValeurOuVide(infos, "DateActe")), "dd/mm/yyyy")
+    d("Date") = Format$(modTexte.DateFr(ValeurOuVide(infos, "DateActe")), "dd""/""mm""/""yyyy")
     d("SeanceID") = seanceID
     d("PatientID") = ValeurOuVide(infos, "PatientID")
     d("Nom") = ValeurOuVide(infos, "Nom")
@@ -101,7 +101,7 @@ Private Function LigneJournal(ByVal seanceID As String, ByVal infos As Object, _
     d("ModePaiement") = modePaiement
     d("TiersPayant") = IIf(tiersPayant, "O", "N")
     d("Paye") = IIf(paye, "O", "N")
-    d("DateEncaissement") = IIf(paye, Format$(Date, "dd/mm/yyyy"), "")
+    d("DateEncaissement") = IIf(paye, Format$(Date, "dd""/""mm""/""yyyy"), "")
     d("FeuilleSoinsImprimee") = "N"  ' mis a O uniquement apres retour de PrintOut
     Set LigneJournal = d
 End Function
@@ -206,7 +206,8 @@ Public Function DonneesImpressionFigees(ByVal sauvegardees As Collection, ByVal 
     If Len(Trim$(CStr(identite("Nom")))) = 0 Then Err.Raise vbObjectError + 649, , "Nom fige absent."
     If Len(Trim$(CStr(identite("Prenom")))) = 0 Then Err.Raise vbObjectError + 649, , "Prenom fige absent."
     If Len(Trim$(CStr(identite("DDN")))) = 0 Then Err.Raise vbObjectError + 649, , "Naissance figee absente."
-    assureDistinct = Len(Trim$(CStr(identite("AssureNom")) & CStr(identite("AssurePrenom")) & CStr(identite("AssureNIR")))) > 0
+    ' Toute donnee assuree, meme une DDN isolee, interdit le repli sur le patient.
+    assureDistinct = Len(Trim$(CStr(identite("AssureNom")) & CStr(identite("AssurePrenom")) & CStr(identite("AssureDDN")) & CStr(identite("AssureNIR")))) > 0
     If assureDistinct Then
         If Len(Trim$(CStr(identite("AssureNom")))) = 0 Or Len(Trim$(CStr(identite("AssurePrenom")))) = 0 Then Err.Raise vbObjectError + 649, , "Identite de l assure figee incomplete."
         If Not modTexte.DateFrValide(CStr(identite("AssureDDN"))) Then Err.Raise vbObjectError + 649, , "Naissance de l assure figee invalide."
@@ -217,35 +218,48 @@ Public Function DonneesImpressionFigees(ByVal sauvegardees As Collection, ByVal 
     Set DonneesImpressionFigees = identite
 End Function
 
+' Une impression demandee ne permet jamais de clore le courrier tant que
+' le papier et sa confirmation serveur ne sont pas tous deux acquis.
+Public Function TraitementPeutEtreCloture(ByVal impressionDemandee As Boolean, ByVal papierConfirme As Boolean) As Boolean
+    TraitementPeutEtreCloture = (Not impressionDemandee) Or papierConfirme
+End Function
+
 ' Reprise apres un echec d'impression : utilise exclusivement l'identite et
-' les montants figes lors de la premiere facturation.
-Public Sub ImprimerSeanceEnregistree(ByVal infos As Object, ByVal seanceID As String)
+' les montants figes lors de la premiere facturation. False = annulation ou
+' papier non confirme ; le courrier doit rester en attente, sans ack.
+' impressionEnvoyee distingue un nouvel envoi de la confirmation d'un papier anterieur.
+Public Function ImprimerSeanceEnregistree(ByVal infos As Object, ByVal seanceID As String, _
+                                         Optional ByRef impressionEnvoyee As Boolean = False) As Boolean
     Dim saved As Object, p As Object, tentative As Object, r As Object
     Dim copie As Object, lignes As Collection, sauvegardees As Collection, confirme As Boolean
+    impressionEnvoyee = False
     Set saved = modServiceNas.CommandeID("billing.get", seanceID)
     Set sauvegardees = saved("lignes")
     Set copie = DonneesImpressionFigees(sauvegardees, ValeurOuVide(infos, "PatientID"), lignes)
     If CStr(saved("impression_etat")) = "inconnue" Then
         Dim decision As VbMsgBoxResult
         decision = MsgBox("Verifiez la feuille deja demandee pour " & CStr(copie("Nom")) & " " & CStr(copie("Prenom")) & " du " & CStr(copie("DateActe")) & "." & vbCrLf & "Est-elle sortie correctement ?" & vbCrLf & "Oui : confirmer cette feuille. Non : proposer une reimpression. Annuler : conserver en attente.", vbYesNoCancel + vbQuestion, "Resultat papier a verifier")
-        If decision = vbCancel Then Exit Sub
+        If decision = vbCancel Then Exit Function
         If decision = vbYes Then
             Set p = modServiceNas.Parametres(): p("id") = seanceID
             p("tentative") = CStr(saved("tentative")): p("confirmee") = True
             Set r = modServiceNas.Appeler("printed", p)
-            Exit Sub
+            ImprimerSeanceEnregistree = True
+            Exit Function
         End If
     End If
     modCerfaPrint.VerifierAvantReimpression copie, lignes
     confirme = CStr(saved("impression_etat")) <> "actes_enregistres"
     If confirme Then
-        If MsgBox("Une impression a deja ete demandee. Verifiez la sortie papier avant de poursuivre." & vbCrLf & "Confirmez-vous une nouvelle impression des actes enregistres ?", vbYesNo + vbExclamation, "Reimpression explicite") <> vbYes Then Exit Sub
+        If MsgBox("Une impression a deja ete demandee. Verifiez la sortie papier avant de poursuivre." & vbCrLf & "Confirmez-vous une nouvelle impression des actes enregistres ?", vbYesNo + vbExclamation, "Reimpression explicite") <> vbYes Then Exit Function
     End If
     Set p = modServiceNas.Parametres(): p("id") = seanceID: p("reimpression_confirmee") = confirme
     Set tentative = modServiceNas.Appeler("print.request", p)
     modCerfaPrint.ImprimerFeuille copie, lignes
-    If MsgBox("La feuille est-elle sortie correctement sur papier ?" & vbCrLf & "Non conserve un resultat inconnu et le courrier en attente.", vbYesNo + vbQuestion, "Verifier la feuille imprimee") <> vbYes Then Exit Sub
+    impressionEnvoyee = True
+    If MsgBox("La feuille est-elle sortie correctement sur papier ?" & vbCrLf & "Non conserve un resultat inconnu et le courrier en attente.", vbYesNo + vbQuestion, "Verifier la feuille imprimee") <> vbYes Then Exit Function
     Set p = modServiceNas.Parametres(): p("id") = seanceID
     p("tentative") = CStr(tentative("tentative")): p("confirmee") = True
     Set r = modServiceNas.Appeler("printed", p)
-End Sub
+    ImprimerSeanceEnregistree = True
+End Function

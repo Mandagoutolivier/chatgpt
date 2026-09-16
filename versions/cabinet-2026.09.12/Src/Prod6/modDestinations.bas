@@ -20,7 +20,7 @@ End Function
 Public Function CT_ListeDestinationsPourSelection() As Collection
     Dim col As New Collection, cor As Object, d As Object
     For Each cor In modBase.Correspondants()
-        If CStr(cor("Actif")) <> "0" And CStr(cor("AValider")) <> "1" Then
+        If CStr(cor("Actif")) = "1" And CStr(cor("AValider")) = "0" Then
             Set d = modServiceNas.Parametres()
             d("Cle") = CStr(cor("ID")): d("Nom") = CStr(cor("Nom")) & " " & CStr(cor("Prenom"))
             d("Type") = CStr(cor("TypesExamen")): d("Structure") = CStr(cor("StructureID")): d("Ville") = CStr(cor("Ville"))

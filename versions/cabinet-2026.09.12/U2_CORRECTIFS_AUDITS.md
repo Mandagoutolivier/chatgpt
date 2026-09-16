@@ -17,8 +17,8 @@ Cette livraison remplace le candidat U2a sans le modifier rétroactivement. Elle
 | Copie secondaire du courrier | `ExportActif`, `Dossier` et `NomFichier` sont explicites. Une clé absente ou une valeur inconnue produit une erreur au lieu de désactiver silencieusement l'export. Avec `0`, aucune copie. Avec `1`, `PublicationID` reste pseudonymisé ; `IdentitePublication` ajoute une identité normalisée sans tronquer l'identifiant. Empreinte, fichier temporaire et refus d'écrasement divergent sont conservés. |
 | Archivage DOCX/PDF | Les deux contenus sont lus et validés avant la première copie ; les mêmes octets sont archivés. Un PDF invalide ne laisse donc plus un DOCX seul. Les chemins UNC sont résolus sans dépendre de la casse ; ambiguïtés et liens sortant du volume sont refusés. |
 | Minimisation et réimpression | Les nouvelles publications ne recopient ni NIR, ni coordonnées, ni données d'assuré. La première facturation relit la fiche puis fige identité, assuré, actes, montants et libellés CERFA. Une réimpression relit exclusivement ce cliché, même si la fiche ou la nomenclature est corrigée ensuite ; un autre patient ou un historique incohérent est refusé. |
-| Migration historique | Les cellules numériques entières deviennent des identifiants sans `.0` ; les chaînes, notamment leurs zéros initiaux, sont conservées. Collisions, statuts inconnus, patients incomplets et rendez-vous/séances dépendants sont signalés. L'import reste atomique : aucune ligne silencieusement omise, aucun sexe déduit. |
-| Adresses, déploiement et version | Suppression des lignes vides dans les blocs destinataires générés. Métadonnées harmonisées sur `2026.09.16-u2b`, schéma cible 2. Projet, port, volumes et image de maintenance sont paramétrés pour empêcher une collision avec l'installation clinique. |
+| Migration historique | Les cellules numériques entières deviennent des identifiants sans `.0` ; les chaînes, notamment leurs zéros initiaux, sont conservées. Collisions, statuts inconnus, patients incomplets et rendez-vous/séances dépendants sont signalés. Les historiques exigent une identité, des règlements et un état d'impression cohérents ; une identité d'assuré partielle est refusée. La fusion de correspondants conserve les restrictions d'inactivité ou de validation. L'import reste atomique : aucune ligne silencieusement omise, aucun sexe déduit. |
+| Adresses, déploiement et version | Suppression des lignes vides dans les blocs destinataires générés. Métadonnées harmonisées sur `2026.09.16-u2b`, schéma cible 2. Projet, port, volumes et image de maintenance ont des valeurs de recette distinctes ; leur séparation doit être vérifiée avant tout lancement. Le dossier GDT proposé par les installateurs est `C:\CabinetCardioTestU2\GDT`. |
 
 Le protocole reste 2 : les nouveaux paramètres de paiement sont facultatifs pour un ancien client sans tiers payant. Un ancien client tentant un paiement avec tiers payant reçoit un refus explicite, sans écriture. Les nouveaux postes exigent la révision de service indiquée ci-dessus lors de leur validation.
 
@@ -31,12 +31,12 @@ PYTHONPATH=Serveur python -m pytest -q Serveur/tests
 python Tests/audit_statique.py
 python Tests/audit_statique.py --recette
 python Tests/inventaire_architecture.py
-python Tests/test_u2_architecture.py
+PYTHONPATH=Serveur python Tests/test_u2_architecture.py
 ```
 
 PostgreSQL natif est nécessaire pour les tests transactionnels (`CABINET_TEST_DATABASE_URL`). Sans lui, pytest les marque comme ignorés : ce résultat ne les valide pas. Les workflows GitHub exécutent aussi les contrôles PowerShell Windows, la construction de l'image et une sauvegarde/restauration dans un projet isolé. Les résultats finaux sont consignés dans la PR.
 
-La recette Office U2b exige le socle Word antérieur (au moins **34 contrôles**), puis exactement **17 essais Word U2** et **25 essais Excel**. `Build/Tester_U2_Office.ps1` refuse un échec, un champ manquant ou un total U2 différent du total attendu. Ces suites doivent encore être compilées et exécutées dans les applications Office réelles sur le PC d'essai.
+La recette Office U2b exige le socle Word antérieur (au moins **34 contrôles**), puis exactement **29 essais Word U2** et **70 essais Excel**. `Build/Tester_U2_Office.ps1` refuse un échec, un champ manquant ou un total U2 différent du total attendu. Ces suites doivent encore être compilées et exécutées dans les applications Office réelles sur le PC d'essai.
 
 ## Préparation avant mise en service
 
