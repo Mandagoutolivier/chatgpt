@@ -71,11 +71,11 @@ class ArchitectureU2(unittest.TestCase):
     def test_inventaires_commis_sont_a_jour(self):
         erreurs,sources=audit_statique.verifier(False)
         self.assertEqual(erreurs,[])
-        attendu=json.loads((audit_statique.ROOT/'Tests/inventaire_sources.json').read_text(encoding='utf-8'))
-        self.assertEqual(attendu,sources)
-        # Le condensat garde le controle de fraicheur sans republier l'inventaire interne detaille.
+        # Les condensats gardent le controle de fraicheur sans republier les inventaires internes detailles.
+        inventaire_sources=json.dumps(sources,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode('utf-8')
+        self.assertEqual(hashlib.sha256(inventaire_sources).hexdigest(),'d9a6645005fd8a0314ecca85df8a9d82551f93815400a5da8b5780cf5c43b933')
         inventaire=json.dumps(inventorier(),sort_keys=True,ensure_ascii=False,separators=(',',':')).encode('utf-8')
-        self.assertEqual(hashlib.sha256(inventaire).hexdigest(),'ef2878272b18af5abd079f3452ca6e1d85c6850ae342bba41b9c29b0d73ebdf4')
+        self.assertEqual(hashlib.sha256(inventaire).hexdigest(),'857a0ee73cee6a592d3e6a934ee98f3eb64159adf753a1137dad32613035f0ff')
 
     def test_production_et_recette_sont_coherentes(self):
         for recette in [False,True]:
