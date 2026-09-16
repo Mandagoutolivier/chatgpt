@@ -80,26 +80,50 @@ End Function
 
 
 Public Function EmpreinteSHA256(ByVal texte As String) As String
+    Dim bytes() As Byte, taille As Long
+    If Len(texte) > 0 Then
+        bytes = EncoderUTF8(texte): taille = UBound(bytes) + 1
+    End If
+    EmpreinteSHA256 = EmpreinteOctets(bytes, taille)
+End Function
+
+Public Function EmpreinteFichierSHA256(ByVal chemin As String) As String
+    Dim flux As Object, bytes() As Byte, taille As Long, numero As Long, description As String
+    On Error GoTo Echec
+    Set flux = CreateObject("ADODB.Stream"): flux.Type = 1: flux.Open
+    flux.LoadFromFile chemin: taille = flux.Size
+    If taille > 0 Then bytes = flux.Read
+    flux.Close
+    EmpreinteFichierSHA256 = EmpreinteOctets(bytes, taille)
+    Exit Function
+Echec:
+    numero = Err.Number: description = Err.Description
+    On Error Resume Next
+    If Not flux Is Nothing Then flux.Close
+    On Error GoTo 0
+    Err.Raise numero, "EmpreinteFichierSHA256", description
+End Function
+
+Private Function EmpreinteOctets(ByRef bytes() As Byte, ByVal taille As Long) As String
 #If VBA7 Then
     Dim provider As LongPtr, hash As LongPtr
 #Else
     Dim provider As Long, hash As Long
 #End If
-    Dim bytes() As Byte, digest(0 To 31) As Byte, length As Long, i As Long, numero As Long
+    Dim digest(0 To 31) As Byte, length As Long, i As Long, numero As Long
     Dim etape As String, erreurWindows As Long
     On Error GoTo Echec
-    etape = "utf8": If Len(texte) > 0 Then bytes = EncoderUTF8(texte)
     etape = "contexte"
     If CryptAcquireContextW(provider, 0, 0, 24, &HF0000000) = 0 Then Err.Raise 5
     etape = "initialisation"
     If CryptCreateHash(provider, &H800C&, 0, 0, hash) = 0 Then Err.Raise 5
-    If Len(texte) > 0 Then
+    If taille > 0 Then
         etape = "donnees"
-        If CryptHashData(hash, bytes(0), UBound(bytes) + 1, 0) = 0 Then Err.Raise 5
+        If CryptHashData(hash, bytes(0), taille, 0) = 0 Then Err.Raise 5
     End If
     etape = "resultat": length = 32
     If CryptGetHashParam(hash, 2, digest(0), length, 0) = 0 Then Err.Raise 5
-    For i = 0 To 31: EmpreinteSHA256 = EmpreinteSHA256 & LCase$(Right$("0" & Hex$(digest(i)), 2)): Next i
+    For i = 0 To 31: EmpreinteOctets = EmpreinteOctets & LCase$(Right$("0" & Hex$(digest(i)), 2)): Next i
 Sortie:
     If hash <> 0 Then CryptDestroyHash hash
     If provider <> 0 Then CryptReleaseContext provider, 0

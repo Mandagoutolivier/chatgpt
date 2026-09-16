@@ -7,12 +7,14 @@ import argparse
 import hashlib
 import json
 import re
+import math
+import os
 import openpyxl
 from psycopg.types.json import Jsonb
 from .domain import Refus, plier, empreinte, date_fr, patient_valide, creneau, montant
 from .api import service_environnement
 from .actes import normaliser as normaliser_acte
-from .service import PATIENT_FIELDS,CORRESP_FIELDS,RDV_FIELDS,ACTE_FIELDS
+from .service import PATIENT_FIELDS,CORRESP_FIELDS,RDV_FIELDS,ACTE_FIELDS,STATUTS
 
 
 def texte(value,field):
@@ -21,6 +23,9 @@ def texte(value,field):
     if isinstance(value,date):return value.strftime('%d/%m/%Y')
     if isinstance(value,time):return value.strftime('%H:%M')
     if isinstance(value,bool):return '1' if value else '0'
+    # Conserver les chaines (notamment les zeros initiaux), normaliser les
+    # nombres Excel entiers et leurs references de facon identique.
+    if isinstance(value,float) and math.isfinite(value) and value.is_integer():return str(int(value))
     return str(value).strip()
 
 
@@ -40,7 +45,7 @@ def lire(path,sheet):
 
 
 def construire_plan(root:Path):
-    resources=[];errors=[];warnings=[];correspondants={};fingerprints={};mapping={};specialistes={}
+    resources=[];errors=[];warnings=[];correspondants={};fingerprints={};mapping={};specialistes={};invalid_patients=set()
     def ajouter_cor(d,legacy=''):
         d={**dict.fromkeys(CORRESP_FIELDS,''),**d}
         key=plier('|'.join(d.get(k,'') for k in ('Nom','Prenom','Adresse1','CP','Ville','BlocDestinataire')))
@@ -53,7 +58,7 @@ def construire_plan(root:Path):
         if ident in correspondants and correspondants[ident]!=d:
             errors.append('Identifiant correspondant en conflit : '+ident);return ident
         d['ID']=ident;d['Actif']=d['Actif'] or '1';d['CleDestination']=d['CleDestination'] or ident
-        if not d['BlocDestinataire']:d['BlocDestinataire']='\n'.join([d['Nom']+' '+d['Prenom'],d['Adresse1'],d['Adresse2'],d['CP']+' '+d['Ville']]).strip()
+        if not d['BlocDestinataire']:d['BlocDestinataire']='\n'.join(x.strip() for x in [d['Nom']+' '+d['Prenom'],d['Adresse1'],d['Adresse2'],d['CP']+' '+d['Ville']] if x.strip())
         correspondants[ident]=d;fingerprints[key]=ident
         if legacy:mapping[legacy]=ident
         return ident
@@ -102,8 +107,10 @@ def construire_plan(root:Path):
         if d['MedTraitantID']:d['MedTraitantID']=mapping.get(d['MedTraitantID'],d['MedTraitantID'])
         if not d['ID']:errors.append('Patient sans ID.');continue
         try:patient_valide(d,date.today())
-        except Refus as exc:errors.append('Patient '+d['ID']+' : '+str(exc))
-        if d['MedTraitantID'] and d['MedTraitantID'] not in correspondants:errors.append('Medecin traitant absent pour '+d['ID'])
+        except Refus as exc:
+            errors.append('Patient '+d['ID']+' : '+str(exc));invalid_patients.add(d['ID'])
+        if d['MedTraitantID'] and d['MedTraitantID'] not in correspondants:
+            errors.append('Medecin traitant absent pour '+d['ID']);invalid_patients.add(d['ID'])
         resources.append({'genre':'PATIENTS','id':d['ID'],'data':d})
     pids={x['id'] for x in resources if x['genre']=='PATIENTS'}
     for path in sorted((root/'Base').glob('Agenda_*.xlsx')):
@@ -112,8 +119,10 @@ def construire_plan(root:Path):
             d={k:old.get(k,'') for k in RDV_FIELDS};original=d['ID'];d['ID']='R'+year+'_'+original
             if not original:errors.append('Rendez-vous sans ID dans '+path.name)
             if d['PatientID'] not in pids:errors.append('Patient absent pour '+d['ID'])
+            if d['PatientID'] in invalid_patients:errors.append('Rendez-vous '+d['ID']+' lie au patient a corriger '+d['PatientID'])
             try:creneau(d)
             except Refus as exc:errors.append('Rendez-vous '+d['ID']+' : '+str(exc))
+            if d['Statut'] not in STATUTS:errors.append('Statut agenda inconnu pour '+d['ID']+' : '+d['Statut'])
             if d['Statut']=='Arrive':errors.append('Rendez-vous encore arrive : terminer ou annuler avant migration ('+d['ID']+').')
             resources.append({'genre':'RDV','id':d['ID'],'data':d})
     for genre,path,sheet in [('ACTES','Config/Nomenclature.xlsx','ACTES'),('MEDICAMENTS','Config/Gras_Medicaments.xlsx','MEDICAMENTS'),('EXPRESSIONS','Config/Gras_Expressions.xlsx','EXPRESSIONS')]:
@@ -137,6 +146,7 @@ def construire_plan(root:Path):
             new='H'+path.stem.rsplit('_',1)[-1]+'_'+ident
             ids={x.get('PatientID','') for x in lines}
             if len(ids)!=1 or not ids.issubset(pids):errors.append('Patient incoherent dans seance '+new);continue
+            if ids & invalid_patients:errors.append('Seance historique '+new+' liee au patient a corriger '+next(iter(ids)))
             for x in lines:x['SeanceID']=new
             historical.append({'id':new,'patient_id':next(iter(ids)),'lignes':lines})
     for folder in ('Echange/Arrives','Echange/Arrives/EnCours','Echange/AEnvoyer'):
@@ -173,9 +183,15 @@ def appliquer(service,plan):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--racine',type=Path,default=Path('/data'))
     parser.add_argument('--appliquer',action='store_true');parser.add_argument('--empreinte-validee')
+    parser.add_argument('--rapport',type=Path,help='Rapport prive neuf ; ne contient pas les fiches patient completes.')
     args=parser.parse_args();plan=construire_plan(args.racine)
     report={'empreinte':empreinte(plan),'ressources':len(plan['ressources']),'seances':len(plan['historique']),
-            'erreurs':plan['erreurs'],'avertissements':plan['avertissements']}
+            'erreurs':plan['erreurs'],'avertissements':plan['avertissements'],
+            'strategie':'Import atomique. Corriger les anomalies et leurs dependances ; aucune ligne ignoree, aucune identite deduite.'}
+    if args.rapport:
+        fd=os.open(args.rapport,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+        with os.fdopen(fd,'w',encoding='utf-8') as f:
+            json.dump(report,f,ensure_ascii=False,indent=2);f.flush();os.fsync(f.fileno())
     print(json.dumps(report,ensure_ascii=False,indent=2))
     if args.appliquer:
         if args.empreinte_validee!=report['empreinte']:raise SystemExit('Reprendre l empreinte de la simulation relue ; aucune modification effectuee.')

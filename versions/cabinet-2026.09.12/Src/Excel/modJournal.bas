@@ -8,7 +8,7 @@ Option Explicit
 Public Function EntetesJournal() As Variant
     EntetesJournal = Array("Date", "SeanceID", "PatientID", "Nom", "Prenom", "DDN", "NIR", _
                            "CodeActe", "Montant", "ModePaiement", "TiersPayant", "Paye", _
-                           "DateEncaissement", "FeuilleSoinsImprimee", "Notes")
+                           "DateEncaissement", "PayeurReglement", "FeuilleSoinsImprimee", "Notes")
 End Function
 
 Public Sub AssurerJournalAnnee()

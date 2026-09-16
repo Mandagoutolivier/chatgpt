@@ -25,18 +25,35 @@ class Documents:
             raise Refus('Document situe hors du partage du cabinet.', 422) from exc
         if '..' in relative.parts or any(':' in x for x in relative.parts):
             raise Refus('Chemin de document interdit.', 422)
-        resolved = self.root.joinpath(*relative.parts).resolve()
-        if not resolved.is_relative_to(self.root):
-            raise Refus('Document situe hors du volume NAS.', 422)
+        resolved = self.root
+        for part in relative.parts:
+            if resolved.is_dir():
+                candidates=[p for p in resolved.iterdir() if p.name.casefold() == part.casefold()]
+                if len(candidates)>1: raise Refus('Chemin ambigu par sa casse sur le NAS.',422)
+                resolved=candidates[0] if candidates else resolved / part
+            else:
+                resolved=resolved / part
+            resolved=resolved.resolve()
+            if not resolved.is_relative_to(self.root):
+                raise Refus('Document situe hors du volume NAS.', 422)
         return resolved
 
     def conserver(self, source: str, extension: str) -> tuple[str, str]:
+        return self._conserver_octets(self._lire_valide(source,extension),extension)
+
+    def conserver_publication(self, docx: str, pdf: str):
+        # Valider les DEUX contenus avant toute archive ; conserver ces memes octets.
+        word_data=self._lire_valide(docx,'.docx')
+        pdf_data=self._lire_valide(pdf,'.pdf')
+        return self._conserver_octets(word_data,'.docx'),self._conserver_octets(pdf_data,'.pdf')
+
+    def _lire_valide(self, source: str, extension: str) -> bytes:
         path = self.resoudre(source)
         if path.suffix.lower() != extension or not path.is_file() or not 0 < path.stat().st_size <= MAX_FILE:
             raise Refus('Document absent, vide ou trop volumineux.', 422)
         # Lire une fois : le contenu valide est exactement celui copie.
         with path.open('rb') as f: data = f.read(MAX_FILE + 1)
-        if len(data) > MAX_FILE: raise Refus('Document trop volumineux.', 422)
+        if not data or len(data) > MAX_FILE: raise Refus('Document vide ou trop volumineux.', 422)
         if extension == '.pdf' and not data.startswith(b'%PDF-'):
             raise Refus('PDF invalide.', 422)
         if extension == '.docx':
@@ -50,7 +67,11 @@ class Documents:
                     if any('vbaProject' in x for x in z.namelist()): raise ValueError()
             except (zipfile.BadZipFile, ValueError) as exc:
                 raise Refus('DOCX invalide ou contenant des macros.', 422) from exc
+        return data
+
+    def _conserver_octets(self, data: bytes, extension: str) -> tuple[str,str]:
         sha = hashlib.sha256(data).hexdigest()
+        if self.objects.is_symlink(): raise Refus('Dossier archives symbolique interdit.',503)
         if not self.objects.exists():
             self.objects.mkdir(parents=True, mode=0o700, exist_ok=True)
             if self.archive_gid is not None:
@@ -62,6 +83,7 @@ class Documents:
         if self.archive_gid is not None and directory.st_gid != self.archive_gid:
             raise Refus('Groupe des archives incompatible : corriger les droits NAS.', 503)
         target = self.objects / (sha + extension)
+        if target.is_symlink(): raise Refus('Archive symbolique interdite.',503)
         if not target.exists():
             fd, tmp = tempfile.mkstemp(dir=self.objects, suffix='.tmp')
             try:

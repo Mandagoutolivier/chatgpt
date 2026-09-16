@@ -18,6 +18,18 @@ Public Function Executer() As String
     Next cas
     If modServiceNas.SHA256("abc") <> "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad" Then Err.Raise 5, , "SHA256 Excel"
     reussis = reussis + 1
+    If modUI.MontantReglement("12,30") <> 12.3@ Or modUI.MontantReglement("12.3") <> 12.3@ Or modUI.MontantReglement("12") <> 12@ Then Err.Raise 5, , "Montants decimaux exacts"
+    reussis = reussis + 1
+    For Each cas In Array("12abc", "1e2", "-1", "12.345", "1,2.3", "", "10000000")
+        Dim somme As Currency
+        numero = 0
+        On Error Resume Next
+        somme = modUI.MontantReglement(CStr(cas))
+        numero = Err.Number: Err.Clear
+        On Error GoTo Echec
+        If numero <> vbObjectError + 661 Then Err.Raise 5, , "Montant incorrect accepte"
+        reussis = reussis + 1
+    Next cas
     Executer = "{""reussis"":" & CStr(reussis) & ",""echec"":false}"
     Exit Function
 Echec:

@@ -2,9 +2,9 @@
 
 Cette version reprend l'audit du commit `44ff5bb` et remplace les écritures concurrentes dans les classeurs par un service transactionnel PostgreSQL sur le Synology. Word reste l'interface de dictée, Excel celle du secrétariat. U1 filtre et trie les arrivées en mémoire sur le poste médecin ; SQLite n'est plus requis.
 
-**Sources et outils livrés ; compilation et contrôles VBA U2 effectués dans Office sous Windows. Le parcours complet Office/NAS/Dragon/ECG/imprimante reste à qualifier avant utilisation avec des patients.** Les fichiers dans `ModelesSource` sont les originaux de référence, pas les binaires corrigés à installer directement.
+**Correctifs ciblés des audits : `2026.09.16-u2a`, destinés à une recette isolée.** Voir [le bilan des corrections et les validations restantes](U2_CORRECTIFS_AUDITS.md). L'installation clinique est conservée. Les nouveaux changements VBA doivent encore être compilés et testés dans Office ; les 54 contrôles réussis de la [qualification antérieure U2](U2_RECETTE.md) ne les couvrent pas.
 
-**U2 : 54 contrôles VBA réels réussis, constructions de production compilées, installation clinique conservée.** Voir [U2_RECETTE.md](U2_RECETTE.md). La qualification antérieure d’U1 reste dans [U1_RECETTE.md](U1_RECETTE.md).
+Les fichiers dans `ModelesSource` sont les originaux de référence, pas les binaires corrigés à installer directement. Le parcours Office/NAS/Dragon/ECG/imprimante reste à qualifier avant utilisation avec des patients.
 
 ## Installation à trois entrées
 
@@ -25,7 +25,7 @@ Saisie unique au secrétariat : nom, prénom, date de naissance, **sexe explicit
 - **A** : choisir un patient arrivé, préparer le courrier et l'identité ECG, puis dicter le raccourci Dragon du destinataire.
 - **B** : formule d'appel et corps du texte.
 - **C** : insérer nom, prénom et âge.
-- **D** : correction API, lettres annexes et gras Cabinet. **Relire, puis D une seconde fois** pour confirmer le destinataire et transmettre au secrétariat.
+- **D** : sélection du destinataire principal avant l’appel IA, correction API, lettres annexes et gras Cabinet. **Relire, puis D une seconde fois** pour confirmer le destinataire et transmettre au secrétariat.
 
 Le destinataire est confirmé par identifiant ; les homonymes ou anciennes clés ambiguës ne sont pas départagés automatiquement. Les courriers publiés sont conservés sous empreinte. Une nouvelle version du courrier ne crée pas une seconde séance comptable.
 

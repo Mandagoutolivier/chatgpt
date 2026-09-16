@@ -67,7 +67,6 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
     d("Nom") = pat("Nom")
     d("Prenom") = pat("Prenom")
     d("DDN") = modTexte.DdnPatient(pat)
-    d("NIR") = pat("NIR")
     d("TypeCourrier") = typeCourrier
     d("ConsultationID") = consultationID
     d("SeanceID") = consultationID
@@ -88,10 +87,9 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
     Set resultat = modServiceNas.Appeler("publish", d)
 
 
-    ' copie dans le dossier de sortie du cabinet ([SORTIE] Dossier, ex :
-    ' \\DS224\home\sortiedragon) sous "NOM Prenom aammjjhhmm.docx", comme
-    ' l'ancien modele : le secretariat y retrouve le fichier complet.
-    ' La copie sortiedragon a deja ete verifiee par PROD avant publication.
+    ' La copie secondaire est facultative ([SORTIE] ExportActif=1).
+    ' Si activee, son contenu a ete verifie avant publication ; son nom
+    ' porte uniquement l identifiant de publication.
 
     modLog.LogInfo "Courrier valide : " & cheminDocx & " (consultation " & consultationID & ")"
     ValiderDocument = typeCourrier

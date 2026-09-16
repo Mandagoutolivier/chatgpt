@@ -40,6 +40,16 @@ Public Function ExecuterU2(ByVal sortie As String) As String
     ExigerU2 numero = vbObjectError + 1108, "identifiants contradictoires refuses"
     ExigerU2 fso.FileExists(dossier & "\" & ancien & ".pending") And fso.FileExists(chemin), "fichiers contradictoires conserves"
     ExigerU2 modCycleCourrier.DocumentSource() Is Nothing And Not modCycleCourrier.CycleEnCours(), "contexte de correction libere"
+    ExigerU2 modProdRapide.PR_DoitForcerCorrespondantACompleterCCN("Je l'adresse au CCN.", "Bilan de rythmologie"), "CCN apostrophe droite"
+    ExigerU2 modProdRapide.PR_DoitForcerCorrespondantACompleterCCN("Je l" & ChrW(8217) & "adresse au CCN.", "Bilan de rythmologie"), "CCN apostrophe courbe"
+    ExigerU2 modProdRapide.PR_DoitForcerCorrespondantACompleterCCN("Je l" & ChrW(8216) & "oriente au CCN.", "Bilan de rythmologie"), "CCN apostrophe gauche"
+    ExigerU2 Not modProdRapide.PR_DoitForcerCorrespondantACompleterCCN("Antecedent d" & ChrW(8217) & "ablation au CCN.", "Bilan de rythmologie"), "CCN historique sans nouvelle orientation"
+    ExigerU2 Not modProdRapide.PR_DoitForcerCorrespondantACompleterCCN("Je l'adresse au docteur FICTIF au CCN.", "Bilan de rythmologie"), "CCN correspondant nomme conserve"
+    chemin = dossier & "\empreinte.bin"
+    Set ts = fso.CreateTextFile(chemin, False, False): ts.Write "abc": ts.Close
+    ExigerU2 modDonneesTransport.EmpreinteFichierSHA256(chemin) = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", "empreinte du contenu binaire"
+    Set ts = fso.CreateTextFile(chemin, True, False): ts.Close
+    ExigerU2 modDonneesTransport.EmpreinteFichierSHA256(chemin) = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "empreinte du fichier vide"
     ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""echec"":false}"
 Sortie:
     On Error Resume Next

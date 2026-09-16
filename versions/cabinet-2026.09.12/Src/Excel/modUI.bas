@@ -188,21 +188,78 @@ Echec:
     MsgBox Err.Description, vbExclamation, "Destinataire"
 End Sub
 
+Public Function MontantReglement(ByVal texte As String) As Currency
+    Dim re As Object, morceaux As Variant, fraction As String
+    texte = Trim$(texte)
+    Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^[0-9]{1,7}([.,][0-9]{1,2})?$"
+    If Not re.Test(texte) Then Err.Raise vbObjectError + 661, , "Montant invalide : chiffres et au plus deux decimales attendus."
+    morceaux = Split(Replace(texte, ",", "."), ".")
+    If UBound(morceaux) = 1 Then fraction = morceaux(1)
+    fraction = Left$(fraction & "00", 2)
+    MontantReglement = CCur(morceaux(0)) + CCur(fraction) / 100@
+End Function
+
 Public Sub UI_EncaisserSeance()
     On Error GoTo Echec
-    Dim id As String, mode As String, p As Object, r As Object, saved As Object, line As Object, total As Double, detail As String
-    id = Trim$(InputBox("Identifiant SeanceID du journal :", "Encaissement"))
+    Dim id As String, mode As String, p As Object, r As Object, saved As Object, line As Object
+    Dim patient As Currency, organisme As Currency, total As Currency, recu As Currency, saisie As String
+    Dim detail As String, jour As String, payeur As String, choix As String
+    Dim lignes As Collection, items As Collection, vus As Object, it As Object, f As ufListe
+    jour = Trim$(InputBox("Date de la seance (JJ/MM/AAAA) :", "Rechercher un encaissement", Format$(Date, "dd/mm/yyyy")))
+    If Len(jour) = 0 Then Exit Sub
+    If Not modTexte.DateFrValide(jour) Then Err.Raise vbObjectError + 661, , "Date invalide."
+    Set p = modServiceNas.Parametres(): p("date") = jour
+    Set lignes = modServiceNas.LirePages("journal.read", p)
+    Set items = New Collection: Set vus = CreateObject("Scripting.Dictionary")
+    For Each line In lignes
+        If CStr(line("Paye")) <> "O" Then
+            id = CStr(line("SeanceID"))
+            If Not vus.Exists(id) Then
+                Set it = modServiceNas.Parametres(): it("ID") = id
+                it("Patient") = CStr(line("Nom")) & " " & CStr(line("Prenom"))
+                it("Naissance") = CStr(line("DDN")): it("Date") = CStr(line("Date"))
+                items.Add it: vus(id) = True
+            End If
+        End If
+    Next line
+    If items.Count = 0 Then
+        MsgBox "Aucune seance impayee pour cette date.", vbInformation, "Encaissement"
+        Exit Sub
+    End If
+    Set f = New ufListe
+    f.Configurer "Selectionner la seance", items, Array("Patient", "Naissance", "Date", "ID"), "180 pt;85 pt;85 pt;180 pt"
+    f.Show vbModal
+    id = "": If Not f.Annule Then id = CStr(f.Resultat("ID"))
+    Unload f
     If Len(id) = 0 Then Exit Sub
     Set saved = modServiceNas.CommandeID("billing.get", id)
     For Each line In saved("lignes")
-        total = total + Val(Replace(CStr(line("Montant")), ",", "."))
         detail = CStr(line("Nom")) & " " & CStr(line("Prenom")) & " - " & CStr(line("Date"))
+        If CStr(line("Paye")) <> "O" Then
+            If CStr(line("TiersPayant")) = "O" Then
+                organisme = organisme + MontantReglement(CStr(line("Montant")))
+            Else
+                patient = patient + MontantReglement(CStr(line("Montant")))
+            End If
+        End If
     Next line
-    If MsgBox(detail & vbCrLf & "Reglement integral de " & Format$(total, "0.00") & " EUR pour cette seance ?", vbYesNo + vbQuestion, "Confirmer la seance") <> vbYes Then Exit Sub
-    mode = Trim$(InputBox("Mode du reglement integral recu : CB, Cheque, Especes ou Virement", "Encaissement"))
+    choix = Trim$(InputBox(detail & vbCrLf & "1 : Patient, solde " & Format$(patient, "0.00") & " EUR" & vbCrLf & "2 : Organisme, solde " & Format$(organisme, "0.00") & " EUR" & vbCrLf & "Qui a effectue ce reglement ?", "Payeur"))
+    If Len(choix) = 0 Then Exit Sub
+    Select Case choix
+        Case "1": payeur = "Patient": total = patient
+        Case "2": payeur = "Organisme": total = organisme
+        Case Else: Err.Raise vbObjectError + 661, , "Choisissez 1 ou 2."
+    End Select
+    If total <= 0 Then Err.Raise vbObjectError + 661, , "Aucun solde impaye pour ce payeur."
+    saisie = Trim$(InputBox("Montant reellement recu de : " & payeur & vbCrLf & "Solde attendu : " & Format$(total, "0.00") & " EUR. Les reglements partiels ne sont pas pris en charge.", "Montant recu"))
+    If Len(saisie) = 0 Then Exit Sub
+    recu = MontantReglement(saisie)
+    If recu <> total Then Err.Raise vbObjectError + 661, , "Le montant recu differe du solde. Aucun reglement enregistre."
+    mode = Trim$(InputBox("Mode du reglement recu : CB, Cheque, Especes ou Virement", "Encaissement"))
     If Len(mode) = 0 Then Exit Sub
+    If MsgBox(detail & vbCrLf & payeur & " : " & Format$(recu, "0.00") & " EUR par " & mode & vbCrLf & "Confirmer l encaissement a la date du jour ?", vbYesNo + vbQuestion, "Confirmer le reglement") <> vbYes Then Exit Sub
     Set p = modServiceNas.Parametres(): p("id") = id: p("mode") = mode: p("date") = Format$(Date, "dd/mm/yyyy")
-    p("empreinte") = CStr(saved("empreinte"))
+    p("empreinte") = CStr(saved("empreinte")): p("payeur") = payeur: p("montant") = Replace(Format$(recu, "0.00"), ",", ".")
     Set r = modServiceNas.Appeler("payment", p)
     MsgBox "Reglement enregistre.", vbInformation, "Cabinet"
     Exit Sub

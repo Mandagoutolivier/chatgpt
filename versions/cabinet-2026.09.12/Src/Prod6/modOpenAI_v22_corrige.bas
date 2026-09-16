@@ -347,11 +347,11 @@ Public Function AppelerOpenAI(ByVal prompt As String) As String
     Set pat = modIntegrationUnifie.PatientVerifie(modCycleCourrier.DocumentSource())
     Set ctx = modAnonymise.Construire(pat, Nothing)
     ident = Trim$(modIntegrationUnifie.VariableDoc(modCycleCourrier.DocumentSource(), "CorrespondantID"))
-    If Len(ident) > 0 Then
-        Set cor = modBase.CorrespondantParID(ident)
-        If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Correspondant explicite introuvable."
-        modAnonymise.AjouterCorrespondant ctx, cor, "DEST"
-    End If
+    If Len(ident) = 0 Then Err.Raise vbObjectError + 432, "OpenAI", "Selectionnez le destinataire avant la correction."
+    Dim resolution As Object
+    Set resolution = modServiceNas.Parametres(): resolution("id") = ident
+    Set cor = modServiceNas.Appeler("correspondent.resolve", resolution)
+    modAnonymise.AjouterCorrespondant ctx, cor, "DEST"
     If Len(Trim$(CStr(pat("MedTraitantID")))) > 0 Then
         Set cor = modBase.CorrespondantParID(CStr(pat("MedTraitantID")))
         If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Medecin traitant introuvable."

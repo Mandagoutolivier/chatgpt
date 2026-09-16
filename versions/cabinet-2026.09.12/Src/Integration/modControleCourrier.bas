@@ -20,23 +20,31 @@ Public Sub PreparerRelecture(ByVal doc As Document, ByVal source As String, ByVa
         "Verifiez identite, destinataires, negations, doses et examens. Appuyez de nouveau sur D apres relecture pour transmettre.", vbInformation, "Relecture du courrier"
 End Sub
 
-Public Sub ValiderEtTransmettre(ByVal doc As Document)
-    Dim cor As Object, id As String, f As ufListe, recherche As String, sortie As String, revision As String
-    modIntegrationUnifie.InitialiserPatientProd doc
+Public Function AssurerDestinataire(ByVal doc As Document) As Object
+    Dim cor As Object, id As String, f As ufListe, recherche As String, p As Object
     id = Trim$(modIntegrationUnifie.VariableDoc(doc, "CorrespondantID"))
     If Len(id) = 0 Then
         recherche = Trim$(InputBox("Nom du destinataire principal dicte (selection d un identifiant stable) :", "Destinataire"))
-        If Len(recherche) < 2 Then Exit Sub
+        If Len(recherche) < 2 Then Exit Function
         Set f = New ufListe
         f.Configurer "Confirmer le destinataire", modServiceNas.LireTable("CORRESPONDANTS", recherche), Array("Nom", "Prenom", "Adresse1", "Ville"), "110 pt;90 pt;180 pt;100 pt"
         f.Show vbModal
         If Not f.Annule Then Set cor = f.Resultat
         Unload f
-        If cor Is Nothing Then Exit Sub
-        modIntegrationUnifie.FixerVariable doc, "CorrespondantID", CStr(cor("ID"))
-    Else
-        Set cor = modBase.CorrespondantParID(id)
+        If cor Is Nothing Then Exit Function
+        id = CStr(cor("ID"))
     End If
+    Set p = modServiceNas.Parametres(): p("id") = id
+    Set cor = modServiceNas.Appeler("correspondent.resolve", p)
+    modIntegrationUnifie.FixerVariable doc, "CorrespondantID", CStr(cor("ID"))
+    Set AssurerDestinataire = cor
+End Function
+
+Public Sub ValiderEtTransmettre(ByVal doc As Document)
+    Dim cor As Object, sortie As String, revision As String
+    modIntegrationUnifie.InitialiserPatientProd doc
+    Set cor = AssurerDestinataire(doc)
+    If cor Is Nothing Then Exit Sub
     If MsgBox("Confirmez-vous la relecture de toutes les pages et le destinataire principal : " & CStr(cor("Nom")) & " " & CStr(cor("Prenom")) & ", " & CStr(cor("Ville")) & " ?", vbYesNo + vbQuestion, "Transmettre au secretariat") <> vbYes Then Exit Sub
     modCourrier.RemplirSignet doc, "DESTINATAIRE", CStr(cor("BlocDestinataire"))
     modCourrier.MettreEnFormeDestinataire doc

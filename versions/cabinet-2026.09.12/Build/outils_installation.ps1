@@ -17,7 +17,7 @@ function Ecrire-Preparation([string]$Dossier,[string]$Profil,[string]$Racine) {
         if (Test-Path -LiteralPath $path) { $binaries[$name]=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash }
     }
     $receipt=[ordered]@{version='2026.09.12';profil=$Profil;sources=(Empreintes-Sources $Racine);binaires=$binaries;compilationOffice='A effectuer sur ce PC'}
-    $receipt['release']='2026.09.15-u2'
+    $receipt['release']='2026.09.16-u2a'
     $receipt['commitSources']=$env:CABINET_SOURCE_COMMIT
     $receipt | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $Dossier 'preparation.json') -Encoding UTF8
 }

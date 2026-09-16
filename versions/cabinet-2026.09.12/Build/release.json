@@ -1,8 +1,8 @@
 {
-  "release": "2026.09.14-u0",
+  "release": "2026.09.16-u2a",
   "version": "2026.09.12",
   "statut": "recette-isolee",
   "protocole": 2,
-  "schema": 1,
-  "revision_service": "2026.09.14-u0"
+  "schema": 2,
+  "revision_service": "2026.09.16-u2a"
 }

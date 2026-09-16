@@ -283,5 +283,18 @@ End Sub
 
 Public Sub VerifierAvantFacturation(ByVal infos As Object, ByVal actes As Collection)
     If actes.Count = 0 Then Err.Raise vbObjectError + 709, , "Aucune ligne pour la feuille de soins."
-    ImprimerFeuille infos, actes, "", True
+    ' La publication ne transporte plus la fiche administrative complete.
+    ' Verifier les donnees courantes avant la premiere facturation ; les
+    ' reimpressions utilisent ensuite l instantane fige de la seance.
+    Dim pat As Object, copie As Object, cle As Variant
+    Set pat = modServiceNas.LireID("PATIENTS", CStr(infos("PatientID")))
+    Set copie = CreateObject("Scripting.Dictionary")
+    For Each cle In infos.Keys: copie(CStr(cle)) = infos(cle): Next cle
+    For Each cle In Array("Nom", "Prenom", "DDN")
+        If CStr(pat(cle)) <> CStr(infos(cle)) Then Err.Raise vbObjectError + 711, , "Identite modifiee depuis la publication : faire verifier le courrier."
+    Next cle
+    For Each cle In Array("NIR", "AssureNom", "AssurePrenom", "AssureDDN", "AssureNIR")
+        copie(CStr(cle)) = CStr(pat(cle))
+    Next cle
+    ImprimerFeuille copie, actes, "", True
 End Sub

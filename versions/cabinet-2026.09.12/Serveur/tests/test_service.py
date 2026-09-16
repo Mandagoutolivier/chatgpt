@@ -88,7 +88,7 @@ def test_u0_explicit_correspondent_cannot_fall_back(service):
 
 def test_u0_service_release_contract(service):
     result=rpc(service,'whoami',role='medecin')
-    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.15-u2'
+    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.16-u2a'
 
 
 def test_u0_rebase_sql_preserves_identity_and_cached_results(service):

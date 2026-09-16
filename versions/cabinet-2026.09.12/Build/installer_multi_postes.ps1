@@ -90,7 +90,7 @@ function Installer-ConnexionService {
     $body=@{operation='whoami';params=@{}} | ConvertTo-Json -Compress
     $response=Invoke-RestMethod -Method Post -Uri ($UrlService.TrimEnd('/')+'/v1/rpc') -Headers @{Authorization=('Bearer '+$token)} -ContentType 'application/json' -Body $body -MaximumRedirection 0 -TimeoutSec 20
     if ($response.result.protocole -ne 2) { throw 'Service NAS incompatible avec cette version.' }
-    if ($response.result.revision -ne '2026.09.15-u2' -or $response.result.schema -ne 2) { throw 'Revision du service ou schema NAS incompatible avec la livraison U2 (migration ACTES requise).' }
+    if ($response.result.revision -ne '2026.09.16-u2a' -or $response.result.schema -ne 2) { throw 'Revision du service ou schema NAS incompatible avec la livraison U2 (migration ACTES requise).' }
     if ($medecin -and 'medecin' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role medecin.' }
     if ($secretariat -and 'secretariat' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role secretariat.' }
     Ecrire-Reglage $urlPath ($UrlService.TrimEnd('/')+"`r`n")
