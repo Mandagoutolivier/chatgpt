@@ -103,7 +103,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='edadcfe55798ffa20f7abe499820f22413cc63d3'
+$Commit='b694d9ea40adbb0c61ee0c9d03b8f5c366d806b0'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -184,7 +184,7 @@ $Empreintes=@'
   "Serveur/sauvegarder.sh": "45e3d0d407b23f2ab37b2469567f169144b85db42f58c710b1f4b82fa206e86a",
   "Serveur/tests/conftest.py": "9128ca4d57dfb31ab63e0b8f1f27d9ebe9f0e6908f1a63030d63f67c736a93be",
   "Serveur/tests/recovery_smoke.py": "08624bbbc70b05efe57832ecf8536b904703499d3898c852f61f139564288ea9",
-  "Serveur/tests/test_audits_u2.py": "7bf76758ce138f0bbe5f58a12df7a3bbd2b2ea53dff0e8438c46cc3d0eb1d6e0",
+  "Serveur/tests/test_audits_u2.py": "a0b5fa90646f898ff8d79baa69ee024353a84f8bd1d4fc8e0e2ef2bb13ad331e",
   "Serveur/tests/test_domain.py": "3b12f0003c4ace100971d7b4a4caf983a545b0d6f6ee761a66b79c9000b8dedd",
   "Serveur/tests/test_migration.py": "42535463e221ba0049a37241e93488e917e8240cf4b15114bfa7118ca0899064",
   "Serveur/tests/test_service.py": "ad5b5a943ca4cdb4e0b600b4aceb524923781fb2e9a2a6dd880e48a1febdf382",
