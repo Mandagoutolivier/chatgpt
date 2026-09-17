@@ -103,7 +103,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='8d0d3b2ed94dff25a68fb5509a52234243851223'
+$Commit='7d452be3cf208aa1d4b66d44e5990d1ef1ded08f'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -114,7 +114,7 @@ $Empreintes=@'
   "Archives/Vba/modClaude.bas": "ee5b2c971ad47e60d98e2741d50ec1ab052a18d1dab662b8910cc5c7154fc361",
   "Build/Inventorier_U0.ps1": "cc884b657b41c101987ec1749478d55d916d0da3557a4bdbc5cb22c73f5a7b2f",
   "Build/Tester_Droits_U0.ps1": "e8241e52f3a7b77b64dff584803e58dbac0c0a4c73247a34c1145b97bdbaef8d",
-  "Build/Tester_U1_Office.ps1": "4d47f9fccf971c941dabd58bf2e1d28dac554e84200e65c2fc8bc131202b76c6",
+  "Build/Tester_U1_Office.ps1": "2ce6af2b3d55c3d77a20cf48c9eb23fef5c6e2ca90af822915073f30d9dc2f32",
   "Build/Tester_U2_Office.ps1": "dd8d0b08ed088b8462d6737eaabd598082b3fd98d6724b0b62be26e91987c919",
   "Build/assistant_installation.ps1": "feceb2df423106defe1ad0f4658bd291e63d6a4d21fc409af35654ee94fc7933",
   "Build/construire_cabinet_secretariat.ps1": "fc0040304f510ba664a26bc8493b8f875d601a9b4d7ab2977fcadf8b6c58e811",
@@ -152,7 +152,7 @@ $Empreintes=@'
   "ModelesSource/Cabinet.xlsm": "714e9458066bd28b8b6e6f6e9f65b2d673d3285c1915b57216e780d5e75f04ff",
   "ModelesSource/ModeleCourrierChatGPT_PROD(6).dotm": "a8ccb702e8defc9fce19b9afb968c4f7cd5b25d59da562dba172bc6b51b85524",
   "README.md": "419e978aac48849d17619eb03d7fb6ac4f2dd1913fd3cac330c6ce0520cd2d6e",
-  "RECETTE_WINDOWS.md": "dfc39b38d9349eed864bbd3c4a619825721390e811985efb25b204e9beab4014",
+  "RECETTE_WINDOWS.md": "9a8d962485f17c08ce536111d7b89ab41855976b35196ce1eefa2f0ef4c450db",
   "Serveur/.dockerignore": "891c19e4a4cc9f2b65c507511effbb989345d165389833708b19671f3fc4b58f",
   "Serveur/.env.example": "69d6281b3e784b69a5735808556a5a0e2959b62eb62362ad29e06208dfb80cd9",
   "Serveur/.env.u2-test.example": "fb47176ff74cd74645f0cd969f3127df905cc48210203377942793c26c5bc72f",
@@ -218,13 +218,13 @@ $Empreintes=@'
   "Src/Excel/modEchange.bas": "fbcfa55845fdaacf87330f1c6e07b8108e6b75b2d4f9f00462b4f3932a2cd318",
   "Src/Excel/modJournal.bas": "866f32223e48f069c8d9b09cd082412f17f8a66021e5f7377ff4772425925218",
   "Src/Excel/modUI.bas": "271986da309ee11754c3e5c5529ee0c7700b6cde2d3a13391f5fe70ec38fadf1",
-  "Src/Excel/ufChoixActe.vba": "cb86bb2bac665d01d02fc4e0011d8d7517c35580724ef25c1352339d5de38755",
+  "Src/Excel/ufChoixActe.vba": "dde15d9a0886eb4e0a5023ac516158f8da6bfb84e084f7fd8e35dd3e9e0115c2",
   "Src/Excel/ufCorrespEdit.vba": "df69c57a58f3c79f239eea81da64c38d7d1802d921396076159a87b67a63005c",
   "Src/Excel/ufListe.vba": "1d40b76607705d85decc2a7d25da79d224c6dba6171fdc0701396f5812c4ebd7",
   "Src/Excel/ufPatientEdit.vba": "8781bc6a97c74b9b422e2af04e529258b6916b5d8a7ce0d4404faf5a9df307e6",
   "Src/Excel/ufRdvEdit.vba": "b77490776a98c3caf72ef8eacd20d2cb94e2799a4b4b45c5e8eef88fed79655d",
   "Src/Integration/modAttenteLocale.bas": "1069e93b6e2b01993d5981674e09d6a16b7ff26a8271a9e4b372b2a056446254",
-  "Src/Integration/modControleCourrier.bas": "2b6e42c629ae53fca651ae70288b8046c6c4a532cb3d869fb5d0f778eba7de8e",
+  "Src/Integration/modControleCourrier.bas": "3a1d28bdff8a1df1ba8156985bf8e0262700db9fc32e736a772656871afae14c",
   "Src/Integration/modCycleCourrier.bas": "67ed2d079b47e3e95051599b15995418acc7065f2cfe680cd61fc7667a2b00aa",
   "Src/Integration/modEtatCourrier.bas": "1f50c4dc21dd2a4d868462edb7dc01e41b4232984e6423b8c3d30993b2794005",
   "Src/Integration/modIntegrationUnifie.bas": "55c401062d1a85e79a57932178773b69394f814080704ae9bbabd6129d678d98",
@@ -272,12 +272,12 @@ $Empreintes=@'
   "Tests/Vba/excel/modRecetteU1Excel.bas": "aef0d609295b7196ccbd4d1c38e4433495098ee2eb93b6f6001161c1710f2990",
   "Tests/Vba/word/modAuditTests.bas": "a87d4d6082bdaa5d231eb59f114d9b9da7971b9b1951733b8021f9c536bcc75a",
   "Tests/Vba/word/modRecetteU0.bas": "75fe44170262584fc150b0417451e0d87d2b4d9b4cfa7a98f4b738a57f56f1a5",
-  "Tests/Vba/word/modRecetteU1.bas": "b95d2117183781dd201e060d05f19d66a959d5133d35cfab6679d0c6d7d10922",
+  "Tests/Vba/word/modRecetteU1.bas": "d992b9d3fdd312e1b65e9621d616edd20973a3757a17585fa640266c13379992",
   "Tests/Vba/word/modRecetteU2.bas": "30bb3f61463bdfe06fcdd97a291487d71ffcf52e592405fc74774756828def30",
   "Tests/audit_statique.py": "11e10b5757c30b3cc5718841d0d6ebfe235a7bcdbc13d77fae7356da01dba671",
   "Tests/inventaire_architecture.py": "1667db4e7a5f1e5fa0bdedd293a179188a9e8dff2b8bde4116273e4641d5b384",
-  "Tests/inventaire_sources.json": "98275e7788d6265c197aeca6010498b062f1d136d40b5ebfeeddb744b81ebccd",
-  "Tests/inventaire_u2.json": "c9079d4d29accae0336c5695e6c97a42bb8af90f2fdcdee905e3d48f7a8cbb85",
+  "Tests/inventaire_sources.json": "e73cd28d8a42fb0df7089f339dfdcdb515441650090b62a9303d39384bca7fb6",
+  "Tests/inventaire_u2.json": "e5d2fd61cea6456c055e280772bee9c60e2e527c5fde71744bcc646edc374153",
   "Tests/nettoyage_sources.json": "f3b54768aca28e41878d9bd36a147d7f2f7da5815609e85576d2a03986c5e07d",
   "Tests/schema_reponse_api.json": "fbf5f9805faa23b77cdffe368bdd737e320665c58b75a528a268f69ac06665f4",
   "Tests/test_assistant.ps1": "11cc4bb1293777569a72537d23a203dbc70da60f191ae37fc9650b9b728bc2f6",
@@ -292,13 +292,13 @@ $Empreintes=@'
   "Tests/test_recovery_docker.sh": "fe133403cff54e758ebb2fe75c6fa36d1501575ad1a08bdf7bdf4d03df61e6fc",
   "Tests/test_u0_installation.ps1": "5f87ef07bd91f8f9b5aa5698ede582059938590438338001f8a900074281a8c1",
   "Tests/test_u1_installation.ps1": "238228e934846fccd9a63a61020c488fbd292ce386920cc40da7242ccca6023f",
-  "Tests/test_u2_architecture.py": "64cd3746972cae5219682a860d81fd3eaf0cf2fca5293510db5aa1e57a16ef43",
+  "Tests/test_u2_architecture.py": "eaf9f880c02a3da0c2b0db5e1117c728e193e559012abf1b202a2c459438829f",
   "Tests/test_u2_manifeste.ps1": "b73a657cdf3434fcce70addca01cff68b812c0361882418bda9dfd7b7e4792bd",
   "Tests/verification_livraison.json": "e1733c2ce5b5523783ef9d8385971ba768499d6acb7e411b98179576cf9cbb50",
   "U0_RECETTE.md": "30208817c337df7b89349d71ecbf80bfe77b9f456ebde5e184aef27ef1531987",
   "U1_RECETTE.md": "faec11f24bc95db3e35a2d690483ba76b9d1cd8c18c30f136ad837962a86d959",
-  "U2_CORRECTIFS_AUDITS.md": "b1bd7a17ef1063170daa0ef671917b0f880cf5d56a23ab5ab71c58c5579c988e",
-  "U2_RECETTE.md": "8cebaef27bcbd9dd41fc534c39f59fea5ee4b324a3a23271ff81afc0d74a1eea"
+  "U2_CORRECTIFS_AUDITS.md": "1d435d0ecf702209c34d9c7639cf74fa541daa6d2f62e652f24147f673608c5b",
+  "U2_RECETTE.md": "26c95631d51b1ef4f3ecd1c07fb78a4e5280d7fb4f87207279d9f402b72ec856"
 }
 '@ | ConvertFrom-Json
 $bootLock=$null
