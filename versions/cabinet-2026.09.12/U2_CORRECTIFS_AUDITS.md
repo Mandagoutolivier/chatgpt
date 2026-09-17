@@ -22,6 +22,24 @@ Cette livraison remplace le candidat U2a sans le modifier rétroactivement. Elle
 
 Le protocole reste 2 : les nouveaux paramètres de paiement sont facultatifs pour un ancien client sans tiers payant. Un ancien client tentant un paiement avec tiers payant reçoit un refus explicite, sans écriture. Les nouveaux postes exigent la révision de service indiquée ci-dessus lors de leur validation.
 
+## Corrections issues des essais Office sur RDC — 17 septembre 2026
+
+Les essais dans un compte Windows standard dédié ont révélé trois défauts que les contrôles hors Office n'avaient pas détectés :
+
+| Défaut observé | Correction apportée |
+|---|---|
+| Excel restait actif après la construction COM. Une valeur `AccessVBOM` était encore présente après un nettoyage annoncé terminé. | La recette libère les références COM après le retour des constructeurs et après les essais. Elle attend la disparition des processus Office avant de restaurer les autorisations VBA et `Normal.dotm`. Si la fermeture est interrompue, le journal de restauration est conservé et le nettoyage reste incomplet. |
+| Une sauvegarde Word 2016 modifiait l'empreinte du courrier sans modification de son contenu. | La normalisation exclut uniquement les compteurs d'allocation VML des paramètres du document. Les couleurs, traits, règles de disposition et attributs inconnus restent pris en compte. La recette vérifie les sauvegardes successives ainsi que les changements de texte, de destinataire, de gras et de mise en page. |
+| La compilation Excel refusait la variable `resume` du choix des payeurs, car `Resume` est réservé en VBA. | La variable devient `resumeSelection` dans cette seule procédure ; le choix des payeurs et la confirmation restent inchangés. |
+
+**Recette Office locale réussie le 17 septembre 2026 à 22 h 34 (UTC+2)** sous `RDC\CabinetU2Test`, compte standard, avec Word et Excel 2016. Les modèles de recette ont été construits et compilés ; le socle Word annonce **50 contrôles réussis**, Word U2 **29/29** et Excel **70/70**, sans échec. Les quatre fichiers source corrigés et exécutés correspondent aux sources de cette livraison par SHA256. Les journaux et copies de recette sont conservés sur RDC dans `C:\Users\CabinetU2Test\AppData\Local\CabinetCardioTestU2\RecetteOffice-Finale-20260917-223338`.
+
+Le journal final annonce `SUCCES`. Un contrôle distinct à 22 h 34 min 59 s confirme l'empreinte initiale de `Normal.dotm`, l'absence des valeurs `AccessVBOM` Word et Excel comme avant la recette, la disparition des processus Office et le retrait du journal de restauration. Le dossier Word `STARTUP` du compte de test est vide : aucun modèle n'a été activé.
+
+Après ces corrections, les contrôles statiques locaux passent pour les 80 composants de production et les 85 composants avec recette ; les inventaires régénérés correspondent aux sources et les 12 tests d'architecture réussissent. Les résultats historiques du 15 septembre restent limités au commit cité dans leur bilan.
+
+Cette réussite porte sur les copies de recette et des données fictives. Restent à qualifier les modèles destinés à l'activation, le service NAS U2b séparé et le parcours Word → NAS/SMB → Excel, les essais IA/Dragon/ECG, l'impression papier et l'aller-retour installation/restauration sur le PC d'essai. La restauration de l'environnement Office après les tests ne vaut pas validation de ce retour arrière complet. Aucune activation clinique n'est réalisée.
+
 ## Validation reproductible
 
 Les données des tests sont fictives. Les régressions ajoutées couvrent les paiements mixtes et leurs reprises, les refus sans écriture, la sélection par date, les accents et caractères littéraux, la minimisation et le figement comptable, les archives, les liens de migration et la protection du rapport.
@@ -36,7 +54,7 @@ PYTHONPATH=Serveur python Tests/test_u2_architecture.py
 
 PostgreSQL natif est nécessaire pour les tests transactionnels (`CABINET_TEST_DATABASE_URL`). Sans lui, pytest les marque comme ignorés : ce résultat ne les valide pas. Les workflows GitHub exécutent aussi les contrôles PowerShell Windows, la construction de l'image et une sauvegarde/restauration dans un projet isolé. Les résultats finaux sont consignés dans la PR.
 
-La recette Office U2b exige le socle Word antérieur (au moins **34 contrôles**), puis exactement **29 essais Word U2** et **70 essais Excel**. `Build/Tester_U2_Office.ps1` refuse un échec, un champ manquant ou un total U2 différent du total attendu. Ces suites doivent encore être compilées et exécutées dans les applications Office réelles sur le PC d'essai.
+La recette Office U2b enrichie attend **50 contrôles du socle Word**, puis exactement **29 essais Word U2** et **70 essais Excel**. `Build/Tester_U2_Office.ps1` refuse un échec, un champ manquant ou un total U2 différent du total attendu. Consigner les compteurs réellement obtenus et la restauration finale ; les contrôles statiques ne remplacent pas l'exécution dans les applications Office du PC d'essai.
 
 ## Préparation avant mise en service
 

@@ -6,6 +6,8 @@ Base : U1 `80b471128113100cd47c6a234fd3ed1ae82e85c8`, PR nº 3. Branche : `codex
 
 Le commit exécuté pour la recette Office est **`f0a45ecc6daa7a5cd9413f1d9e769747388a8964`**. La publication de ce bilan ne modifie pas les sources VBA, Python ni PowerShell qualifiées ; le lanceur est régénéré pour inclure la documentation actualisée. Les journaux détaillés restent conservés localement.
 
+Ce bilan reste une preuve historique de ce commit. Il ne qualifie pas les correctifs U2b ni les nouvelles recettes : leur état figure dans [U2_CORRECTIFS_AUDITS.md](U2_CORRECTIFS_AUDITS.md).
+
 ## Changements et limites
 
 | Sujet de l'audit | Réalisation U2 | Qualification complémentaire |

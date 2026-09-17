@@ -145,7 +145,7 @@ Private Function ChoisirPayeurActe(ByVal acte As Object, ByRef annule As Boolean
 End Function
 
 Private Function ChoisirRepartitionTiers(ByVal actes As Collection, ByRef annule As Boolean) As Object
-    Dim resultat As Object, reponse As VbMsgBoxResult, a As Object, organisme As Boolean, resume As String
+    Dim resultat As Object, reponse As VbMsgBoxResult, a As Object, organisme As Boolean, resumeSelection As String
     Set resultat = CreateObject("Scripting.Dictionary"): resultat.CompareMode = 1
     If Not CBool(chkTiers.Value) Then
         AffecterTousPayeurs actes, resultat, False
@@ -170,13 +170,13 @@ Private Function ChoisirRepartitionTiers(ByVal actes As Collection, ByRef annule
         organisme = ChoisirPayeurActe(a, annule)
         If annule Then Set ChoisirRepartitionTiers = resultat: Exit Function
         AffecterPayeur resultat, CStr(a("Code")), organisme
-        resume = resume & CStr(a("Code")) & " : " & IIf(organisme, "Organisme", "Patient") & vbCrLf
+        resumeSelection = resumeSelection & CStr(a("Code")) & " : " & IIf(organisme, "Organisme", "Patient") & vbCrLf
         If Len(CStr(a("CodeAssocie"))) > 0 Then
             AffecterPayeur resultat, CStr(a("CodeAssocie")), organisme
-            resume = resume & "  + " & CStr(a("CodeAssocie")) & " : meme payeur" & vbCrLf
+            resumeSelection = resumeSelection & "  + " & CStr(a("CodeAssocie")) & " : meme payeur" & vbCrLf
         End If
     Next a
-    If MsgBox("Confirmez la repartition :" & vbCrLf & vbCrLf & resume, vbYesNo + vbQuestion, _
+    If MsgBox("Confirmez la repartition :" & vbCrLf & vbCrLf & resumeSelection, vbYesNo + vbQuestion, _
               "Repartition du tiers payant") <> vbYes Then annule = True
     Set ChoisirRepartitionTiers = resultat
 End Function

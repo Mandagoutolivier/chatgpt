@@ -396,8 +396,8 @@
     "host": "word",
     "module": "modControleCourrier",
     "source": "Src/Integration/modControleCourrier.bas",
-    "lines": 96,
-    "sha256": "2b6e42c629ae53fca651ae70288b8046c6c4a532cb3d869fb5d0f778eba7de8e"
+    "lines": 131,
+    "sha256": "3a1d28bdff8a1df1ba8156985bf8e0262700db9fc32e736a772656871afae14c"
   },
   {
     "role": "production",
@@ -581,7 +581,7 @@
     "module": "ufChoixActe",
     "source": "Src/Excel/ufChoixActe.vba",
     "lines": 267,
-    "sha256": "cb86bb2bac665d01d02fc4e0011d8d7517c35580724ef25c1352339d5de38755"
+    "sha256": "dde15d9a0886eb4e0a5023ac516158f8da6bfb84e084f7fd8e35dd3e9e0115c2"
   },
   {
     "role": "production",

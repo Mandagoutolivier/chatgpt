@@ -59,7 +59,7 @@ class ArchitectureU2(unittest.TestCase):
         runner=(root/'Build/Tester_U1_Office.ps1').read_text(encoding='utf-8')
         helper=(root/'Build/outils_recette_u1.ps1').read_text(encoding='utf-8')
         self.assertNotRegex(runner,r'\.reussis\s+-ne\s+10')
-        self.assertIn('[int]$recette.reussis -lt 34',runner)
+        self.assertIn('[int]$recette.reussis -lt 50',runner)
         self.assertEqual(runner.count('Verifier-ResultatRecetteOffice'),2)
         self.assertIn("@('reussis','attendus','echec')",helper)
 

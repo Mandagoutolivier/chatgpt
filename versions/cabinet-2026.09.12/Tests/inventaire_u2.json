@@ -824,11 +824,12 @@
       "role": "production",
       "module": "modControleCourrier",
       "source": "Src/Integration/modControleCourrier.bas",
-      "lignes": 96,
-      "sha256": "2b6e42c629ae53fca651ae70288b8046c6c4a532cb3d869fb5d0f778eba7de8e",
+      "lignes": 131,
+      "sha256": "3a1d28bdff8a1df1ba8156985bf8e0262700db9fc32e736a772656871afae14c",
       "entrees_publiques": [
         "AssurerDestinataire",
         "EmpreinteCourrier",
+        "EmpreinteXmlCourrier",
         "PreparerRelecture",
         "ValiderEtTransmettre"
       ]
@@ -932,8 +933,8 @@
       "role": "recette",
       "module": "modRecetteU1",
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "lignes": 169,
-      "sha256": "b95d2117183781dd201e060d05f19d66a959d5133d35cfab6679d0c6d7d10922",
+      "lignes": 219,
+      "sha256": "d992b9d3fdd312e1b65e9621d616edd20973a3757a17585fa640266c13379992",
       "entrees_publiques": [
         "Executer"
       ]
@@ -1251,7 +1252,7 @@
       "module": "ufChoixActe",
       "source": "Src/Excel/ufChoixActe.vba",
       "lignes": 267,
-      "sha256": "cb86bb2bac665d01d02fc4e0011d8d7517c35580724ef25c1352339d5de38755",
+      "sha256": "dde15d9a0886eb4e0a5023ac516158f8da6bfb84e084f7fd8e35dd3e9e0115c2",
       "entrees_publiques": [
         "Charger",
         "ReimprimerFeuille"
@@ -3349,6 +3350,12 @@
     {
       "hote": "word",
       "source": "modRecetteU1",
+      "cible": "modControleCourrier",
+      "membre": "EmpreinteXmlCourrier"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU1",
       "cible": "modEtatCourrier",
       "membre": "DefinirDossierTests"
     },
@@ -4502,19 +4509,19 @@
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 143
+      "ligne": 153
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 146
+      "ligne": 156
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 151
+      "ligne": 161
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 160
+      "ligne": 170
     },
     {
       "source": "Src/Excel/modEchange.bas",
