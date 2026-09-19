@@ -93,6 +93,12 @@ jobs:
           ./versions/cabinet-2026.09.12/Tests/test_u2_manifeste.ps1
           ./versions/cabinet-2026.09.12/Tests/test_connexion_service.ps1
 
+      - name: PowerShell Windows 5.1 - restauration complete et isolation des recettes
+        shell: powershell
+        run: |
+          ./versions/cabinet-2026.09.12/Tests/test_restauration_poste.ps1
+          ./versions/cabinet-2026.09.12/Tests/test_recette_isolee.ps1
+
       - name: Lanceur CMD autonome, sans Office ni telechargement
         shell: powershell
         run: |

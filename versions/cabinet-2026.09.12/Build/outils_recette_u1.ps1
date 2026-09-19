@@ -1,3 +1,16 @@
+function Verifier-ResultatRecetteSimple([string]$Json,[string]$Nom,[int]$Minimum) {
+    try { $r=ConvertFrom-Json -InputObject $Json -ErrorAction Stop } catch { throw ($Nom+' : resultat JSON invalide.') }
+    if ($null -eq $r -or $r -is [Array]) { throw ($Nom+' : resultat absent ou non objet.') }
+    $props=@($r.PSObject.Properties.Name)
+    if ('echec' -notin $props -or 'reussis' -notin $props -or $r.echec -isnot [bool]) { throw ($Nom+' : compte rendu incomplet.') }
+    [int]$nombre=0
+    if (-not [int]::TryParse([string]$r.reussis,[ref]$nombre) -or $r.echec -or $nombre -lt $Minimum) {
+        $detail=if ('description' -in $props) { [string]$r.description } else { '' }
+        throw ($Nom+' en echec ou incomplete : '+$detail)
+    }
+    return $r
+}
+
 function Verifier-ResultatRecetteOffice([string]$Json,[string]$Nom) {
     try { $r=ConvertFrom-Json -InputObject $Json -ErrorAction Stop } catch { throw ($Nom+' : resultat JSON invalide.') }
     if ($null -eq $r -or $r -is [Array]) { throw ($Nom+' : resultat absent ou non objet.') }

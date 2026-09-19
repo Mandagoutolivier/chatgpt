@@ -1,14 +1,19 @@
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][string]$Sortie, [switch]$RecetteU2)
+param([Parameter(Mandatory=$true)][string]$Sortie, [switch]$RecetteU2,
+      [string]$RacineSources='', [switch]$HorsReseau)
 $ErrorActionPreference='Stop'
-$root=Split-Path $PSScriptRoot -Parent
+$root=if ($RacineSources) { [IO.Path]::GetFullPath($RacineSources) } else { Split-Path $PSScriptRoot -Parent }
 . (Join-Path $PSScriptRoot 'outils_assistant.ps1')
 . (Join-Path $PSScriptRoot 'outils_recette_u1.ps1')
+if ($HorsReseau) {
+    if ($env:CABINET_QUALIFICATION_ISOLEE -cne [IO.Path]::GetFullPath($Sortie)) { throw 'Qualification isolee : utiliser Tester_U2_Office_Isole.ps1.' }
+    . (Join-Path $PSScriptRoot 'outils_recette_isolee.ps1')
+}
 if(Get-Process WINWORD,EXCEL -ErrorAction SilentlyContinue){throw 'Office deja ouvert : aucun processus existant ne sera utilise.'}
 [void][IO.Directory]::CreateDirectory($Sortie)
 $journal=Join-Path $Sortie 'acces-vba-a-restaurer.json'
 $rapport=Join-Path $Sortie 'validation-office-en-cours.log'
-$word=$null;$doc=$null;$excel=$null;$wb=$null
+$word=$null;$doc=$null;$excel=$null;$wb=$null;$wordUpdateLinksAvant=$null
 $normalPath=Join-Path $env:APPDATA 'Microsoft\Templates\Normal.dotm'
 $normalBackup=Join-Path $Sortie 'Normal-avant-recette.dotm'
 $normalSurveiller=$false;$normalExistait=$false;$normalHash='';$testsValides=$false;$accesRestaure=$false
@@ -40,6 +45,12 @@ try{
     $word=New-Object -ComObject Word.Application
     $word.Visible=$false;$word.DisplayAlerts=0;$word.AutomationSecurity=3
     $doc=$word.Documents.Open((Join-Path $Sortie 'CabinetUnifie.dotm'),$false,$false,$false)
+    if ($HorsReseau) {
+        Preparer-CopieRecetteIsolee $doc.VBProject $Sortie 'Word'
+        $word.WordBasic.DisableAutoMacros(1)
+        $wordUpdateLinksAvant=$word.Options.UpdateLinksAtOpen
+        $word.Options.UpdateLinksAtOpen=$false
+    }
     Trace-U1 'Compilation Word demandee.'
     Compiler-ProjetU1 $word $doc.VBProject
     Trace-U1 'Compilation Word terminee.'
@@ -59,12 +70,23 @@ try{
         Trace-U1 ('Tests U2 : '+[string]$resultU2)
         $u2=Verifier-ResultatRecetteOffice ([string]$resultU2) 'Recette U2 Word'
     }
-    $doc.Close([ref]$noSave);$doc=$null;$word.Quit([ref]$noSave);$word=$null
+    $resultModele=$word.Run('modRecetteModeleCourrier.ExecuterModeleCourrier',[ref]$testArgument)
+    Trace-U1 ('Tests modele courrier : '+[string]$resultModele)
+    $modele=Verifier-ResultatRecetteSimple ([string]$resultModele) 'Recette modele courrier' 38
+    if ($modele.modele_reel_verifie -ne $false) { throw 'Modele prive non autorise dans la recette consolidee.' }
+    $resultPresentation=$word.Run('modRecettePresentationAnnexe.ExecuterPresentationAnnexe')
+    Trace-U1 ('Tests presentation annexe : '+[string]$resultPresentation)
+    $presentation=Verifier-ResultatRecetteSimple ([string]$resultPresentation) 'Recette presentation annexe' 67
+    if ([int]$presentation.reussis -ne 67) { throw 'Nombre de controles presentation inattendu.' }
+    $doc.Close([ref]$noSave);$doc=$null
+    if ($null -ne $wordUpdateLinksAvant) { $word.Options.UpdateLinksAtOpen=$wordUpdateLinksAvant;$wordUpdateLinksAvant=$null }
+    $word.Quit([ref]$noSave);$word=$null
     Finaliser-ObjetsOfficeRecette
     Attendre-FermetureOffice
     $excel=New-Object -ComObject Excel.Application
     $excel.Visible=$false;$excel.DisplayAlerts=$false;$excel.EnableEvents=$false;$excel.AutomationSecurity=3
     $wb=$excel.Workbooks.Open((Join-Path $Sortie 'Cabinet.xlsm'),0,$false)
+    if ($HorsReseau) { Preparer-CopieRecetteIsolee $wb.VBProject $Sortie 'Excel' }
     Trace-U1 'Compilation Excel demandee.'
     Compiler-ProjetU1 $excel $wb.VBProject
     $wb.Save();Trace-U1 'Compilation Excel terminee.'
@@ -75,6 +97,9 @@ try{
     Trace-U1 ('Tests Excel : '+[string]$resultExcel)
     $recetteExcel=Verifier-ResultatRecetteOffice ([string]$resultExcel) 'Recette Excel'
     $wb.Close($false);$wb=$null;$excel.Quit();$excel=$null
+    $resultats=[ordered]@{WordU1=$recette;WordU2=$null;ModeleCourrier=$modele;PresentationAnnexe=$presentation;Excel=$recetteExcel;CopiesInstrumentees=[bool]$HorsReseau;ActivationEffectuee=$false;RecetteClinique=$false}
+    if ($RecetteU2) { $resultats.WordU2=$u2 }
+    [IO.File]::WriteAllText((Join-Path $Sortie 'resultats-suites-office.json'),($resultats|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
     $testsValides=$true
 }catch{
     Trace-U1 ('ECHEC : '+$_.Exception.Message)
@@ -84,7 +109,11 @@ try{
     $noSave=[object]0
     if($null -ne $doc){try{$doc.Close([ref]$noSave)}catch{Trace-U1 'Fermeture copie Word a verifier.'}}
     if($null -ne $wb){try{$wb.Close($false)}catch{Trace-U1 'Fermeture copie Excel a verifier.'}}
-    if($null -ne $word){try{$word.Quit([ref]$noSave)}catch{Trace-U1 'Fermeture instance Word a verifier.'}}
+    if($null -ne $word){
+        try { if ($null -ne $wordUpdateLinksAvant) { $word.Options.UpdateLinksAtOpen=$wordUpdateLinksAvant } }
+        catch { Trace-U1 'Restauration UpdateLinksAtOpen a verifier.' }
+        finally { try { $word.Quit([ref]$noSave) } catch { Trace-U1 'Fermeture instance Word a verifier.' } }
+    }
     if($null -ne $excel){try{$excel.Quit()}catch{Trace-U1 'Fermeture instance Excel a verifier.'}}
     $doc=$null;$wb=$null;$word=$null;$excel=$null
     try{
