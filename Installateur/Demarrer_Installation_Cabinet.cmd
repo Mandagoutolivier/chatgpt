@@ -103,7 +103,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='36175ffc49fd063d21fa3523268f8620305386b2'
+$Commit='ff9bf0c5850647de3fb1fa29d37442ae403a5692'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -113,9 +113,11 @@ $Empreintes=@'
   "Archives/Vba/modCabinetTestDestinations.bas": "3ac7897f2ddbc37cad35f611a91a976dc7d42f2ed780a16f7c1ca5608e48710b",
   "Archives/Vba/modClaude.bas": "ee5b2c971ad47e60d98e2741d50ec1ab052a18d1dab662b8910cc5c7154fc361",
   "Build/Inventorier_U0.ps1": "cc884b657b41c101987ec1749478d55d916d0da3557a4bdbc5cb22c73f5a7b2f",
+  "Build/QUALIFICATION_OFFICE_ISOLEE.md": "4ab4b0709c02c54c99e1a940c6229595a7604f0a5f340c7ec4203f909bad6551",
   "Build/Tester_Droits_U0.ps1": "e8241e52f3a7b77b64dff584803e58dbac0c0a4c73247a34c1145b97bdbaef8d",
-  "Build/Tester_U1_Office.ps1": "2ce6af2b3d55c3d77a20cf48c9eb23fef5c6e2ca90af822915073f30d9dc2f32",
-  "Build/Tester_U2_Office.ps1": "dd8d0b08ed088b8462d6737eaabd598082b3fd98d6724b0b62be26e91987c919",
+  "Build/Tester_U1_Office.ps1": "5de5e39d6e1198f3cc36fe3651fb1e6f9143da293078fd0fc2a38cfea7acf9ac",
+  "Build/Tester_U2_Office.ps1": "9996d8d46851af5f7dc2dbf3c287f6890abda6c00aa12338a8af6e5955524eac",
+  "Build/Tester_U2_Office_Isole.ps1": "5aa03945436451dc43b676ea064030e79017adb9473c35d25aade78f9138f694",
   "Build/assistant_installation.ps1": "feceb2df423106defe1ad0f4658bd291e63d6a4d21fc409af35654ee94fc7933",
   "Build/construire_cabinet_secretariat.ps1": "fc0040304f510ba664a26bc8493b8f875d601a9b4d7ab2977fcadf8b6c58e811",
   "Build/construire_modele_unifie.ps1": "e3fc00b5fd4671979dbfbb6c29f3d6b1648b5ca9b5399e80f25026181e88483f",
@@ -127,10 +129,11 @@ $Empreintes=@'
   "Build/outils_configuration.ps1": "d7a6e3bbbc967d51130b16834fa3ea26fa4b30f4ade6da9437b509f89e09176f",
   "Build/outils_construction.ps1": "6e66df8cba9e844c2f314b019bc1412e2b24494fd9ab3d1610fde49258b70f4a",
   "Build/outils_installation.ps1": "a235c2f5f1bfbd244125f0ecd5900532fef850dfc1a4e0862f42cb8d00c83111",
-  "Build/outils_recette_u1.ps1": "169f4395d072859bff10f004647143ad3e43f3934166d885b6c86239942e62cd",
+  "Build/outils_recette_isolee.ps1": "b45ee83307be8794594ebb4ab410dc7b87abc95d2c74a6e0c86c428115c1e5f4",
+  "Build/outils_recette_u1.ps1": "903df29f64a71efe8d51eb950b38b2924c09a4d693323f5bc99698ebabdd2959",
   "Build/outils_telechargement.ps1": "2e6c3ce03391f6116276ec61a67625a3bae0c8a3f695acc065bc0a6f714ae3af",
   "Build/release.json": "07252d873767c82dd18bd3a1f20fb7b22f63f283deb393772bbf384d07ad33a1",
-  "Build/restaurer_poste.ps1": "7fc5d7008e385a1ef669ae868c71b41498ac9172b417a6e007c91ef3302ef672",
+  "Build/restaurer_poste.ps1": "5cf5a5bbc0b734fbb5dda346f56957e23df2d624f40f88ecb0432ff033d3c874",
   "Build/ruban_unifie.xml": "e3adc12dc7dbd3bb6041c5c76ceceeb7defdf86c6faf155ae4083957c548b858",
   "Build/schemas.json": "9b6c70a98f9129de98bf9aa1f1f6714b714e1610352801e0d806ab7254f3d0d4",
   "Build/valider_preparation.ps1": "5fc10bf3559c354c8ad373183879af4a52d40f3caf7b00b3e629453cfd64c2af",
@@ -292,7 +295,9 @@ $Empreintes=@'
   "Tests/test_image_permissions.sh": "ea684664d1111acf78305173ece4fac556511f1d6c7e7041a3c9d47ff3f97305",
   "Tests/test_installation.ps1": "923bff34cbe62f22af7bd188fff5123d227fc932d09a886ab2865824b3f2b682",
   "Tests/test_lancement_direct.ps1": "44dd1fc6b61d15d73c779b298764470954a77f51a6f158ec9282c77bbdf71cc5",
+  "Tests/test_recette_isolee.ps1": "2027086609d48bbef79407065e04f6b52f5acd27f7571b2bb4df63b880776672",
   "Tests/test_recovery_docker.sh": "fe133403cff54e758ebb2fe75c6fa36d1501575ad1a08bdf7bdf4d03df61e6fc",
+  "Tests/test_restauration_poste.ps1": "46672e21e6e44c79609af2b04a862bc31327f4c5222e2962840bd6434ce4d352",
   "Tests/test_u0_installation.ps1": "5f87ef07bd91f8f9b5aa5698ede582059938590438338001f8a900074281a8c1",
   "Tests/test_u1_installation.ps1": "db7e616b8f24a15374ade8c243e2dc2d42704f4d3e8dc95f3a9dbca20ed817c4",
   "Tests/test_u2_architecture.py": "eaf9f880c02a3da0c2b0db5e1117c728e193e559012abf1b202a2c459438829f",
