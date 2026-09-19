@@ -1,105 +1,166 @@
-# Déployer le service sur le Synology
+# Préparer U2b sur le Synology
+
+## Recette U2b isolée
+
+Ce guide prépare la révision `2026.09.16-u2b` dans un environnement d'essai distinct. Il ne constate ni un déploiement NAS réussi ni une validation Office. L'installation U0 du cabinet reste en service et ne doit être ni remplacée ni arrêtée pendant cette recette.
+
+| Élément | Valeur U2b de recette |
+|---|---|
+| Projet Compose | `cabinetcardio-test-u2` |
+| Port local du NAS | `127.0.0.1:8766` |
+| Image de maintenance | `cabinet-maintenance:2026.09.16-u2b` |
+| Code | `/volume1/docker/cabinetcardio-test-u2/code/versions/cabinet-2026.09.12` |
+| Données | `/volume1/CabinetCardioTestU2` |
+| PostgreSQL | `/volume1/docker/cabinetcardio-test-u2/postgres` |
+| Sauvegardes | `/volume1/docker/cabinetcardio-test-u2/sauvegardes` |
+| Chemin Windows (exemple) | `\\NAS-RECETTE\CabinetCardioTestU2` |
+
+Le projet clinique, son port `8765`, ses volumes, ses secrets et son reverse proxy ne doivent pas être modifiés. PostgreSQL reste sur un volume local du NAS, jamais sur un montage SMB.
 
 ## Organisation et prérequis
 
 Déployer d'abord un projet d'essai distinct. Il faut Container Manager/Docker Compose sur le Synology, un dossier local pour PostgreSQL, un partage de documents et un dossier de sauvegarde. Les chemins `/volume1/...` sont des exemples à adapter. Les fichiers de PostgreSQL doivent être sur le volume **local du NAS**, jamais sur un montage SMB.
 
-Le service écoute uniquement `127.0.0.1:8765` sur l'hôte NAS. Configurer dans DSM un reverse proxy HTTPS avec un certificat reconnu par les PC, vers ce port. Utiliser un nom résolu au cabinet et via le VPN domicile. Aucun port PostgreSQL n'est publié. Ne pas ouvrir le service sur Internet pour contourner le VPN.
+Le service de recette écoute uniquement `127.0.0.1:8766` sur l'hôte NAS. Configurer dans DSM un second reverse proxy HTTPS, avec un nom distinct, vers ce port. Ne pas remplacer la règle du service clinique. Utiliser un nom résolu uniquement depuis le cabinet et la liaison privée sécurisée. Aucun port PostgreSQL n'est publié. Ne pas ouvrir le service directement sur Internet.
 
 L'image retenue est `postgres:17.11-bookworm`. Son [Dockerfile officiel](https://github.com/docker-library/postgres/blob/master/17/bookworm/Dockerfile) définit l'UID PostgreSQL 999. L'API a un compte de base non superutilisateur et des comptes applicatifs distincts.
 
-## Mise en place unique
+## Commandes limitées à la recette
 
-1. Copier le dossier de version complet dans un emplacement administré du NAS, par exemple `/volume1/docker/cabinet-code/versions/cabinet-2026.09.12`. Ne pas placer les secrets dans un partage accessible aux postes.
-2. Copier `Serveur/.env.example` en `Serveur/.env`. Adapter les trois volumes, le chemin UNC et l'UID/GID d'un compte de service NAS. Ce compte doit lire les ressources et écrire les brouillons/archives du partage. PostgreSQL et son dossier de données restent réservés à son UID.
-3. Créer les trois répertoires et accorder les droits nécessaires. Réserver le sous-dossier `Documents` à l'écriture de l'API ; les postes du cabinet doivent seulement pouvoir le lire. Ils doivent pouvoir écrire dans `Patients` pour les brouillons. Éviter un partage donnant l'écriture globale aux archives.
-4. Depuis `Serveur`, générer les secrets sur le NAS :
+Après avoir copié les sources dans le dossier indiqué, définir cette fonction dans **chaque nouvelle session shell NAS**. Adapter ensemble les deux chemins absolus si le code est rangé ailleurs. Le projet, le fichier Compose et le fichier d'environnement sont désignés explicitement, indépendamment du dossier courant :
 
 ```sh
+u2b_compose() {
+    docker compose --project-name cabinetcardio-test-u2 \
+        --file /volume1/docker/cabinetcardio-test-u2/code/versions/cabinet-2026.09.12/Serveur/compose.yaml \
+        --env-file /volume1/docker/cabinetcardio-test-u2/code/versions/cabinet-2026.09.12/Serveur/.env \
+        "$@"
+}
+```
+
+Un nom de projet distinct n'isole pas à lui seul les dossiers montés : contrôler la sortie de `u2b_compose config`, notamment si le shell contient déjà des variables `CABINET_*`, qui peuvent prendre le pas sur `.env`. Aucun montage ne doit désigner un emplacement U0, directement ou par un lien symbolique. Le nom `NAS-RECETTE` est un exemple à remplacer par le nom réel du NAS. Identifier séparément chaque poste de recette ; le nom AX8_MAX ne détermine ni son emplacement ni son rôle. RDC peut rester éteint ; aucune étape ne prévoit de le réveiller.
+
+## Mise en place unique
+
+1. Copier le dossier de version complet dans le nouvel emplacement de code de recette indiqué dans le tableau, distinct du code clinique. Ne pas placer les secrets dans un partage accessible aux postes.
+2. Copier `Serveur/.env.u2-test.example` en `Serveur/.env`. Vérifier le projet `cabinetcardio-test-u2`, le port `8766`, les trois volumes isolés, le chemin UNC et l'UID/GID. Ne pas copier le `.env` ni les secrets cliniques.
+3. Créer les trois répertoires et accorder les droits nécessaires. Réserver le sous-dossier `Documents` à l'écriture de l'API ; les postes du cabinet doivent seulement pouvoir le lire. Ils doivent pouvoir écrire dans `Patients` pour les brouillons. Éviter un partage donnant l'écriture globale aux archives.
+4. Générer les secrets dans le seul dossier de code U2b :
+
+```sh
+cd /volume1/docker/cabinetcardio-test-u2/code/versions/cabinet-2026.09.12/Serveur
 python3 preparer_secrets.py
 sudo chown 999:999 secrets/admin_password.txt
 sudo chmod 600 secrets/admin_password.txt
-sudo chown 999:100 secrets/db_password.txt
+sudo chown 999:GID_API_RECETTE secrets/db_password.txt
 sudo chmod 640 secrets/db_password.txt
 sudo chmod 700 secrets
 ```
 
-Remplacer `100` par le GID API configuré. Le dossier parent des secrets doit appartenir à l'administrateur qui lance Compose. Le fichier DB est lisible par PostgreSQL et par le groupe de l'API ; seul ce secret est monté dans l'API. Le générateur ne remplace jamais un secret existant.
+Remplacer `GID_API_RECETTE` par le GID numérique configuré dans le `.env` de recette avant exécution. Le dossier parent des secrets doit appartenir à l'administrateur qui lance Compose. Le fichier DB est lisible par PostgreSQL et par le groupe de l'API ; seul ce secret est monté dans l'API. Le générateur ne remplace jamais un secret existant.
 
-5. Initialiser les fichiers de support depuis un PC Windows, sans toucher aux classeurs existants :
+5. Depuis le dossier de version U2b d’un PC Windows disponible, initialiser les fichiers de support du seul partage de recette :
 
 ```powershell
-.\Build\initialiser_nas.ps1 -RacineNas '\\DS224\CabinetCardio'
+.\Build\initialiser_nas.ps1 -RacineNas '\\NAS-RECETTE\CabinetCardioTestU2'
 ```
 
-Pour une base d'essai, utiliser le partage d'essai, jamais le partage réel. Les copies initiales incluent l'annuaire et les dictionnaires qui serviront à la migration.
+Pour une base d'essai, utiliser le partage d'essai, jamais le partage réel. Le fichier `Config\config.ini` doit préciser explicitement :
 
-6. Démarrer depuis `Serveur` :
-
-```sh
-docker compose up -d --build
+```ini
+[SORTIE]
+ExportActif=0
+Dossier=Sorties
+NomFichier=PublicationID
 ```
 
-Configurer le reverse proxy DSM ; vérifier `https://adresse-du-service/health`. Il doit indiquer `status: ok` et `protocole: 2`. Si `init-db.sh` échoue sur un nouveau volume, corriger la cause et recréer uniquement ce volume neuf, sans données. L'initialisation PostgreSQL ne se rejoue pas automatiquement sur un volume déjà initialisé.
+Une clé absente ou une valeur inconnue arrête l'initialisation. `ExportActif=1` ne doit être choisi qu'après vérification des droits du dossier. `NomFichier` vaut `PublicationID` ou `IdentitePublication`.
 
-## Migration des données
-
-Arrêter les anciens clients, terminer ou annuler leurs files d'arrivée et de courriers, puis sauvegarder le partage original. La simulation vérifie les identités, dates, références, identifiants et files encore actives.
+6. Afficher et examiner d'abord la configuration résolue :
 
 ```sh
-docker compose exec -T api python -m cabinet.migration
+u2b_compose config
+```
+
+Vérifier les chemins de chaque montage, l'image de maintenance et le port `127.0.0.1:8766`. Si un chemin clinique apparaît, corriger la configuration avant de continuer. Démarrer ensuite la seule recette :
+
+```sh
+u2b_compose up -d --build
+u2b_compose ps
+curl -fsS http://127.0.0.1:8766/health
+```
+
+Configurer le reverse proxy DSM distinct ; vérifier `https://adresse-de-recette/health`. La réponse attendue contient `status: ok`, `version` et `protocole: 2`. **`/health` n’annonce ni le schéma ni la révision U2b.** Ces deux valeurs sont contrôlées par le RPC authentifié `whoami` lors de la validation de l’installateur, après migration et création d’un compte de recette : `schema: 2` et `revision: 2026.09.16-u2b`. Si `init-db.sh` échoue sur un nouveau volume, corriger la cause et recréer uniquement ce volume neuf, sans données. L'initialisation PostgreSQL ne se rejoue pas automatiquement sur un volume déjà initialisé.
+
+## Migration des données dans la copie isolée
+
+Utiliser des données fictives ou une copie cohérente déjà préparée pour la recette. Arrêter uniquement les clients de cette copie et terminer ou annuler leurs files d'arrivée et de courriers. Les commandes de ce guide n'organisent aucun arrêt des clients U0. La simulation vérifie les identités, dates, références, identifiants et files encore actives.
+
+```sh
+u2b_compose exec -T api python -m cabinet.migration
 ```
 
 Lire le rapport et conserver son empreinte. Les erreurs empêchent l'import ; les avertissements signalent notamment les anciennes clés de destinataire ambiguës, à corriger dans le nouvel annuaire avant de les utiliser. Les ressources initiales livrées ne contiennent aucun patient : elles produisent 259 correspondants, 6 actes, 172 médicaments et 53 expressions. Les tarifs sont repris de vos fichiers et doivent être contrôlés par le cabinet.
 
 ```sh
-docker compose exec -T api python -m cabinet.migration --appliquer --empreinte-validee EMPREINTE_DE_LA_SIMULATION
+u2b_compose exec -T api python -m cabinet.migration --appliquer --empreinte-validee EMPREINTE_DE_LA_SIMULATION
 ```
 
 L'import est transactionnel et refusé si la base cible contient déjà des données. Rejouer le même import renvoie « déjà importé ». Les fichiers Excel restent intacts ; les changements ultérieurs passent par les applications et le service. Les séances historiques sont identifiées par année et conservent leurs montants. Cette commande ne fusionne pas deux bases ayant divergé.
 
 Les formes `Specialistes_ParType` enrichissent les spécialistes existants via `ID_Specialiste`. Plusieurs clés d'examen peuvent être des alias de la même fiche. Une ancienne clé partagée par plusieurs personnes reste bloquée ; le choix explicite d'une fiche utilise son ID unique.
 
-## Mise à niveau U1 d'une base déjà importée
+## Mise à niveau du schéma 2 pour U2b
 
-D'abord sauvegarder et restaurer une copie isolée ; arrêter les clients pendant la mise à niveau. Déployer le code U1 sur cette copie, puis simuler :
+Une base nouvellement initialisée commence au schéma 1. Une copie restaurée peut également nécessiter cette migration. D'abord sauvegarder et restaurer une copie isolée ; arrêter les clients de cette copie pendant la mise à niveau. Déployer U2b sur cette copie, puis simuler :
 
 ```sh
-docker compose exec -T api python -m cabinet.migration_u1
+u2b_compose exec -T api python -m cabinet.migration_u1
 ```
 
 Lire les conflits et conserver l'empreinte du plan. Lorsque le plan est approuvé :
 
 ```sh
-docker compose exec -T api python -m cabinet.migration_u1 --appliquer EMPREINTE_DU_PLAN
+u2b_compose exec -T api python -m cabinet.migration_u1 --appliquer EMPREINTE_DU_PLAN
 ```
 
-Cette migration transactionnelle conserve les valeurs antérieures dans `migrations_ressources`, unifie `Libelle` et `LibelleCourt`, conserve `Depassement` et passe le schéma à 2. Si les données ont changé depuis la simulation, elle refuse l'application. L'installateur U1 exige le schéma 2 et la révision `2026.09.14-u1`. La sauvegarde et la restauration acceptent les schémas 1 et 2.
+Cette migration transactionnelle conserve les valeurs antérieures dans `migrations_ressources`, unifie `Libelle` et `LibelleCourt`, conserve `Depassement` et passe le schéma à 2. Si les données ont changé depuis la simulation, elle refuse l'application. L'installateur U2b exige le schéma 2 et la révision `2026.09.16-u2b`. La sauvegarde et la restauration acceptent les schémas 1 et 2.
 
-Aucune de ces commandes de migration U1 n'a été exécutée sur les données du cabinet pendant la préparation AX8_Max.
+Aucune de ces commandes de migration n'est à exécuter sur les données cliniques pendant la recette.
 
-## Comptes et activation des postes
+## Comptes et activation des postes de recette
 
 ```sh
-docker compose exec -T api python -m cabinet.admin compte secretariat --roles secretariat
-docker compose exec -T api python -m cabinet.admin compte medecin-cabinet --roles medecin
-docker compose exec -T api python -m cabinet.admin compte domicile --roles medecin secretariat
+u2b_compose exec -T api python -m cabinet.admin compte secretariat-recette --roles secretariat
+u2b_compose exec -T api python -m cabinet.admin compte medecin-recette --roles medecin
+u2b_compose exec -T api python -m cabinet.admin compte domicile-recette --roles medecin secretariat
 ```
 
 Chaque commande affiche **une fois** le jeton à fournir à l'installateur du poste concerné. Ne pas l'enregistrer dans un transcript, une capture ou un dossier partagé. La base conserve une empreinte SHA-256 du jeton aléatoire, pas sa valeur. Révocation :
 
 ```sh
-docker compose exec -T api python -m cabinet.admin revoquer domicile
+u2b_compose exec -T api python -m cabinet.admin revoquer domicile-recette
 ```
 
 Les reprises de consultation sont limitées au compte qui a réservé la consultation. Avec des comptes distincts domicile/cabinet, terminer la consultation sur son poste d'origine ; le transfert entre comptes n'est pas automatisé. Un même compte nominatif peut être utilisé sur les deux postes du même médecin si ses rôles conviennent ; ne pas partager son jeton avec le secrétariat.
 
-Installer ensuite les postes selon [INSTALLATION_MULTI_POSTES.md](../INSTALLATION_MULTI_POSTES.md). Migrer tous les postes lors du même arrêt ; les anciennes écritures directes dans Excel ne doivent pas continuer.
+Préparer les seuls postes de recette selon [INSTALLATION_MULTI_POSTES.md](../INSTALLATION_MULTI_POSTES.md), en vérifiant leur identité et leurs chemins locaux. Ne pas activer U2b dans les modèles ou applications cliniques pendant cette phase. Le passage de tous les postes cliniques relève d’une mise en service ultérieure, après recette complète.
 
 ## Sauvegarde et reprise
 
-La procédure U0 remplace les anciens scripts de contrôle et de restauration. Suivre [U0_RECETTE.md](../U0_RECETTE.md) : suspension effective des écritures SMB, capture de la base et des fichiers/configuration, vérification dans un cluster isolé, puis restauration persistante sur une cible vide pour la recette Windows. Les anciens jeux sans manifeste U0 restent conservés, mais ne sont pas acceptés silencieusement par ce nouveau vérificateur. Ne pas fabriquer de marqueur `TERMINE` pour les convertir.
+Les exigences de cohérence sont décrites dans [U0_RECETTE.md](../U0_RECETTE.md) : suspension effective des écritures SMB, capture de la base et des fichiers/configuration, vérification dans un cluster isolé, puis restauration persistante sur une cible vide pour la recette Windows. Pour U2b, appliquer ces exigences aux seuls emplacements de recette ; ne pas reprendre les chemins ni les commandes de production U0 sans les adapter et les vérifier. Les anciens jeux sans manifeste U0 restent conservés, mais ne sont pas acceptés silencieusement par ce nouveau vérificateur. Ne pas fabriquer de marqueur `TERMINE` pour les convertir.
 
 ## Limites d'exploitation
 
-Les correctifs U1 n'ont pas été déployés sur le service de votre DSM pendant cette recette. Les UID, droits SMB, certificat, reverse proxy, volume libre et restauration physique doivent être contrôlés sur le NAS. Les comptes sont des jetons applicatifs ; l'authentification SSO/MFA n'est pas implémentée. Le service conserve les ressources métier en JSONB versionné ; une évolution de schéma exige une migration explicite, pas une modification manuelle des tables.
+Les correctifs U2b ne sont pas qualifiés pour le service clinique tant que la recette réelle n'est pas terminée. Les UID, droits SMB, certificat, reverse proxy, volume libre et restauration physique doivent être contrôlés sur le NAS. Les parcours Word/Excel restent à qualifier dans l’environnement de recette. Les comptes sont des jetons applicatifs ; l'authentification SSO/MFA n'est pas implémentée. Le service conserve les ressources métier en JSONB versionné ; une évolution de schéma exige une migration explicite, pas une modification manuelle des tables.
+
+## Arrêt de la recette et retour à l'installation actuelle
+
+Avec la fonction `u2b_compose` définie plus haut :
+
+```sh
+u2b_compose stop
+u2b_compose ps
+```
+
+Cette commande arrête uniquement `cabinetcardio-test-u2`. Elle laisse le service clinique, son port `8765` et ses données inchangés. Conserver les volumes de recette jusqu'à l'analyse ; leur suppression éventuelle fera l'objet d'une opération séparée et explicite.

@@ -57,7 +57,9 @@ def main():
         db.execute("INSERT INTO commandes(compte,id,empreinte,resultat) VALUES ('compte-fictif','commande-fictive','empreinte-conservee',%s)", (Jsonb({'items':[publication]}),))
     # Une sauvegarde U0 reste inspectable avec le moteur U1.
     legacy = r.backup(source, backups, config, old)
-    assert r.inspect_bundle(backups/legacy['sauvegarde'])['schema'] == 1
+    legacy_manifest = r.inspect_bundle(backups/legacy['sauvegarde'])
+    assert legacy_manifest['schema'] == 1
+    assert legacy_manifest['revision'] == r.SERVICE_REVISION == '2026.09.16-u2b'
     class MigrationService:
         @contextmanager
         def connexion(self):
@@ -80,7 +82,9 @@ def main():
                    "('consult-fictive','compte-fictif',%s,%s)", (Jsonb(avant), Jsonb(apres)))
     report = r.backup(source, backups, config, old)
     bundle = backups/report['sauvegarde']
-    assert r.inspect_bundle(bundle)['schema'] == 2
+    manifest = r.inspect_bundle(bundle)
+    assert manifest['schema'] == 2
+    assert manifest['revision'] == r.SERVICE_REVISION == '2026.09.16-u2b'
     source_db = os.environ['PGDATABASE']
     test_db = 'u1_restore_'+uuid.uuid4().hex
     with r.connection() as db:

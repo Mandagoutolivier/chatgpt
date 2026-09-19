@@ -4,6 +4,7 @@ param(
     [string]$RacineSources = ''
 )
 . (Join-Path $PSScriptRoot 'outils_construction.ps1')
+. (Join-Path $PSScriptRoot 'outils_configuration.ps1')
 # Windows PowerShell 5.1 -File peut evaluer les valeurs par defaut avant PSScriptRoot.
 if ([string]::IsNullOrWhiteSpace($RacineSources)) {
     $RacineSources = Split-Path $PSScriptRoot -Parent
@@ -33,6 +34,7 @@ try {
     if (-not (Test-Path -LiteralPath $config)) {
         [IO.File]::Copy((Join-Path $RacineSources 'Src\ConfigDefaut\config.ini'),$config,$false)
     }
+    Verifier-ConfigurationSortie $config
     # Les donnees metier sont initialisees/migrees par le service PostgreSQL.
     # Ne pas modifier Patients.xlsx ni les classeurs historiques pendant l'installation.
     Write-Host 'Ressources de support preparees. Bases historiques conservees ; migration PostgreSQL distincte.'

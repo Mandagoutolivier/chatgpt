@@ -305,7 +305,7 @@ Private Sub ActionsCreneau(ByVal rdvs As Collection)
     Dim items As Collection, r As Object, it As Object, f As ufListe, nom As String
     Dim actions As Variant, a As Variant
     actions = Array(Array("ARRIVE", "Marquer ARRIVE"), Array("ABSENT", "Marquer ABSENT"), _
-                    Array("ANNULE", "Annuler le rendez-vous"), Array("FICHE", "Ouvrir la fiche patient"))
+                    Array("ANNULE", "Annuler le rendez-vous"), Array("PREVU", "Remettre PREVU"), Array("FICHE", "Ouvrir la fiche patient"))
     Set items = New Collection
     For Each r In rdvs
         If mPatients.Exists(r("PatientID")) Then
@@ -349,6 +349,10 @@ Private Sub ExecuterAction(ByVal rdvs As Collection, ByVal rdvID As String, ByVa
             modEchange.SignalerArrivee r
         Case "ABSENT"
             modAgenda.MarquerStatut rdvID, "Absent", annee
+        Case "PREVU"
+            If MsgBox("Remettre ce rendez-vous a PREVU ?", vbYesNo + vbQuestion, "Cabinet") = vbYes Then
+                modAgenda.MarquerStatut rdvID, "Prevu", annee
+            End If
         Case "ANNULE"
             If MsgBox("Annuler ce rendez-vous ?", vbYesNo + vbQuestion, "Cabinet") = vbYes Then
                     modAgenda.MarquerStatut rdvID, "Annule", annee

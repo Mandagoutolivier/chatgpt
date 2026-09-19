@@ -86,7 +86,7 @@ def test_migration_conflict_is_all_or_nothing(service):
 def test_publish_validation_precedes_archive_copy(service,monkeypatch):
     _,_,p=publication(service)
     def forbidden(*a):pytest.fail('Ne doit pas commencer les copies')
-    monkeypatch.setattr(service.documents,'conserver',forbidden)
+    monkeypatch.setattr(service.documents,'conserver_publication',forbidden)
     for values in (dict(p,DateActe='11/09/2026'),dict(p,DestinataireID='A_COMPLETER'),dict(p,CheminPdf=42)):
         with pytest.raises(Refus):rpc(service,'publish',values,'medecin')
 

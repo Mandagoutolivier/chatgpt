@@ -5,7 +5,7 @@ param(
     [string]$RacineNas='',
     [string]$UrlService='',
     [string]$DossierPrepare='',
-    [string]$DossierGdt='C:\Mandagout',
+    [string]$DossierGdt='C:\CabinetCardioTestU2\GDT',
     [string]$FichierJeton=''
 )
 $ErrorActionPreference='Stop'

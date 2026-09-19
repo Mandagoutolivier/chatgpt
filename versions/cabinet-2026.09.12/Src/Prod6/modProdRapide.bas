@@ -17,7 +17,7 @@ Option Explicit
 '          une nouvelle page
 '
 ' Principes :
-' - sauvegarde automatique du document final dans \\DS224\home\sortiedragon via modSortieDragon ;
+' - sauvegarde automatique du document final dans le dossier SORTIE configure via modSortieDragon ;
 ' - aucune impression automatique ;
 ' - pas de boîte de dialogue en fonctionnement normal ;
 ' - les interventions sont réservées aux erreurs ou aux destinations inconnues ;
@@ -723,7 +723,7 @@ Public Sub TesterAbsenceForcageCCNHistorique()
 
 End Sub
 
-Private Function PR_DoitForcerCorrespondantACompleterCCN( _
+Public Function PR_DoitForcerCorrespondantACompleterCCN( _
     ByVal texteSource As String, _
     ByVal corpsDemande As String) As Boolean
 
@@ -739,8 +739,8 @@ Private Function PR_DoitForcerCorrespondantACompleterCCN( _
     src = LCase$(texteSource)
     corps = LCase$(corpsDemande)
 
-    src = Replace(src, "'", "'")
-    corps = Replace(corps, "'", "'")
+    src = Replace(Replace(src, ChrW(8217), "'"), ChrW(8216), "'")
+    corps = Replace(Replace(corps, ChrW(8217), "'"), ChrW(8216), "'")
 
     'La demande générée doit réellement concerner la rythmologie / une ablation.
     If InStr(1, corps, "ablation", vbTextCompare) = 0 _
@@ -1220,8 +1220,12 @@ Private Sub PR_PositionnerSignatureAjouteeAvec6Tabs( _
     Dim i As Long
     Dim texte As String
     Dim rngDebut As Range
+    Dim nom As String, prenom As String
 
     If doc Is Nothing Then Exit Sub
+    nom = Trim$(modConfig.Config("MEDECIN", "Nom", ""))
+    prenom = Trim$(modConfig.Config("MEDECIN", "Prenom", ""))
+    If Len(nom) = 0 Or Len(prenom) = 0 Then Exit Sub
 
     'Recherche uniquement dans la lettre qui vient d'être ajoutée,
     'en partant de la fin afin de ne jamais toucher l'en-tête.
@@ -1237,8 +1241,8 @@ Private Sub PR_PositionnerSignatureAjouteeAvec6Tabs( _
         texte = Replace(texte, Chr$(7), "")
         texte = Replace(texte, Chr$(11), " ")
 
-        If InStr(1, texte, "Mandagout", vbTextCompare) > 0 _
-        And InStr(1, texte, "Olivier", vbTextCompare) > 0 Then
+        If InStr(1, texte, nom, vbTextCompare) > 0 _
+        And InStr(1, texte, prenom, vbTextCompare) > 0 Then
 
             'Aucun retrait de paragraphe : la position dépend uniquement
             'des six caractères TAB présents dans le texte final.

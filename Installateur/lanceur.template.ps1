@@ -8,7 +8,8 @@ $bootLock=$null
 try {
     if ($env:OS -ne 'Windows_NT') { throw 'Ce lanceur necessite Windows.' }
     Write-Host ('Cabinet Cardio - installation guidee - version '+$Commit.Substring(0,7))
-    Write-Host 'Utilisez votre session Windows habituelle, sans Executer en tant qu administrateur.'
+    Write-Host 'Recette U2b uniquement : utilisez le compte Windows dedie aux tests, jamais le profil clinique U0.'
+    Write-Host 'Lancez sans Executer en tant qu administrateur.'
     $cache=Join-Path $env:LOCALAPPDATA 'CabinetCardio\Installation\Sources'
     [void][IO.Directory]::CreateDirectory($cache)
     $bootLock=[IO.File]::Open((Join-Path $cache 'telechargement.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)

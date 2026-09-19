@@ -5,12 +5,12 @@ Option Explicit
 ' MODULE : modSortieDragon
 ' VERSION : DOMICILE-GRAS-1Z / SORTIE Z:
 '
-' Enregistre le document final dans \\DS224\home\sortiedragon sous la forme :
+' Enregistre le document final dans le dossier SORTIE configure sous la forme :
 '   NOM Prenom aammddhhmm.docx
 '
 ' Particularité :
 ' certains anciens courriers mémorisent l'identité ainsi :
-'   gPatient.Nom = "COMPAGNET Carole"
+'   gPatient.Nom = "FICTIF Exemple"
 '   gPatient.Prenom = ""
 '
 ' Dans ce cas, le module sépare localement le nom et le prénom uniquement
@@ -68,7 +68,7 @@ Public Function SD_EnregistrerCourrierFinal( _
             "Nom=[" & nomPatient & "] Prénom=[" & prenomPatient & "]"
     End If
 
-    etapeErreur = "Création/vérification de \\DS224\home\sortiedragon"
+    etapeErreur = "Création/vérification de le dossier SORTIE configure"
     SD_CreerDossierSiNecessaire SD_DOSSIER_SORTIE
 
     etapeErreur = "Construction du nom de fichier"
@@ -127,7 +127,7 @@ GestionErreur:
 
     MsgBox _
         "Le courrier a été corrigé, mais son enregistrement automatique " & _
-        "dans \\DS224\home\sortiedragon a échoué." & vbCrLf & vbCrLf & _
+        "dans le dossier SORTIE configure a échoué." & vbCrLf & vbCrLf & _
         "Étape : " & etapeErreur & vbCrLf & _
         "Erreur : " & numeroErreur & " - " & descriptionErreur & vbCrLf & _
         "Document : " & nomDocument & vbCrLf & _
@@ -195,7 +195,7 @@ Private Sub SD_SeparerIdentite( _
 
     'Chercher le premier mot qui n'est pas entièrement en majuscules.
     'Exemples :
-    '   COMPAGNET Carole        -> COMPAGNET / Carole
+    '   FICTIF Exemple        -> FICTIF / Exemple
     '   LE GOFF Jean-Pierre     -> LE GOFF / Jean-Pierre
     premierPrenom = 0
 
@@ -506,16 +506,56 @@ Private Function SD_MajusculeInitialesPrenom( _
 End Function
 
 Private Function SD_DOSSIER_SORTIE() As String
-    SD_DOSSIER_SORTIE = modConfig.CheminNasConfigure("SORTIE", "Dossier", "\\DS224\home\sortiedragon")
+    SD_DOSSIER_SORTIE = modConfig.CheminNasConfigure("SORTIE", "Dossier", "")
 End Function
 
 Public Function SD_CopierRevisionFinale(ByVal doc As Document, ByVal source As String, ByVal publicationID As String, ByRef destination As String) As Boolean
-    Dim pat As Object, fso As Object, base As String
+    Dim pat As Object, fso As Object, base As String, actif As String, modeNom As String
+    Dim temporaire As String, empreinte As String, nomPatient As String, prenomPatient As String
+    Dim numero As Long, description As String, identiteNom As String, longueurIdentite As Long
+    On Error GoTo Echec
+    destination = ""
+    actif = Trim$(modConfig.Config("SORTIE", "ExportActif", ""))
+    If Len(actif) = 0 Then Err.Raise vbObjectError + 1168, , "SORTIE/ExportActif n est pas configure. Choisissez explicitement 0 ou 1 avant utilisation."
+    If actif <> "0" And actif <> "1" Then Err.Raise vbObjectError + 1168, , "SORTIE/ExportActif doit valoir 0 ou 1."
+    modeNom = LCase$(Trim$(modConfig.Config("SORTIE", "NomFichier", "")))
+    If modeNom <> "publicationid" And modeNom <> "identitepublication" Then Err.Raise vbObjectError + 1168, , "SORTIE/NomFichier doit valoir PublicationID ou IdentitePublication."
+    If actif = "0" Then
+        SD_CopierRevisionFinale = True
+        Exit Function
+    End If
     Set pat = modIntegrationUnifie.PatientVerifie(doc)
+    base = modFichiers.NomFichierSur(publicationID)
+    If Len(base) = 0 Or base <> publicationID Then Err.Raise vbObjectError + 1168, , "Identifiant de publication invalide."
+    If modeNom = "identitepublication" Then
+        nomPatient = SD_NettoyerPartieNomFichier(CStr(pat("Nom")))
+        prenomPatient = SD_NettoyerPartieNomFichier(CStr(pat("Prenom")))
+        If Len(nomPatient) = 0 Or Len(prenomPatient) = 0 Then Err.Raise vbObjectError + 1168, , "Identite requise pour nommer la copie de sortie."
+        identiteNom = modFichiers.NomFichierSur(UCase$(nomPatient) & " " & SD_MajusculeInitialesPrenom(prenomPatient))
+        longueurIdentite = 119 - Len(publicationID)
+        If longueurIdentite < 1 Then Err.Raise vbObjectError + 1168, , "Identifiant de publication trop long pour le nom de fichier."
+        base = Left$(identiteNom, longueurIdentite) & " " & publicationID
+        If Right$(base, Len(publicationID)) <> publicationID Then Err.Raise vbObjectError + 1168, , "Identifiant de publication tronque."
+    End If
     SD_CreerDossierSiNecessaire SD_DOSSIER_SORTIE
-    base = modFichiers.NomFichierSur(UCase$(CStr(pat("Nom"))) & " " & CStr(pat("Prenom")) & " " & publicationID)
     destination = SD_DOSSIER_SORTIE & "\" & base & ".docx"
     Set fso = CreateObject("Scripting.FileSystemObject")
-    fso.CopyFile source, destination, True
-    SD_CopierRevisionFinale = fso.FileExists(destination)
+    empreinte = modDonneesTransport.EmpreinteFichierSHA256(source)
+    If fso.FileExists(destination) Then
+        If modDonneesTransport.EmpreinteFichierSHA256(destination) <> empreinte Then Err.Raise vbObjectError + 1168, , "Un export different existe deja pour cette publication. Il est conserve."
+    Else
+        temporaire = destination & ".tmp-" & modFichiers.IdUnique()
+        fso.CopyFile source, temporaire, False
+        If modDonneesTransport.EmpreinteFichierSHA256(temporaire) <> empreinte Then Err.Raise vbObjectError + 1168, , "Verification de la copie impossible."
+        fso.MoveFile temporaire, destination
+        temporaire = ""
+    End If
+    SD_CopierRevisionFinale = True
+    Exit Function
+Echec:
+    numero = Err.Number: description = Err.Description
+    On Error Resume Next
+    If Len(temporaire) > 0 Then fso.DeleteFile temporaire, True
+    On Error GoTo 0
+    Err.Raise numero, "Export du courrier", description
 End Function

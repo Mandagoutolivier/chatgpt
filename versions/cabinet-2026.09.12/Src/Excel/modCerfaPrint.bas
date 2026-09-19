@@ -22,11 +22,12 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
     Set valeurs = CreateObject("Scripting.Dictionary")
     valeurs.CompareMode = 1
     Dim assureDistinct As Boolean, nir As String, rpps As String, am As String
-    assureDistinct = Len(ValeurOuVide(infos, "AssureNom") & ValeurOuVide(infos, "AssurePrenom") & ValeurOuVide(infos, "AssureNIR")) > 0
+    ' Une DDN assuree isolee est une fiche incomplete, jamais le patient assure.
+    assureDistinct = Len(Trim$(ValeurOuVide(infos, "AssureNom") & ValeurOuVide(infos, "AssurePrenom") & ValeurOuVide(infos, "AssureDDN") & ValeurOuVide(infos, "AssureNIR"))) > 0
     valeurs("PATIENT_NOM") = Trim$(ValeurOuVide(infos, "Nom") & " " & ValeurOuVide(infos, "Prenom"))
     valeurs("PATIENT_DDN") = ValeurOuVide(infos, "DDN")
     If assureDistinct Then
-        If Len(ValeurOuVide(infos, "AssureNom")) = 0 Or Len(ValeurOuVide(infos, "AssurePrenom")) = 0 Or Not modTexte.DateFrValide(ValeurOuVide(infos, "AssureDDN")) Then Err.Raise vbObjectError + 703, , "Fiche de l assure incomplete."
+        If Len(Trim$(ValeurOuVide(infos, "AssureNom"))) = 0 Or Len(Trim$(ValeurOuVide(infos, "AssurePrenom"))) = 0 Or Not modTexte.DateFrValide(ValeurOuVide(infos, "AssureDDN")) Or Len(Trim$(ValeurOuVide(infos, "AssureNIR"))) = 0 Then Err.Raise vbObjectError + 703, , "Fiche de l assure incomplete ou invalide."
         valeurs("ASSURE_NOM") = Trim$(ValeurOuVide(infos, "AssureNom") & " " & ValeurOuVide(infos, "AssurePrenom"))
         valeurs("ASSURE_DDN") = ValeurOuVide(infos, "AssureDDN")
         nir = ValeurOuVide(infos, "AssureNIR")
@@ -283,5 +284,31 @@ End Sub
 
 Public Sub VerifierAvantFacturation(ByVal infos As Object, ByVal actes As Collection)
     If actes.Count = 0 Then Err.Raise vbObjectError + 709, , "Aucune ligne pour la feuille de soins."
+    ' La publication ne transporte plus la fiche administrative complete.
+    ' Verifier les donnees courantes avant la premiere facturation ; les
+    ' reimpressions utilisent ensuite l instantane fige de la seance.
+    Dim pat As Object, copie As Object, cle As Variant
+    Set pat = modServiceNas.LireID("PATIENTS", CStr(infos("PatientID")))
+    Set copie = CreateObject("Scripting.Dictionary")
+    For Each cle In infos.Keys: copie(CStr(cle)) = infos(cle): Next cle
+    For Each cle In Array("Nom", "Prenom", "DDN")
+        If CStr(pat(cle)) <> CStr(infos(cle)) Then Err.Raise vbObjectError + 711, , "Identite modifiee depuis la publication : faire verifier le courrier."
+    Next cle
+    For Each cle In Array("NIR", "AssureNom", "AssurePrenom", "AssureDDN", "AssureNIR")
+        copie(CStr(cle)) = CStr(pat(cle))
+    Next cle
+    ImprimerFeuille copie, actes, "", True
+End Sub
+
+Public Sub VerifierAvantReimpression(ByVal infos As Object, ByVal actes As Collection)
+    Dim cle As Variant
+    If actes.Count = 0 Then Err.Raise vbObjectError + 709, , "Aucune ligne pour la feuille de soins."
+    For Each cle In Array("PatientID", "Nom", "Prenom", "DDN", "NIR")
+        If Not infos.Exists(CStr(cle)) Then Err.Raise vbObjectError + 712, , "Identite figee incomplete : " & CStr(cle)
+    Next cle
+    If Len(Trim$(CStr(infos("PatientID")))) = 0 Then Err.Raise vbObjectError + 712, , "Patient fige absent."
+    If Len(Trim$(CStr(infos("Nom")))) = 0 Then Err.Raise vbObjectError + 712, , "Nom fige absent."
+    If Len(Trim$(CStr(infos("Prenom")))) = 0 Then Err.Raise vbObjectError + 712, , "Prenom fige absent."
+    If Not modTexte.DateFrValide(CStr(infos("DDN"))) Then Err.Raise vbObjectError + 712, , "Naissance figee invalide."
     ImprimerFeuille infos, actes, "", True
 End Sub

@@ -13,6 +13,7 @@ Private mID As String
 
 Public Sub ChargerNouveau()
     mID = ""
+    mRevision = ""
     Me.Caption = "Nouveau correspondant"
     lblID.Caption = ""
     ChargerCombos
@@ -80,6 +81,7 @@ Private Sub btnOK_Click()
     d("FormulePolitesse") = Trim$(txtPolit.Text)
     d("Actif") = IIf(chkActif.Value, "1", "0")
     If Len(mID) = 0 Then
+        d("AValider") = "0": d("ParDefaut") = "0"
         nouveauID = modBaseIO.AjouterLigne(modConfig.FichierPatients(), "CORRESPONDANTS", d, "C")
         MsgBox "Correspondant cree (" & nouveauID & ").", vbInformation, "Cabinet"
     Else

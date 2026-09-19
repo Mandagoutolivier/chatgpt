@@ -112,10 +112,20 @@ Public Function Executer(ByVal dossier As String) As String
     doc.SaveAs2 dossier & "\revision-fictive.docx", wdFormatXMLDocument
     h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF")
     Exiger h1 = h2, "Revision stable apres sauvegarde"
+    doc.Save
+    Exiger h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Revision stable apres deuxieme sauvegarde"
+    VerifierEmpreinteVml
     doc.Bookmarks.Add "_GoBack", doc.Range(0, 0)
     Exiger h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Navigation hors revision"
     modIntegrationUnifie.FixerVariable doc, "PublicationID", modFichiers.IdUnique()
     Exiger h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Variables de reprise hors revision"
+    Exiger h2 <> modControleCourrier.EmpreinteCourrier(doc, "COR-AUTRE"), "Revision change avec destinataire"
+    doc.Content.Font.Bold = True
+    Exiger h2 <> modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Revision change avec gras"
+    h1 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF")
+    doc.PageSetup.LeftMargin = doc.PageSetup.LeftMargin + 12
+    Exiger h1 <> modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Revision change avec mise en page"
+    h2 = modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF")
     doc.Content.InsertAfter " MODIFICATION"
     Exiger h2 <> modControleCourrier.EmpreinteCourrier(doc, "COR-FICTIF"), "Revision change avec texte"
     doc.Close wdDoNotSaveChanges: Set doc = Nothing
@@ -166,4 +176,44 @@ Sortie:
 Echec:
     numero = Err.Number: description = Err.Description
     Resume Sortie
+End Sub
+
+Private Sub VerifierEmpreinteVml()
+    Dim debut As String, fin As String, allocation As String, h As String, a As String, b As String
+    debut = "<pkg:package xmlns:pkg='http://schemas.microsoft.com/office/2006/xmlPackage' " & _
+        "xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' " & _
+        "xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:v='urn:schemas-microsoft-com:vml'>" & _
+        "<pkg:part pkg:name='/word/settings.xml'><pkg:xmlData><w:settings><w:zoom w:percent='100'/>"
+    fin = "</w:settings></pkg:xmlData></pkg:part></pkg:package>"
+    allocation = "<w:shapeDefaults><o:shapedefaults v:ext='edit' spidmax='1026'/>" & _
+        "<o:shapelayout v:ext='edit'><o:idmap v:ext='edit' data='1'/></o:shapelayout></w:shapeDefaults>"
+    h = modControleCourrier.EmpreinteXmlCourrier(debut & fin, "COR-FICTIF")
+    Exiger h = modControleCourrier.EmpreinteXmlCourrier(debut & allocation & fin, "COR-FICTIF"), "Compteurs VML hors revision"
+    a = Replace$(Replace$(allocation, "1026", "2050"), "data='1'", "data='2'")
+    Exiger h = modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF"), "Nouveaux compteurs VML hors revision"
+    a = Replace$(allocation, "spidmax='1026'", "spidmax='1026' fillcolor='#ff0000'")
+    b = Replace$(a, "#ff0000", "#0000ff")
+    Exiger h <> modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF"), "Couleur par defaut VML conservee"
+    Exiger modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF") <> _
+        modControleCourrier.EmpreinteXmlCourrier(debut & b & fin, "COR-FICTIF"), "Modification couleur par defaut VML detectee"
+    a = Replace$(allocation, "spidmax='1026'/>", "spidmax='1026'><v:stroke weight='2pt'/></o:shapedefaults>")
+    b = Replace$(a, "2pt", "4pt")
+    Exiger modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF") <> _
+        modControleCourrier.EmpreinteXmlCourrier(debut & b & fin, "COR-FICTIF"), "Epaisseur de trait VML conservee"
+    a = Replace$(allocation, "</o:shapelayout>", "<o:rules v:ext='edit'><o:r id='1'/></o:rules></o:shapelayout>")
+    Exiger h <> modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF"), "Regles de disposition VML conservees"
+    a = Replace$(allocation, "data='1'", "data='1' inconnu='FICTIF'")
+    Exiger h <> modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF"), "Attribut idmap inconnu conserve"
+    a = Replace$(allocation, "data='1'/>", "data='1'>FICTIF</o:idmap>")
+    Exiger h <> modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF"), "Texte idmap conserve"
+    a = Replace$(allocation, "<w:shapeDefaults>", "<w:shapeDefaults inconnu='FICTIF'>")
+    Exiger h <> modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF"), "Attribut shapeDefaults inconnu conserve"
+    a = Replace$(allocation, "spidmax='1026'", "o:spidmax='1026'")
+    Exiger h <> modControleCourrier.EmpreinteXmlCourrier(debut & a & fin, "COR-FICTIF"), "Attribut homonyme namespace distinct conserve"
+    a = Replace$(debut, "urn:schemas-microsoft-com:office:office", "urn:cabinet:fictif")
+    Exiger modControleCourrier.EmpreinteXmlCourrier(a & fin, "COR-FICTIF") <> _
+        modControleCourrier.EmpreinteXmlCourrier(a & allocation & fin, "COR-FICTIF"), "Elements homonymes namespace distinct conserves"
+    a = Replace$(debut, "/word/settings.xml", "/word/document.xml")
+    Exiger modControleCourrier.EmpreinteXmlCourrier(a & fin, "COR-FICTIF") <> _
+        modControleCourrier.EmpreinteXmlCourrier(a & allocation & fin, "COR-FICTIF"), "Normalisation VML limitee aux settings"
 End Sub

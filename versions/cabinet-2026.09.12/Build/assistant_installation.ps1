@@ -2,7 +2,7 @@
 param(
     [ValidateSet('Domicile','CabinetSecretariat','CabinetMedecin')][string]$Profil='',
     [string]$RacineNas='',
-    [string]$DossierGdt='C:\Mandagout'
+    [string]$DossierGdt='C:\CabinetCardioTestU2\GDT'
 )
 . (Join-Path $PSScriptRoot 'outils_assistant.ps1')
 . (Join-Path $PSScriptRoot 'outils_installation.ps1')

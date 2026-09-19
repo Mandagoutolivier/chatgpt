@@ -9,7 +9,7 @@ SPECS = {
     'record.get': ({'genre': str, 'id': str}, {}),
     'table.read': ({'genre': str}, {'q': str, 'year': str, 'date': str, 'offset': int, 'limit': int}),
     'dictionary.read': ({'genre': str}, {'offset': int, 'limit': int}),
-    'journal.read': ({}, {'id': str, 'year': str, 'offset': int, 'limit': int}),
+    'journal.read': ({}, {'id': str, 'year': str, 'date': str, 'offset': int, 'limit': int}),
     'table.add': ({'genre': str, 'data': dict}, {}),
     'table.update': ({'genre': str, 'data': dict}, {}),
     'correspondent.save': ({'data': dict}, {}),
@@ -22,7 +22,7 @@ SPECS = {
     'bill': ({'id': str, 'publication_id': str, 'lignes': list}, {}),
     'print.request': ({'id': str, 'reimpression_confirmee': bool}, {}),
     'printed': ({'id': str, 'tentative': str, 'confirmee': bool}, {}),
-    'payment': ({'id': str, 'date': str, 'mode': str, 'empreinte': str}, {}),
+    'payment': ({'id': str, 'date': str, 'mode': str, 'empreinte': str}, {'payeur': str, 'montant': str}),
     'publish': ({k: str for k in ('ConsultationID', 'PublicationID', 'PatientID',
         'DestinataireID', 'DateActe', 'CheminDocx', 'CheminPdf',
         'Patient_Nom', 'Patient_Prenom', 'Patient_DDN', 'Patient_Sexe')} | {'Relu': bool},
@@ -34,7 +34,7 @@ for op in ('arrive', 'cancel_arrival', 'claim', 'release', 'ack', 'billing.get')
 
 LINE_REQUIRED = {'SeanceID', 'PatientID', 'Date', 'CodeActe', 'Montant', 'TiersPayant', 'Paye'}
 LINE_OPTIONAL = {'Nom', 'Prenom', 'DDN', 'NIR', 'AssureNom', 'AssurePrenom', 'AssureDDN',
-                 'AssureNIR', 'ModePaiement', 'DateEncaissement', 'FeuilleSoinsImprimee', 'Notes'}
+                 'AssureNIR', 'CodeCerfa', 'ModePaiement', 'DateEncaissement', 'FeuilleSoinsImprimee', 'Notes'}
 
 
 def validate(operation, params):

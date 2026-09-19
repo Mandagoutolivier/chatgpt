@@ -15,7 +15,7 @@ End Function
 Public Sub ExecuterCycleCourrier()
     Dim docPrincipal As Document, rngCorps As Range, premier As Range, etat As Object, reponse As Object
     Dim original As String, source As String, corpsCorrige As String, numero As Long, description As String
-    Dim ancienEcran As Boolean, hashCourant As String, verrou As Integer
+    Dim ancienEcran As Boolean, hashCourant As String, verrou As Integer, cor As Object
     If mTraitementEnCours Then Exit Sub
     mTraitementEnCours = True
     ancienEcran = Application.ScreenUpdating
@@ -26,6 +26,8 @@ Public Sub ExecuterCycleCourrier()
     modProdRapide.PR_ReinitialiserSuiviMultipage
     Set mDocumentSource = docPrincipal
     modIntegrationUnifie.InitialiserPatientProd docPrincipal
+    Set cor = modControleCourrier.AssurerDestinataire(docPrincipal)
+    If cor Is Nothing Then GoTo Sortie
     modEtatCourrier.PrendreVerrou docPrincipal, verrou
     modIntegrationUnifie.SauvegarderBrouillon docPrincipal
     If Not modAnonymisation.LocaliserCorpsCourrier(docPrincipal, rngCorps, premier) Then Err.Raise vbObjectError + 960, , "Corps du courrier introuvable."
@@ -46,6 +48,15 @@ Public Sub ExecuterCycleCourrier()
         modIntegrationUnifie.FixerVariable docPrincipal, "CycleU1", ""
         Set etat = modEtatCourrier.Charger(docPrincipal, original)
     End If
+    If etat.Exists("destinataire_id") Then
+        If CStr(etat("destinataire_id")) <> CStr(cor("ID")) Then
+            If MsgBox("Le destinataire a change. Conserver le cycle precedent et recommencer la correction du texte actuel avec ce destinataire ?", vbYesNo + vbQuestion, "Nouveau destinataire") <> vbYes Then GoTo Sortie
+            modIntegrationUnifie.FixerVariable docPrincipal, "CycleU1", ""
+            Set etat = modEtatCourrier.Charger(docPrincipal, original)
+        End If
+    End If
+    etat("destinataire_id") = CStr(cor("ID"))
+    modEtatCourrier.Sauver docPrincipal, etat
     original = modEtatCourrier.LireProtege(Trim$(modIntegrationUnifie.VariableDoc(docPrincipal, "CycleU1")), "-source")
     source = Replace(original, gPatient.NomComplet, gPatient.civilite & " " & MARQUEUR_PATIENT, 1, -1, vbTextCompare)
     If InStr(1, source, MARQUEUR_PATIENT, vbBinaryCompare) = 0 Then Err.Raise vbObjectError + 960, , "Inserez l identite du patient avec C avant de finaliser."

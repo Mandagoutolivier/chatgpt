@@ -339,19 +339,42 @@ Private Function EstCodeHexadecimal4( _
 
 End Function
 
+Public Sub VerifierDestinataireAvantIA(ByVal ident As String, ByVal cor As Object)
+    ' Contrat commun a la recette hors reseau et aux deux chemins d'envoi IA.
+    ident = Trim$(ident)
+    If Len(ident) = 0 Then Err.Raise vbObjectError + 432, "OpenAI", "Selectionnez le destinataire avant la correction."
+    If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Correspondant explicite introuvable."
+    If Not cor.Exists("ID") Then Err.Raise vbObjectError + 432, "OpenAI", "Identite du destinataire absente."
+    If CStr(cor("ID")) <> ident Then Err.Raise vbObjectError + 432, "OpenAI", "Le destinataire resolu ne correspond pas a la selection."
+    If Not cor.Exists("Actif") Or Not cor.Exists("AValider") Then Err.Raise vbObjectError + 432, "OpenAI", "Etat du destinataire incomplet."
+    If CStr(cor("Actif")) <> "1" Or CStr(cor("AValider")) <> "0" Then Err.Raise vbObjectError + 432, "OpenAI", "Destinataire desactive ou restant a valider."
+End Sub
+
+Private Function ResoudreDestinataireAvantIA(ByVal docSource As Document, Optional ByVal idAttendu As String = "") As Object
+    Dim ident As String, resolution As Object, cor As Object
+    If docSource Is Nothing Then Err.Raise vbObjectError + 431, "OpenAI", "Aucune consultation active."
+    If Not (docSource Is ActiveDocument) Then Err.Raise vbObjectError + 431, "OpenAI", "Le document actif a change. Reprendre la correction dans le bon courrier."
+    If Not (docSource Is modCycleCourrier.DocumentSource()) Then Err.Raise vbObjectError + 431, "OpenAI", "La consultation active a change."
+    ident = Trim$(modIntegrationUnifie.VariableDoc(docSource, "CorrespondantID"))
+    ' Refus local avant toute resolution : aucun repli implicite par cle/examen.
+    If Len(ident) = 0 Then Err.Raise vbObjectError + 432, "OpenAI", "Selectionnez le destinataire avant la correction."
+    If Len(idAttendu) > 0 And ident <> idAttendu Then Err.Raise vbObjectError + 432, "OpenAI", "Le destinataire a change pendant la preparation. Reprendre la correction."
+    Set resolution = modServiceNas.Parametres(): resolution("id") = ident
+    Set cor = modServiceNas.Appeler("correspondent.resolve", resolution)
+    VerifierDestinataireAvantIA ident, cor
+    Set ResoudreDestinataireAvantIA = cor
+End Function
+
 Public Function AppelerOpenAI(ByVal prompt As String) As String
     Dim pat As Object, ctx As Object, anonyme As String, problemes As String, texte As String
     Dim cor As Object, ident As String, medecin As Object, jsonBody As String, requete As Object
-    If modCycleCourrier.DocumentSource() Is Nothing Then Err.Raise vbObjectError + 431, "OpenAI", "Aucune consultation active."
-    If Not (modCycleCourrier.DocumentSource() Is ActiveDocument) Then Err.Raise vbObjectError + 431, "OpenAI", "Le document actif a change. Reprendre la correction dans le bon courrier."
-    Set pat = modIntegrationUnifie.PatientVerifie(modCycleCourrier.DocumentSource())
+    Dim docSource As Document
+    Set docSource = modCycleCourrier.DocumentSource()
+    Set cor = ResoudreDestinataireAvantIA(docSource)
+    ident = CStr(cor("ID"))
+    Set pat = modIntegrationUnifie.PatientVerifie(docSource)
     Set ctx = modAnonymise.Construire(pat, Nothing)
-    ident = Trim$(modIntegrationUnifie.VariableDoc(modCycleCourrier.DocumentSource(), "CorrespondantID"))
-    If Len(ident) > 0 Then
-        Set cor = modBase.CorrespondantParID(ident)
-        If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Correspondant explicite introuvable."
-        modAnonymise.AjouterCorrespondant ctx, cor, "DEST"
-    End If
+    modAnonymise.AjouterCorrespondant ctx, cor, "DEST"
     If Len(Trim$(CStr(pat("MedTraitantID")))) > 0 Then
         Set cor = modBase.CorrespondantParID(CStr(pat("MedTraitantID")))
         If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Medecin traitant introuvable."
@@ -367,6 +390,8 @@ Public Function AppelerOpenAI(ByVal prompt As String) As String
     jsonBody = PreparerRequeteSortante(prompt, ctx)
     Set requete = modJson.JsonParse(jsonBody)
     anonyme = CStr(requete("input"))
+    ' Revalider sur le NAS au dernier moment, y compris apres une desactivation.
+    Set cor = ResoudreDestinataireAvantIA(docSource, ident)
     texte = ExtraireTexteOpenAI(AppelerOpenAIRaw(jsonBody))
     If Len(Trim$(texte)) = 0 Then Err.Raise vbObjectError + 433, "OpenAI", "Reponse API vide. Le brouillon est conserve."
     ' Les autres balises doivent etre connues. La presence de [[PATIENT]] est
@@ -881,16 +906,13 @@ Public Function AppelerOpenAIStructure(ByVal source As String, ByVal consignes A
     Dim pat As Object, ctx As Object, anonyme As String, problemes As String
     Dim cor As Object, ident As String, medecin As Object, jsonBody As String, requete As Object
     Dim envelope As Object, sortie As Object, demande As Object
-    If modCycleCourrier.DocumentSource() Is Nothing Then Err.Raise vbObjectError + 431, "OpenAI", "Aucune consultation active."
-    If Not (modCycleCourrier.DocumentSource() Is ActiveDocument) Then Err.Raise vbObjectError + 431, "OpenAI", "Le document actif a change. Reprendre la correction dans le bon courrier."
-    Set pat = modIntegrationUnifie.PatientVerifie(modCycleCourrier.DocumentSource())
+    Dim docSource As Document
+    Set docSource = modCycleCourrier.DocumentSource()
+    Set cor = ResoudreDestinataireAvantIA(docSource)
+    ident = CStr(cor("ID"))
+    Set pat = modIntegrationUnifie.PatientVerifie(docSource)
     Set ctx = modAnonymise.Construire(pat, Nothing)
-    ident = Trim$(modIntegrationUnifie.VariableDoc(modCycleCourrier.DocumentSource(), "CorrespondantID"))
-    If Len(ident) > 0 Then
-        Set cor = modBase.CorrespondantParID(ident)
-        If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Correspondant explicite introuvable."
-        modAnonymise.AjouterCorrespondant ctx, cor, "DEST"
-    End If
+    modAnonymise.AjouterCorrespondant ctx, cor, "DEST"
     If Len(Trim$(CStr(pat("MedTraitantID")))) > 0 Then
         Set cor = modBase.CorrespondantParID(CStr(pat("MedTraitantID")))
         If cor Is Nothing Then Err.Raise vbObjectError + 432, "OpenAI", "Medecin traitant introuvable."
@@ -906,6 +928,7 @@ Public Function AppelerOpenAIStructure(ByVal source As String, ByVal consignes A
     jsonBody = PreparerRequeteSortante(source, ctx, consignes)
     Set requete = modJson.JsonParse(jsonBody)
     anonyme = CStr(requete("input"))
+    Set cor = ResoudreDestinataireAvantIA(docSource, ident)
     Set envelope = modJson.JsonParse(AppelerOpenAIRaw(jsonBody))
     Set sortie = ValiderStructure(modJson.JsonParse(modJson.JsonTexteReponseOpenAI(envelope)))
     problemes = modAnonymise.VerifierBalisesRetour(modServiceNas.JsonValeur(sortie), ctx, anonyme)

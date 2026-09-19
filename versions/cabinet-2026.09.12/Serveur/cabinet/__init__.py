@@ -1,1 +1,6 @@
 """Cabinet Cardio : service NAS transactionnel."""
+
+APPLICATION_VERSION = '2026.09.12'
+PROTOCOL_VERSION = 2
+SERVICE_REVISION = '2026.09.16-u2b'
+TARGET_SCHEMA_VERSION = 2

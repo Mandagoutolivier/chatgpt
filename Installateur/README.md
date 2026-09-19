@@ -1,18 +1,22 @@
 # Installation guidée Cabinet Cardio
 
-**Branche U1 en brouillon : conserver l’installation clinique actuelle.** Les essais AX8_Max utilisent une copie isolée ; leur état est décrit dans [U1_RECETTE.md](../versions/cabinet-2026.09.12/U1_RECETTE.md).
+**U2b (`2026.09.16-u2b`) est une recette isolée : conserver l'installation clinique actuelle.** Les essais utilisent un PC secondaire, le partage d'exemple `\\NAS-RECETTE\CabinetCardioTestU2` et l'adresse HTTPS distincte du projet NAS `cabinetcardio-test-u2`.
+
+Avant de lancer U2b, vérifier que le service de test correspond au port NAS `8766`. Ne pas saisir le partage clinique, ne pas remplacer l'adresse du service actuel et ne pas utiliser le poste indispensable aux consultations du lendemain. Le lanceur sauvegarde l'installation locale précédente, mais cette sauvegarde ne remplace pas une sauvegarde NAS.
 
 Télécharger **Demarrer_Installation_Cabinet.cmd** avec le bouton « Download raw file » de GitHub, puis double-cliquer. Ce fichier autonome contient le PowerShell lisible fourni à côté ; il n'a besoin d'aucun autre fichier local au départ.
 
 1. Le navigateur télécharge la version précise du dépôt privé. Se connecter à GitHub si nécessaire. Le lanceur repère le ZIP, l'extrait et vérifie tous les fichiers de la version.
 2. Choisir **1 Domicile**, **2 Secrétariat**, **3 Cabinet médecin**.
 3. Suivre les indications pour le NAS, la compilation Office et les essais. Après validation, l'activation se poursuit automatiquement, avec sauvegarde de l'installation locale précédente.
+4. Exécuter la recette Office U2b : socle Word au moins `34`, extension Word U2 exactement `29/29`, Excel exactement `70/70`.
+5. Vérifier que `[SORTIE]` contient explicitement `ExportActif`, `Dossier` et `NomFichier`.
 
-Le lanceur demande maintenant le **dossier réel des données sur le NAS**. Il ne suppose plus l'existence de `\\DS224\CabinetCardio`. Vous pouvez saisir son chemin UNC ou taper **B** pour parcourir le réseau. Un chemin déjà configuré est proposé, puis vérifié. Pour un emplacement neuf, saisir un sous-dossier dans un partage existant et confirmer par **CREER** ; cela ne crée pas de partage DSM et ne migre pas les anciennes bases.
+Le lanceur demande le **dossier réel des données sur le NAS** sans imposer de nom de serveur ni de partage. Vous pouvez saisir son chemin UNC ou taper **B** pour parcourir le réseau. Un chemin déjà configuré est proposé, puis vérifié. Pour un emplacement neuf, saisir un sous-dossier dans un partage existant et confirmer par **CREER** ; cela ne crée pas de partage DSM et ne migre pas les anciennes bases.
 
 Les dossiers contenant le code GitHub ne doivent pas être choisis comme dossier des données. Avec `home`, vérifier que les comptes NAS des deux postes accèdent réellement au même dossier : ce nom peut désigner un dossier personnel différent selon le compte connecté. Le lanceur demande **COMMUN** pour confirmer cette vérification.
 
-Le même fichier fonctionne sur les trois postes. Utiliser la session Windows habituelle, sans « Exécuter en tant qu'administrateur ». Windows, Word et Excel de bureau sont nécessaires. À domicile, le VPN doit permettre l'accès au NAS. Le service NAS doit déjà être déployé ; son adresse HTTPS et le jeton du compte du poste sont demandés à l'activation.
+Le même fichier fonctionne sur les trois postes, mais la recette U2b doit être lancée exclusivement depuis le compte Windows dédié aux tests du PC secondaire, jamais depuis le profil clinique U0, et sans « Exécuter en tant qu'administrateur ». Windows, Word et Excel de bureau sont nécessaires. À domicile, une liaison privée sécurisée doit permettre l'accès au NAS. Le service NAS doit déjà être déployé ; son adresse HTTPS et le secret applicatif propre au compte du poste sont demandés à l'activation.
 
 La compilation dans Word/Excel et les essais réels nécessitent votre intervention. Le script ouvre les projets et le guide, recueille les confirmations, puis poursuit jusqu'à l'activation ; il ne certifie pas un essai non réalisé. **PAUSE** conserve la préparation pour une reprise avec le même profil. Les données partagées restent sur le NAS.
 
@@ -22,7 +26,7 @@ Détails : [guide des trois postes](../versions/cabinet-2026.09.12/INSTALLATION_
 
 ## Maintenance du lanceur
 
-`generer_lanceur.py COMMIT` assemble les outils, le modèle et les empreintes **depuis les objets Git de ce commit**, sans utiliser les fichiers de travail. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. La révision U1 est destinée à la [recette isolée](../versions/cabinet-2026.09.12/U1_RECETTE.md). Les contrôles GitHub Actions ne remplacent pas une exécution sous Word/Excel.
+`generer_lanceur.py COMMIT` assemble les outils, le modèle et les empreintes **depuis les objets Git de ce commit**, sans utiliser les fichiers de travail. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. U2b exige le service `2026.09.16-u2b`, le protocole 2 et le schéma 2. Les contrôles GitHub Actions ne remplacent pas les compilations et essais réels sous Word/Excel.
 
 ## Word ou Excel encore actif
 

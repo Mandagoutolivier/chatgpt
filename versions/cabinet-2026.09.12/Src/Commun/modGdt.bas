@@ -21,7 +21,7 @@ Public Function EcrireGdtPatient(ByVal pat As Object, _
     If Len(dossier) = 0 Then
         Err.Raise vbObjectError + 800, "modGdt", _
             "Envoi ECG non configure : renseignez [ECG] DossierGdt dans Config\config.ini " & _
-            "(dossier surveille par Resting12Lead, ex : C:\Mandagout)."
+            "(en recette, dossier dedie non surveille par le profil ECG clinique)."
     End If
     If Right$(dossier, 1) = "\" Then dossier = Left$(dossier, Len(dossier) - 1)
     If Not modFichiers.DossierExiste(dossier) Then
