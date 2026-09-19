@@ -34,10 +34,25 @@ if([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT){
         [IO.File]::WriteAllText($cible,'FICTIF AVANT')
         Proteger-FichierLocal $cible
         $sddl=(Get-Acl -LiteralPath $cible).Sddl
+        Proteger-FichierLocal $cible
+        Exiger ((Get-Acl -LiteralPath $cible).AreAccessRulesProtected) 'fichier deja protege reste protege apres mise a jour'
+        Exiger ((Get-Acl -LiteralPath $cible).Sddl -eq $sddl) 'protection des droits idempotente'
         [IO.File]::Copy($cible,$copie,$false);Proteger-FichierLocal $copie
         Exiger ((Get-Acl -LiteralPath $copie).AreAccessRulesProtected) 'sauvegarde fictive protegee'
         [IO.File]::WriteAllText($cible,'FICTIF APRES')
-        $acl=Get-Acl -LiteralPath $cible;$acl.SetAccessRuleProtection($false,$true);Set-Acl -LiteralPath $cible -AclObject $acl
+        # Modifier seulement la DACL : Get-Acl puis Set-Acl avec toutes les sections
+        # peut demander SeSecurityPrivilege, absent du compte standard de recette.
+        $acl=New-Object Security.AccessControl.FileSecurity
+        $acl.SetSecurityDescriptorSddlForm($sddl,[Security.AccessControl.AccessControlSections]::Access)
+        $acl.SetAccessRuleProtection($false,$true)
+        [IO.File]::SetAccessControl($cible,$acl)
+        Exiger (-not (Get-Acl -LiteralPath $cible).AreAccessRulesProtected) 'droits modifies avant retour arriere'
+        $refuse=$false
+        $sansDacl='O:'+([Security.Principal.WindowsIdentity]::GetCurrent().User.Value)
+        try { Restaurer-FichierAvecDroits ([pscustomobject]@{backup=$copie;destination=$cible;sddl=$sansDacl}) }
+        catch { $refuse=$_.Exception.Message -like '*sans DACL explicite*' }
+        Exiger $refuse 'recu sans DACL explicite refuse'
+        Exiger ([IO.File]::ReadAllText($cible) -eq 'FICTIF APRES') 'recu invalide refuse avant modification des octets'
         Restaurer-FichierAvecDroits ([pscustomobject]@{backup=$copie;destination=$cible;sddl=$sddl})
         Exiger ([IO.File]::ReadAllText($cible) -eq 'FICTIF AVANT') 'octets restaures apres echec simule'
         Exiger ((Get-Acl -LiteralPath $cible).Sddl -eq $sddl) 'droits restaures apres echec simule'

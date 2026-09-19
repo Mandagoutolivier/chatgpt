@@ -4,8 +4,9 @@ Option Explicit
 ' modCourrier - Creation des courriers depuis les modeles, remplissage
 ' de l'en-tete SANS RESSAISIE (patient + correspondant + config), et
 ' acces au corps du courrier via le signet CORPS.
-' Signets attendus dans le modele : EXPEDITEUR, DESTINATAIRE, DATELIEU,
-' CONCERNE, APPEL, CORPS, SIGNATURE (voir make_modeles.ps1).
+' Contrat principal : DESTINATAIRE et APPEL (ou leurs alias Dragon), CORPS.
+' Le modele historique conserve son en-tete et sa signature statiques ;
+' Les autres modeles exigent EXPEDITEUR, DATELIEU, CONCERNE et SIGNATURE.
 ' =====================================================================
 
 ' --- Commande principale (Ctrl+Alt+N / commande vocale) --------------
@@ -22,7 +23,11 @@ End Sub
 ' Courrier pour un patient connu mais SANS medecin traitant en base :
 ' en-tete complet sauf le bloc adresse, a dicter ; patient rattache.
 Public Function CreerCourrierRapidePour(ByVal pat As Object) As Document
+    On Error GoTo Echec
     Dim doc As Document
+    If pat Is Nothing Then Err.Raise vbObjectError + 1172, "modCourrier", "Patient absent du courrier."
+    If Not pat.Exists("ID") Then Err.Raise vbObjectError + 1172, "modCourrier", "Identifiant patient absent."
+    If Len(Trim$(CStr(pat("ID")))) = 0 Then Err.Raise vbObjectError + 1172, "modCourrier", "Identifiant patient vide."
     Set doc = CreerCourrierRapide()
     doc.Variables("PatientID") = pat("ID")
     If doc.Bookmarks.Exists("CONCERNE") Then
@@ -30,11 +35,18 @@ Public Function CreerCourrierRapidePour(ByVal pat As Object) As Document
             pat("Prenom") & " " & pat("Nom")) & ", " & modTexte.NeLe(modTexte.SexePatient(pat)) & " " & modTexte.DdnPatient(pat)
     End If
     Set CreerCourrierRapidePour = doc
+    Exit Function
+Echec:
+    Dim numero As Long, description As String
+    numero = Err.Number: description = Err.Description
+    FermerCourrierIncomplet doc
+    Err.Raise numero, "modCourrier.CreerCourrierRapidePour", description
 End Function
 
 ' Courrier vide pret a la dictee : en-tete expediteur, date, appel et
 ' politesse par defaut, signature ; bloc destinataire VIDE (curseur dedans).
 Public Function CreerCourrierRapide() As Document
+    On Error GoTo Echec
     Dim doc As Document, rng As Range
     Set doc = CreerDepuisModele("LETTRE TYPE")
     RemplirEnTeteSansDestinataire doc
@@ -50,6 +62,12 @@ Public Function CreerCourrierRapide() As Document
         PlacerCurseurCorps doc
     End If
     Set CreerCourrierRapide = doc
+    Exit Function
+Echec:
+    Dim numero As Long, description As String
+    numero = Err.Number: description = Err.Description
+    FermerCourrierIncomplet doc
+    Err.Raise numero, "modCourrier.CreerCourrierRapide", description
 End Function
 
 Private Sub RemplirEnTeteSansDestinataire(ByVal doc As Document)
@@ -65,15 +83,15 @@ Private Sub RemplirEnTeteSansDestinataire(ByVal doc As Document)
         signature = modConfig.Config("MEDECIN", "Titre", "Docteur") & " " & _
                     modConfig.Config("MEDECIN", "Prenom") & " " & modConfig.Config("MEDECIN", "Nom")
     End If
-    RemplirSignet doc, "EXPEDITEUR", expediteur
+    If doc.Bookmarks.Exists("EXPEDITEUR") Then RemplirSignet doc, "EXPEDITEUR", expediteur
     ' un espace : un signet totalement vide disparait a la premiere frappe
     RemplirSignet doc, "DESTINATAIRE", " "
     MettreEnFormeDestinataire doc
-    RemplirSignet doc, "DATELIEU", modConfig.Config("GENERAL", "Ville") & ", le " & Format$(Date, "d mmmm yyyy")
-    RemplirSignet doc, "CONCERNE", ""
+    If doc.Bookmarks.Exists("DATELIEU") Then RemplirSignet doc, "DATELIEU", modConfig.Config("GENERAL", "Ville") & ", le " & Format$(Date, "d mmmm yyyy")
+    If doc.Bookmarks.Exists("CONCERNE") Then RemplirSignet doc, "CONCERNE", ""
     RemplirSignet doc, "APPEL", IIf(AppelAuto(), AppelParDefaut(False), " ")
     If PolitesseAuto() Then RemplirSignet doc, "POLITESSE", PolitesseParDefaut(False)
-    RemplirSignet doc, "SIGNATURE", signature
+    If doc.Bookmarks.Exists("SIGNATURE") Then RemplirSignet doc, "SIGNATURE", signature
 End Sub
 
 ' Le destinataire a ete dicte : on tente de le reconnaitre dans la base
@@ -90,12 +108,12 @@ End Function
 ' --- Creation sans interface (testable, reutilisee par les derivees) --
 Public Function CreerCourrierPour(ByVal pat As Object, ByVal cor As Object, _
                                   Optional ByVal typeCourrier As String = "consultation") As Document
+    On Error GoTo Echec
     Dim doc As Document
     Set doc = CreerDepuisModele("LETTRE TYPE")
     RemplirEnTete doc, pat, cor
     PreparerStyleCorps doc
-    ' PreparerStyleCorps rejoue la mise en forme de tous les paragraphes :
-    ' le bloc adresse est reserre APRES lui, en dernier mot.
+    ' Les modeles modernes conservent leur reglage explicite du bloc adresse.
     MettreEnFormeDestinataire doc
     FigerChampsDate doc
     doc.Variables("PatientID") = pat("ID")
@@ -103,15 +121,21 @@ Public Function CreerCourrierPour(ByVal pat As Object, ByVal cor As Object, _
     doc.Variables("TypeCourrier") = typeCourrier
     PlacerCurseurCorps doc
     Set CreerCourrierPour = doc
+    Exit Function
+Echec:
+    Dim numero As Long, description As String
+    numero = Err.Number: description = Err.Description
+    FermerCourrierIncomplet doc
+    Err.Raise numero, "modCourrier.CreerCourrierPour", description
 End Function
 
 ' nomModele SANS extension : essaie .dotx, .dotm, .dot (le modele reel du
 ' cabinet peut etre dans n'importe lequel de ces formats)
 Private Function CreerDepuisModele(ByVal nomModele As String) As Document
+    On Error GoTo Echec
     Dim base As String, ext As Variant, chemin As String, doc As Document
-    ' [COURRIER] Modele : nom du modele de lettre du cabinet dans Modeles\
-    ' (sans extension). Defaut : lettretypeclaude, sinon LETTRE TYPE.
-    If nomModele = "LETTRE TYPE" Then nomModele = modConfig.Config("COURRIER", "Modele", "lettretypeclaude")
+    ' Le choix configure est explicite : aucun repli sur un modele d annexes.
+    If nomModele = "LETTRE TYPE" Then nomModele = modConfig.Config("COURRIER", "Modele", "LETTRE TYPE")
     base = modConfig.chemin("Modeles") & "\" & nomModele
     For Each ext In Array(".dotm", ".dotx", ".dot")
         chemin = base & ext
@@ -122,21 +146,31 @@ Private Function CreerDepuisModele(ByVal nomModele As String) As Document
             Exit Function
         End If
     Next ext
-    ' repli : l'ancien nom
-    If nomModele <> "LETTRE TYPE" Then
-        base = modConfig.chemin("Modeles") & "\LETTRE TYPE"
-        For Each ext In Array(".dotx", ".dotm", ".dot")
-            chemin = base & ext
-            If modFichiers.FichierExiste(chemin) Then
-                Set doc = AjouterModeleSansMacros(chemin)
-                NormaliserModele doc
-                Set CreerDepuisModele = doc
-                Exit Function
-            End If
-        Next ext
-    End If
     Err.Raise vbObjectError + 300, "modCourrier", _
-        "Modele introuvable : " & base & " (.dotx/.dotm/.dot)"
+        "Modele principal introuvable : " & base & " (.dotm/.dotx/.dot)"
+Echec:
+    Dim numero As Long, description As String
+    numero = Err.Number: description = Err.Description
+    FermerCourrierIncomplet doc
+    Err.Raise numero, "modCourrier.CreerDepuisModele", description
+End Function
+
+' La fonction qui cree le document en reste responsable jusqu a son retour.
+Private Sub FermerCourrierIncomplet(ByVal doc As Document)
+    On Error Resume Next
+    If Not doc Is Nothing Then doc.Close wdDoNotSaveChanges
+    On Error GoTo 0
+End Sub
+
+Private Sub ExigerSignet(ByVal doc As Document, ByVal nom As String)
+    If Not doc.Bookmarks.Exists(nom) Then Err.Raise vbObjectError + 1170, "modCourrier", "Signet obligatoire absent : " & nom
+End Sub
+
+Private Function EnteteStatique(ByVal doc As Document) As Boolean
+    ' Contrat du modele de dictee historique a deux signets.
+    EnteteStatique = doc.Bookmarks.Exists("CORRESPONDANT") And doc.Bookmarks.Exists("FORMULE_APPEL") And _
+        Not doc.Bookmarks.Exists("EXPEDITEUR") And Not doc.Bookmarks.Exists("DATELIEU") And _
+        Not doc.Bookmarks.Exists("CONCERNE") And Not doc.Bookmarks.Exists("SIGNATURE")
 End Function
 
 ' Le modele de lettre du medecin (lettretypeclaude.dotm) ne porte que deux
@@ -146,10 +180,16 @@ End Function
 ' l'appel), POLITESSE (formule par defaut avant la signature, si
 ' [COURRIER] PolitesseAuto=1). Idempotent.
 Public Sub NormaliserModele(ByVal doc As Document)
-    On Error Resume Next
-    Dim rng As Range, pAppel As Paragraph, pSuiv As Paragraph, modele As ParagraphFormat
+    Dim rng As Range, pAppel As Paragraph, pSuiv As Paragraph, nom As Variant
     Alias doc, "DESTINATAIRE", "CORRESPONDANT"
     Alias doc, "APPEL", "FORMULE_APPEL"
+    ExigerSignet doc, "DESTINATAIRE"
+    ExigerSignet doc, "APPEL"
+    If Not EnteteStatique(doc) Then
+        For Each nom In Array("EXPEDITEUR", "DATELIEU", "CONCERNE", "SIGNATURE")
+            ExigerSignet doc, CStr(nom)
+        Next nom
+    End If
     If Not doc.Bookmarks.Exists("CORPS") And doc.Bookmarks.Exists("APPEL") Then
         Set pAppel = doc.Bookmarks("APPEL").Range.Paragraphs(1)
         Set pSuiv = pAppel.Next
@@ -170,12 +210,14 @@ Public Sub NormaliserModele(ByVal doc As Document)
         rng.MoveEnd wdCharacter, -1
         doc.Bookmarks.Add "CORPS", rng
         ' mise en forme du corps : celle des courriers du cabinet
-        With pSuiv.Format
-            .LeftIndent = 0
-            .FirstLineIndent = CentimetersToPoints(modConfig.ConfigNum("COURRIER", "AlineaCm", 0))
-            .Alignment = wdAlignParagraphJustify
-        End With
-        AppliquerEspacement doc, "CORPS"
+        If Not EnteteStatique(doc) Then
+            With pSuiv.Format
+                .LeftIndent = 0
+                .FirstLineIndent = CentimetersToPoints(modConfig.ConfigNum("COURRIER", "AlineaCm", 0))
+                .Alignment = wdAlignParagraphJustify
+            End With
+            AppliquerEspacement doc, "CORPS"
+        End If
     End If
     If Not doc.Bookmarks.Exists("POLITESSE") And doc.Bookmarks.Exists("CORPS") Then
         If PolitesseAuto() Then
@@ -189,11 +231,11 @@ Public Sub NormaliserModele(ByVal doc As Document)
             AppliquerEspacement doc, "POLITESSE"
         End If
     End If
+    ExigerSignet doc, "CORPS"
 End Sub
 
 ' Pose le signet 'nouveau' sur la zone du signet 'existant' s'il manque
 Private Sub Alias(ByVal doc As Document, ByVal nouveau As String, ByVal existant As String)
-    On Error Resume Next
     If doc.Bookmarks.Exists(nouveau) Then Exit Sub
     If Not doc.Bookmarks.Exists(existant) Then Exit Sub
     doc.Bookmarks.Add nouveau, doc.Bookmarks(existant).Range
@@ -245,18 +287,18 @@ Public Sub RemplirEnTete(ByVal doc As Document, ByVal pat As Object, ByVal cor A
         If Len(politesse) = 0 Then politesse = PolitesseParDefaut(EstTutoye(cor))
     End If
 
-    RemplirSignet doc, "EXPEDITEUR", expediteur
+    If doc.Bookmarks.Exists("EXPEDITEUR") Then RemplirSignet doc, "EXPEDITEUR", expediteur
     ' l'adresse est UN SEUL paragraphe : tous les separateurs de ligne
     ' (vbCrLf, vbCr, vbLf d'une cellule Excel saisie en Alt+Entree) sont
     ' convertis en sauts de ligne manuels, sinon Word cree des paragraphes
     ' espaces de 12 pt et le bloc s'aere.
     RemplirSignet doc, "DESTINATAIRE", EnSautsDeLigne(destinataire)
     MettreEnFormeDestinataire doc
-    RemplirSignet doc, "DATELIEU", modConfig.Config("GENERAL", "Ville") & ", le " & Format$(Date, "d mmmm yyyy")
-    RemplirSignet doc, "CONCERNE", concerne
+    If doc.Bookmarks.Exists("DATELIEU") Then RemplirSignet doc, "DATELIEU", modConfig.Config("GENERAL", "Ville") & ", le " & Format$(Date, "d mmmm yyyy")
+    If doc.Bookmarks.Exists("CONCERNE") Then RemplirSignet doc, "CONCERNE", concerne
     RemplirSignet doc, "APPEL", appel
     If Len(politesse) > 0 Then RemplirSignet doc, "POLITESSE", politesse
-    RemplirSignet doc, "SIGNATURE", signature
+    If doc.Bookmarks.Exists("SIGNATURE") Then RemplirSignet doc, "SIGNATURE", signature
 End Sub
 
 ' --- registre du correspondant ----------------------------------------
@@ -332,41 +374,32 @@ Public Function CalculerAge(ByVal ddn As String) As String
     If Format$(Date, "mmdd") < Format$(naissance, "mmdd") Then age = age - 1
     CalculerAge = CStr(age)
 End Function
-' Pendant la dictee, chaque Entree cree un paragraphe du style "paragraphe
-' suivant" defini dans le modele (chaine corps -> politesse 10 cm ->
-' signature 8 cm...). On impose au corps un style dont le suivant est
-' lui-meme, avec la mise en forme exacte du premier paragraphe du corps.
+' Le style de corps est propre au courrier. Ne jamais modifier Normal ni un
+' style partage avec l en-tete, le destinataire ou la signature du modele.
 Public Sub PreparerStyleCorps(ByVal doc As Document)
-    On Error Resume Next
-    Dim rng As Range, st As Style, i As Long, n As Long
-    Dim Formats() As ParagraphFormat
-    If Not doc.Bookmarks.Exists("CORPS") Then Exit Sub
+    Dim rng As Range, st As Style, modele As ParagraphFormat, police As Font
+    ExigerSignet doc, "CORPS"
     Set rng = doc.Bookmarks("CORPS").Range
-    ' 1. photographie de la mise en forme directe de TOUS les paragraphes
-    '    (modifier un style peut la faire disparaitre : on la restaurera)
-    n = doc.Paragraphs.Count
-    ReDim Formats(1 To n)
-    For i = 1 To n
-        Set Formats(i) = doc.Paragraphs(i).Format.Duplicate
-    Next i
-    ' 2. le style du corps (et Normal) s'enchaine sur lui-meme : chaque
-    '    Entree pendant la dictee reste un paragraphe de corps
-    Set st = doc.Styles(CStr(rng.Paragraphs(1).Style))
-    If Not st Is Nothing Then st.NextParagraphStyle = st
-    Set st = doc.Styles(wdStyleNormal)
-    If Not st Is Nothing Then st.NextParagraphStyle = st
-    ' 3. restauration de la mise en forme directe photographiee
-    If doc.Paragraphs.Count = n Then
-        For i = 1 To n
-            doc.Paragraphs(i).Format = Formats(i)
-        Next i
+    Set modele = rng.Paragraphs(1).Format.Duplicate
+    Set police = rng.Font.Duplicate
+    On Error Resume Next
+    Set st = doc.Styles("CabinetCorpsU2")
+    On Error GoTo 0
+    If st Is Nothing Then Set st = doc.Styles.Add("CabinetCorpsU2", wdStyleTypeParagraph)
+    st.AutomaticallyUpdate = False
+    st.ParagraphFormat = modele
+    st.Font = police
+    st.NextParagraphStyle = st
+    ' ParagraphFormat conserve aussi le style d origine : le restaurer
+    ' avant d appliquer le style reserve, sinon il annule rng.Style.
+    rng.ParagraphFormat = modele
+    rng.Style = st
+    rng.Font = police
+    If Not EnteteStatique(doc) Then
+        AppliquerEspacement doc, "APPEL"
+        AppliquerEspacement doc, "CORPS"
+        AppliquerEspacement doc, "POLITESSE"
     End If
-    ' 4. espacement des paragraphes du corps : celui des courriers du cabinet
-    '    (12 pt avant, 0 apres, interligne 1,15), sans espacement "automatique"
-    AppliquerEspacement doc, "APPEL"
-    AppliquerEspacement doc, "CORPS"
-    AppliquerEspacement doc, "POLITESSE"
-    If Err.Number <> 0 Then modLog.LogErreur "PreparerStyleCorps : " & Err.Description
 End Sub
 
 ' Tous les separateurs de ligne -> saut de ligne manuel (Chr 11), et
@@ -397,6 +430,7 @@ Public Sub MettreEnFormeDestinataire(ByVal doc As Document)
     On Error Resume Next
     Dim rng As Range, p As Paragraph, interligne As Double
     If Not doc.Bookmarks.Exists("DESTINATAIRE") Then Exit Sub
+    If EnteteStatique(doc) Then Exit Sub
     interligne = modConfig.ConfigNum("COURRIER", "InterligneDestinataire", 1)
     Set rng = doc.Bookmarks("DESTINATAIRE").Range
     ' le signet peut ne couvrir qu'une partie du bloc : on l'etend aux

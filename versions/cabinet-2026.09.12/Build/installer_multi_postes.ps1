@@ -93,7 +93,8 @@ function Installer-ConnexionService {
     if ($response.result.revision -ne '2026.09.16-u2b' -or $response.result.schema -ne 2) { throw 'Revision du service ou schema NAS incompatible avec la livraison U2 (migration ACTES requise).' }
     if ($medecin -and 'medecin' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role medecin.' }
     if ($secretariat -and 'secretariat' -notin $response.result.roles) { throw 'Ce compte ne possede pas le role secretariat.' }
-    Ecrire-Reglage $urlPath ($UrlService.TrimEnd('/')+"`r`n")
+    # VBA Trim$ ne retire pas CR/LF : conserver une URL sans fin de ligne pour WinHTTP.
+    Ecrire-Reglage $urlPath ($UrlService.TrimEnd('/'))
     Ecrire-Reglage $tokenPath $token
     Proteger-FichierLocal $tokenPath
     $token=$null

@@ -44,7 +44,8 @@ function Proteger-FichierLocal([string]$Path) {
     foreach ($identity in @($sid,(New-Object Security.Principal.SecurityIdentifier('S-1-5-18')),(New-Object Security.Principal.SecurityIdentifier('S-1-5-32-544')))) {
         $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($identity,'FullControl','Allow')))
     }
-    Set-Acl -LiteralPath $Path -AclObject $acl
+    # DACL seule, y compris sur un fichier deja protege lors d une mise a jour.
+    [IO.File]::SetAccessControl($Path,$acl)
 }
 
 function Fusionner-IniPoste([string]$Ancien,[System.Collections.IDictionary]$Valeurs) {
@@ -71,11 +72,30 @@ function Fusionner-IniPoste([string]$Ancien,[System.Collections.IDictionary]$Val
 
 function Restaurer-FichierAvecDroits($Item) {
     if ($Item.backup) {
-        [IO.File]::Copy($Item.backup,$Item.destination,$true)
+        $saved=$null
         if ($Item.PSObject.Properties['sddl'] -and $Item.sddl) {
+            # Get-Acl sauvegarde les droits d acces, pas l audit (SACL).
+            # La surcharge sans sections marque pourtant aussi Audit comme modifie
+            # et demande SeSecurityPrivilege lors de Set-Acl sur un compte standard.
+            $saved=New-Object Security.AccessControl.RawSecurityDescriptor([string]$Item.sddl)
+            if ($null -eq $saved.DiscretionaryAcl) { throw 'Sauvegarde des droits sans DACL explicite : restauration interrompue.' }
+        }
+        [IO.File]::Copy($Item.backup,$Item.destination,$true)
+        if ($null -ne $saved) {
+            $current=Get-Acl -LiteralPath $Item.destination
+            $sections=[Security.AccessControl.AccessControlSections]::Access
+            $sidType=[Security.Principal.SecurityIdentifier]
+            if ($null -ne $saved.Owner -and $saved.Owner.Value -ne $current.GetOwner($sidType).Value) {
+                $sections=$sections -bor [Security.AccessControl.AccessControlSections]::Owner
+            }
+            if ($null -ne $saved.Group -and $saved.Group.Value -ne $current.GetGroup($sidType).Value) {
+                $sections=$sections -bor [Security.AccessControl.AccessControlSections]::Group
+            }
             $acl=New-Object Security.AccessControl.FileSecurity
-            $acl.SetSecurityDescriptorSddlForm([string]$Item.sddl)
-            Set-Acl -LiteralPath $Item.destination -AclObject $acl
+            $acl.SetSecurityDescriptorSddlForm([string]$Item.sddl,$sections)
+            # Persister seulement les sections marquees modifiees. Le fournisseur
+            # Set-Acl de Windows PowerShell 5.1 peut redemander l audit.
+            [IO.File]::SetAccessControl([string]$Item.destination,$acl)
         }
     } elseif ([IO.File]::Exists($Item.destination)) { [IO.File]::Delete($Item.destination) }
 }

@@ -56,6 +56,8 @@ Remplacer les chemins et l'adresse d'exemple. Pour secrétariat, utiliser `-Prof
 
 À l'activation, le script demande le secret applicatif du compte par saisie masquée, ou accepte `-FichierJeton` pointant vers un fichier local protégé. Il contrôle HTTPS, le protocole 2, la révision serveur `2026.09.16-u2b`, le schéma 2 et les rôles. Il conserve ce secret dans `%APPDATA%\CabinetCardio\service.token` avec des droits limités au compte Windows, SYSTEM et administrateurs. Ne jamais le saisir dans la ligne de commande ni le déposer dans GitHub.
 
+Le fichier local `%APPDATA%\CabinetCardio\service.url` doit contenir uniquement l'adresse HTTPS, en UTF-8 sans BOM et **sans retour à la ligne**. Le client VBA ajoute `/v1/rpc` au texte lu ; un CR/LF final rend donc l'URL WinHTTP invalide. L'installateur écrit désormais ce format. Pour un poste déjà configuré avec l'ancien format, fermer Word et Excel, sauvegarder ce seul fichier puis retirer son retour à la ligne final, en conservant l'adresse du service prévu. Cette correction locale ne nécessite pas de reconstruire les modèles et ne constitue pas une validation des essais fonctionnels.
+
 Le service doit avoir été initialisé et les classeurs importés avant cette activation. Les ressources initiales sont copiées seulement si absentes ; les bases Excel historiques ne sont jamais remplacées par l'installateur.
 
 ## Réglages du poste médecin

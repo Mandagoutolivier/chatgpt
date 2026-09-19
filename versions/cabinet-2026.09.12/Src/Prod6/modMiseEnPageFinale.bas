@@ -69,9 +69,17 @@ Public Sub MPF_AppliquerMiseEnPageCourrier( _
     Dim rngPremierPatient As Range
     Dim p As Paragraph
 
-    On Error GoTo fin
-
     If doc Is Nothing Then Exit Sub
+
+    ' Le nouveau papier conserve la presentation relevee sur l annexe.
+    ' Ce chemin est strict : une configuration incomplete doit interrompre
+    ' la correction, et ne pas etre masquee par le gestionnaire historique.
+    If MPF_UtilisePresentationAnnexe(doc) Then
+        MPF_AppliquerPresentationAnnexe doc
+        Exit Sub
+    End If
+
+    On Error GoTo fin
 
     'Supprimer d'éventuels paragraphes vides résiduels qui auraient été
     'conservés par Word pendant le remplacement du corps.
@@ -104,6 +112,71 @@ Public Sub MPF_AppliquerMiseEnPageCourrier( _
     MPF_SecuriserSignatureCourrier doc
 
 fin:
+End Sub
+
+Private Function MPF_UtilisePresentationAnnexe(ByVal doc As Document) As Boolean
+    Dim variable As Variable
+    For Each variable In doc.Variables
+        If StrComp(variable.Name, "PresentationCorpsU2", vbTextCompare) = 0 Then
+            If variable.Value <> "annexe-v1" Then
+                Err.Raise vbObjectError + 979, "Presentation du courrier", _
+                    "Profil PresentationCorpsU2 inconnu : " & variable.Value
+            End If
+            MPF_UtilisePresentationAnnexe = True
+            Exit Function
+        End If
+    Next variable
+End Function
+
+Private Sub MPF_AppliquerPresentationAnnexe(ByVal doc As Document)
+    Dim corps As Range, p As Paragraph, styleCorps As Style
+
+    If Not doc.Bookmarks.Exists("CORPS") Then
+        Err.Raise vbObjectError + 979, "Presentation du courrier", _
+            "Presentation annexe-v1 : signet CORPS absent."
+    End If
+    Set corps = doc.Bookmarks("CORPS").Range.Duplicate
+    If corps.StoryType <> wdMainTextStory Or corps.Start = corps.End Then
+        Err.Raise vbObjectError + 979, "Presentation du courrier", _
+            "Presentation annexe-v1 : signet CORPS vide ou hors du courrier principal."
+    End If
+    If doc.Bookmarks.Exists("PR_DEBUT_DEMANDES") Then
+        If corps.End > doc.Bookmarks("PR_DEBUT_DEMANDES").Range.Start Then
+            Err.Raise vbObjectError + 979, "Presentation du courrier", _
+                "Presentation annexe-v1 : le signet CORPS empiète sur les annexes."
+        End If
+    End If
+    On Error Resume Next
+    Set styleCorps = doc.Styles("CabinetCorpsU2")
+    On Error GoTo 0
+    If styleCorps Is Nothing Then
+        Err.Raise vbObjectError + 979, "Presentation du courrier", _
+            "Presentation annexe-v1 : style CabinetCorpsU2 absent."
+    End If
+    If styleCorps.Type <> wdStyleTypeParagraph Then
+        Err.Raise vbObjectError + 979, "Presentation du courrier", _
+            "Presentation annexe-v1 : CabinetCorpsU2 doit etre un style de paragraphe."
+    End If
+
+    ' Valider toute la plage avant modification : aucun paragraphe partage
+    ' avec l appel, la politesse ou la signature ne doit etre reformate.
+    For Each p In corps.Paragraphs
+        If p.Range.Start < corps.Start Or p.Range.End - 1 > corps.End Then
+            Err.Raise vbObjectError + 979, "Presentation du courrier", _
+                "Presentation annexe-v1 : les limites du signet CORPS doivent suivre les paragraphes."
+        End If
+    Next p
+
+    For Each p In corps.Paragraphs
+        ' Duplicate conserve notamment SpaceBeforeAuto/SpaceAfterAuto,
+        ' les retraits, l interligne et les tabulations du modele.
+        p.Range.ParagraphFormat = styleCorps.ParagraphFormat.Duplicate
+        p.Range.Style = styleCorps
+        ' Aucun Font.Reset ni remplacement global de Font : le gras et
+        ' l italique explicites du texte medical doivent etre conserves.
+    Next p
+    ' Ne pas compacter la politesse ni securiser ici les signatures : ces
+    ' operations historiques modifieraient les zones hors du signet CORPS.
 End Sub
 
 Private Sub MPF_CompacterAvantPolitesse( _
@@ -754,14 +827,20 @@ Private Sub MPF_SecuriserSignatureIndex( _
         'La formule de politesse reste avec la signature.
         For j = idxPrecedentNonVide To idxSignature - 1
 
-            With doc.Paragraphs(j).Format
-                .KeepWithNext = True
-                .KeepTogether = True
-                .WidowControl = True
-                .SpaceBefore = 0
-                .SpaceAfter = 0
-                .LineSpacingRule = wdLineSpaceSingle
-            End With
+            ' Sans politesse, le paragraphe precedent peut etre medical.
+            ' Le nouveau profil doit survivre aussi a la passe globale
+            ' executee apres l ajout des annexes. Ne proteger ici que le
+            ' CORPS principal marque, jamais les paragraphes des annexes.
+            If Not MPF_ParagrapheCorpsPresentationAnnexe(doc, doc.Paragraphs(j)) Then
+                With doc.Paragraphs(j).Format
+                    .KeepWithNext = True
+                    .KeepTogether = True
+                    .WidowControl = True
+                    .SpaceBefore = 0
+                    .SpaceAfter = 0
+                    .LineSpacingRule = wdLineSpaceSingle
+                End With
+            End If
 
         Next j
 
@@ -794,6 +873,18 @@ Private Sub MPF_SecuriserSignatureIndex( _
     End If
 
 End Sub
+
+Private Function MPF_ParagrapheCorpsPresentationAnnexe( _
+    ByVal doc As Document, ByVal p As Paragraph) As Boolean
+
+    Dim corps As Range
+    If Not MPF_UtilisePresentationAnnexe(doc) Then Exit Function
+    If Not doc.Bookmarks.Exists("CORPS") Then Exit Function
+    Set corps = doc.Bookmarks("CORPS").Range
+    MPF_ParagrapheCorpsPresentationAnnexe = _
+        corps.StoryType = wdMainTextStory And p.Range.StoryType = wdMainTextStory And _
+        p.Range.Start >= corps.Start And p.Range.End - 1 <= corps.End
+End Function
 
 Private Function MPF_EstSignature( _
     ByVal texteNormalise As String) As Boolean

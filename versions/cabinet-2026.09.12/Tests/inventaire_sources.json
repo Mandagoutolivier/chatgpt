@@ -108,8 +108,8 @@
     "host": "word",
     "module": "modMiseEnPageFinale",
     "source": "Src/Prod6/modMiseEnPageFinale.bas",
-    "lines": 863,
-    "sha256": "2d5993d3dd62a03f25035d46b6b70ef2ec3dcdb2f1a72ea1df6ece34c1f8fb0c"
+    "lines": 954,
+    "sha256": "b85a06b8fd0d783d5c8112095fef1ccd23e754394f8acbca16a74072d5abeeaf"
   },
   {
     "role": "production",
@@ -212,8 +212,8 @@
     "host": "word",
     "module": "modCourrier",
     "source": "Src/Word/modCourrier.bas",
-    "lines": 624,
-    "sha256": "35f26a15b105e9595d5d9ad56a651491ef062a6573cced8a811d0d73f4ae40ca"
+    "lines": 658,
+    "sha256": "574eab221674a2257d8c44b789971d2196fbbcdbb9e716ace9e5ede22802a500"
   },
   {
     "role": "production",

@@ -426,7 +426,9 @@
     "modAuditTests",
     "modRecetteU0",
     "modRecetteU1",
-    "modRecetteU2"
+    "modRecetteU2",
+    "modRecetteModeleCourrier",
+    "modRecettePresentationAnnexe"
   ],
   "excel_legacy_removals": [
     "modTests_Excel",
@@ -452,6 +454,16 @@
       "name": "modRecetteU2",
       "kind": "module",
       "path": "Tests/Vba/word/modRecetteU2.bas"
+    },
+    {
+      "name": "modRecetteModeleCourrier",
+      "kind": "module",
+      "path": "Tests/Vba/word/modRecetteModeleCourrier.bas"
+    },
+    {
+      "name": "modRecettePresentationAnnexe",
+      "kind": "module",
+      "path": "Tests/Vba/word/modRecettePresentationAnnexe.bas"
     }
   ],
   "excel_recette": [
