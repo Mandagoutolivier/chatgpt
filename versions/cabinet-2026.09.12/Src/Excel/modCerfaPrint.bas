@@ -27,7 +27,7 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
     valeurs("PATIENT_NOM") = Trim$(ValeurOuVide(infos, "Nom") & " " & ValeurOuVide(infos, "Prenom"))
     valeurs("PATIENT_DDN") = ValeurOuVide(infos, "DDN")
     If assureDistinct Then
-        If Len(Trim$(ValeurOuVide(infos, "AssureNom"))) = 0 Or Len(Trim$(ValeurOuVide(infos, "AssurePrenom"))) = 0 Or Not modTexte.DateFrValide(ValeurOuVide(infos, "AssureDDN")) Or Len(Trim$(ValeurOuVide(infos, "AssureNIR"))) = 0 Then Err.Raise vbObjectError + 703, , "Fiche de l assure incomplete ou invalide."
+        If Len(Trim$(ValeurOuVide(infos, "AssureNom"))) = 0 Or Len(Trim$(ValeurOuVide(infos, "AssurePrenom"))) = 0 Or Not modTexte.DateFrValide(ValeurOuVide(infos, "AssureDDN")) Then Err.Raise vbObjectError + 703, , "Fiche de l assure incomplete ou invalide."
         valeurs("ASSURE_NOM") = Trim$(ValeurOuVide(infos, "AssureNom") & " " & ValeurOuVide(infos, "AssurePrenom"))
         valeurs("ASSURE_DDN") = ValeurOuVide(infos, "AssureDDN")
         nir = ValeurOuVide(infos, "AssureNIR")
@@ -38,9 +38,13 @@ Public Sub ImprimerFeuille(ByVal infos As Object, ByVal actes As Collection, _
         nir = ValeurOuVide(infos, "NIR")
     End If
     Dim p As Object, r As Object
-    Set p = modServiceNas.Parametres(): p("nir") = nir
-    Set r = modServiceNas.Appeler("nir.validate", p)
-    valeurs("ASSURE_NIR") = CStr(r("nir"))
+    If Len(Trim$(nir)) > 0 Then
+        Set p = modServiceNas.Parametres(): p("nir") = nir
+        Set r = modServiceNas.Appeler("nir.validate", p)
+        valeurs("ASSURE_NIR") = CStr(r("nir"))
+    Else
+        valeurs("ASSURE_NIR") = ""
+    End If
     rpps = modConfig.Config("MEDECIN", "RPPS", "")
     am = modConfig.Config("MEDECIN", "NumeroAM", "")
     If Not ChiffresExactement(rpps, 11) Or Not ChiffresExactement(am, 9) Then Err.Raise vbObjectError + 704, , "Renseignez RPPS (11 chiffres) et numero AM (9 chiffres) dans la configuration."
