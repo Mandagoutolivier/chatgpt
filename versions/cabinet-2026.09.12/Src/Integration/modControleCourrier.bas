@@ -3,21 +3,34 @@ Option Explicit
 
 Public Sub PreparerRelecture(ByVal doc As Document, ByVal source As String, ByVal resultat As String)
     Dim p As Object, r As Object, difference As Object, message As String
+    Dim cor As Object, sortie As String, revision As String, valeur As Variant
     Set p = modServiceNas.Parametres(): p("source") = source: p("resultat") = resultat
     Set r = modServiceNas.Appeler("clinical.compare", p)
     For Each difference In r("differences")
         message = message & vbCrLf & "- " & CStr(difference("controle"))
-        Dim valeur As Variant
         For Each valeur In difference("retires"): message = message & " [retire: " & CStr(valeur) & "]": Next valeur
         For Each valeur In difference("ajoutes"): message = message & " [ajoute: " & CStr(valeur) & "]": Next valeur
     Next difference
-    modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "1"
-    modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
+    Set cor = AssurerDestinataire(doc)
+    If cor Is Nothing Then Exit Sub
+    modCourrier.RemplirSignet doc, "DESTINATAIRE", CStr(cor("BlocDestinataire"))
+    modCourrier.MettreEnFormeDestinataire doc
+    revision = EmpreinteCourrier(doc, CStr(cor("ID")))
+    If Trim$(modIntegrationUnifie.VariableDoc(doc, "PublicationRevision")) <> revision Then
+        modIntegrationUnifie.FixerVariable doc, "PublicationID", modFichiers.IdUnique()
+        modIntegrationUnifie.FixerVariable doc, "PublicationRevision", revision
+        modIntegrationUnifie.FixerVariable doc, "DateValidation", Format$(Now, "dd/mm/yyyy hh:nn:ss")
+        modIntegrationUnifie.FixerVariable doc, "PublicationPreparee", "0"
+    End If
     modIntegrationUnifie.FixerVariable doc, "ControlesRelecture", message
+    modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "0"
+    modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "1"
+    doc.Save
+    modIntegrationUnifie.TransmettreSecretariat doc, sortie
     Application.ScreenUpdating = True
-    MsgBox "Le courrier et ses annexes sont prets pour votre relecture." & vbCrLf & _
-        IIf(Len(message) > 0, "Differences detectees :" & message & vbCrLf, "") & _
-        "Verifiez identite, destinataires, negations, doses et examens. Appuyez de nouveau sur D apres relecture pour transmettre.", vbInformation, "Relecture du courrier"
+    MsgBox "Courrier transmis au secretariat." & _
+        IIf(Len(message) > 0, vbCrLf & "Controles automatiques a verifier :" & message, ""), _
+        vbInformation, "Cabinet"
 End Sub
 
 Public Function AssurerDestinataire(ByVal doc As Document) As Object
