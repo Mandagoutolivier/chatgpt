@@ -36,7 +36,7 @@ Public Sub Charger(ByVal drapeau As Object)
         cmbPaiement.AddItem CStr(m)
     Next m
     cmbPaiement.ListIndex = 0
-    chkFds.Value = True
+    chkFds.Value = False
     MajTotal
 End Sub
 
