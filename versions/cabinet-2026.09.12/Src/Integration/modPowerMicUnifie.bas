@@ -59,11 +59,7 @@ Public Sub Unifie_D_Finaliser()
     mOccupe = True
     On Error GoTo Erreur
     modIntegrationUnifie.InitialiserPatientProd ActiveDocument
-    If Trim$(modIntegrationUnifie.VariableDoc(ActiveDocument, "RelectureEnAttente")) = "1" Then
-        modControleCourrier.ValiderEtTransmettre ActiveDocument
-    Else
-        modProdRapide.PR_CorrigerToutEnUnClic
-    End If
+    modProdRapide.PR_CorrigerToutEnUnClic
 Sortie:
     mOccupe = False
     Exit Sub
