@@ -57,8 +57,6 @@ Public Function ConstruireGdt(ByVal pat As Object) As String
     lignes.Add LigneGdt("3000", pat("ID"))
     lignes.Add LigneGdt("3101", UCase$(pat("Nom")))
     lignes.Add LigneGdt("3102", pat("Prenom"))
-    lignes.Add LigneGdt("3103", DdnVersGdt(pat("DDN")))
-    lignes.Add LigneGdt("3110", SexeVersGdt(pat("Sexe")))
     lignes.Add LigneGdt("8402", modConfig.Config("ECG", "CodeExamen", "EKG01"))
 
     ' champ 8100 = longueur totale, sa propre ligne comprise (14 octets)
