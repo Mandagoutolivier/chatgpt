@@ -76,7 +76,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='3fc341094a7895beb6fac0f6dfcc420b6a9b8755'
+$Commit='a492cd0e00fb8924823799ebe048fe932af8e941'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -96,12 +96,12 @@ $Empreintes=@'
   "Build/construire_modele_unifie.ps1": "e3fc00b5fd4671979dbfbb6c29f3d6b1648b5ca9b5399e80f25026181e88483f",
   "Build/donnees_initiales.json": "2c6a672f018d9db815c4f3fcdc91892db9b9a43bb3c7477bc83f49cb4b23b790",
   "Build/initialiser_nas.ps1": "fcc628697d4b3881e2a7a13cb67556e8479221af4b935c1fb1576c6c9a4e1ce9",
-  "Build/installer_multi_postes.ps1": "9d0ebf35fbfceaa9ce0f06260d45e95192ecc024dfe716f174128f3849a887d6",
+  "Build/installer_multi_postes.ps1": "db201b63613221f310f47b5b1e8adf04330f797689b04fd43272bc5ae015595d",
   "Build/manifest.json": "6727bae24c0829e835f28021f2658e3e796c17195908603a8fbe182f56bee55b",
   "Build/outils_assistant.ps1": "eb0ccaf8a1639d70c255beaeb15881e07aa1b3832bd795e1a6a4b302beb81f91",
   "Build/outils_configuration.ps1": "d7a6e3bbbc967d51130b16834fa3ea26fa4b30f4ade6da9437b509f89e09176f",
   "Build/outils_construction.ps1": "cf5c18869b03c5caf21e9ffa01b17e6c60889efd71f9b9c14ebef41fe423fc17",
-  "Build/outils_installation.ps1": "51d362da933bb1407ae77a7684bc72e5f8e667e29e40af241b27fe34d4d7c38a",
+  "Build/outils_installation.ps1": "50c70a369bd370690dd50ebbaebbd47ee57a5c92ab0237fbffb1c2eaf1597856",
   "Build/outils_recette_isolee.ps1": "b45ee83307be8794594ebb4ab410dc7b87abc95d2c74a6e0c86c428115c1e5f4",
   "Build/outils_recette_u1.ps1": "903df29f64a71efe8d51eb950b38b2924c09a4d693323f5bc99698ebabdd2959",
   "Build/outils_telechargement.ps1": "2e6c3ce03391f6116276ec61a67625a3bae0c8a3f695acc065bc0a6f714ae3af",
@@ -109,7 +109,7 @@ $Empreintes=@'
   "Build/restaurer_poste.ps1": "5cf5a5bbc0b734fbb5dda346f56957e23df2d624f40f88ecb0432ff033d3c874",
   "Build/ruban_unifie.xml": "e3adc12dc7dbd3bb6041c5c76ceceeb7defdf86c6faf155ae4083957c548b858",
   "Build/schemas.json": "9b6c70a98f9129de98bf9aa1f1f6714b714e1610352801e0d806ab7254f3d0d4",
-  "Build/valider_preparation.ps1": "5fc10bf3559c354c8ad373183879af4a52d40f3caf7b00b3e629453cfd64c2af",
+  "Build/valider_preparation.ps1": "3b9f3a857a7f80ec63101f0dcac8d9c844de65626309354d213f6b64fa178c10",
   "DonneesInitiales/Base/base_travail_correspondants_v1.xlsx": "233baf23b5094a42901b9ca06e83b6904354f5b24a19c7d0b89b339253ff2922",
   "DonneesInitiales/Config/DDE/declencheurs_demandes.txt": "430fb6e84a5e6137bb4707f6336a2453db47792460d400f58ecd8c76245a2f2d",
   "DonneesInitiales/Config/DDE/examens_complementaires.txt": "b5b753eec87a7aac522701922da5bb4d358d4da51c49d6cc8aa8e710562bbfe0",
@@ -127,7 +127,7 @@ $Empreintes=@'
   "ModelesSource/Cabinet(1).dotm": "493ed179d97ec4f15cafe39e44f9a6d2c0ce56a42927cf0fd4acafd860dabdb5",
   "ModelesSource/Cabinet.xlsm": "714e9458066bd28b8b6e6f6e9f65b2d673d3285c1915b57216e780d5e75f04ff",
   "ModelesSource/ModeleCourrierChatGPT_PROD(6).dotm": "a8ccb702e8defc9fce19b9afb968c4f7cd5b25d59da562dba172bc6b51b85524",
-  "README.md": "93c7cf59eb7ade6c691a1cba9fbdb93449057d92864f26e6891d822536057f6e",
+  "README.md": "ed249c84b436c59c82b92548a00a3734ea891bd1998c5f3c6ab5aea8e3259703",
   "RECETTE_WINDOWS.md": "a157287ea0028c4d85089430ce3d984560f9ecca2f82a644725b9a40aab05016",
   "Serveur/.dockerignore": "891c19e4a4cc9f2b65c507511effbb989345d165389833708b19671f3fc4b58f",
   "Serveur/.env.example": "15e5c5794c9e58cd13075352a65d4d147c89328efb839612aefc63e6766cd0df",
@@ -272,14 +272,14 @@ $Empreintes=@'
   "Tests/test_edition_documents.py": "34f2bb24f2c4764eb4f72a84284e88e73183cb121ad79ff153ab70e733bbea8f",
   "Tests/test_feuilles_excel.ps1": "4d552b64e4a44913daa035af1ee346e2c7d9ac3f1b1d8c9218f1eef82a21c48a",
   "Tests/test_image_permissions.sh": "ea684664d1111acf78305173ece4fac556511f1d6c7e7041a3c9d47ff3f97305",
-  "Tests/test_installation.ps1": "923bff34cbe62f22af7bd188fff5123d227fc932d09a886ab2865824b3f2b682",
+  "Tests/test_installation.ps1": "1ac1034ba5b4c917ad45313d956056fc2c131d0e217c20ad6205499de0a9b7b0",
   "Tests/test_lancement_direct.ps1": "44dd1fc6b61d15d73c779b298764470954a77f51a6f158ec9282c77bbdf71cc5",
   "Tests/test_recette_20260920.py": "84221b1a0256f2a6a112272da8b1d9f67fa75ec99dc8eaf9541021439e6bb2d7",
   "Tests/test_recette_isolee.ps1": "2027086609d48bbef79407065e04f6b52f5acd27f7571b2bb4df63b880776672",
   "Tests/test_recovery_docker.sh": "3fac41479b6ffe419633b8287102f336e4db84861c0fc879637dc49d608b4fec",
   "Tests/test_restauration_poste.ps1": "46672e21e6e44c79609af2b04a862bc31327f4c5222e2962840bd6434ce4d352",
   "Tests/test_u0_installation.ps1": "5f87ef07bd91f8f9b5aa5698ede582059938590438338001f8a900074281a8c1",
-  "Tests/test_u1_installation.ps1": "238228e934846fccd9a63a61020c488fbd292ce386920cc40da7242ccca6023f",
+  "Tests/test_u1_installation.ps1": "434c37f5affd79a855b52652d839e20d128cc3e66336620e56c6ef13a37d965d",
   "Tests/test_u2_architecture.py": "faa2b2f55fc717c469b4cf1aaf442c9f468b222b3e841f5647f771189eea0919",
   "Tests/test_u2_manifeste.ps1": "b73a657cdf3434fcce70addca01cff68b812c0361882418bda9dfd7b7e4792bd",
   "Tests/verification_livraison.json": "e1733c2ce5b5523783ef9d8385971ba768499d6acb7e411b98179576cf9cbb50",
@@ -293,7 +293,7 @@ $bootLock=$null
 try {
     if ($env:OS -ne 'Windows_NT') { throw 'Ce lanceur necessite Windows.' }
     Write-Host ('Cabinet Cardio - installation guidee - version '+$Commit.Substring(0,7))
-    Write-Host 'Recette U2b uniquement : utilisez le compte Windows dedie aux tests, jamais le profil clinique U0.'
+    Write-Host 'Recette U2c uniquement : utilisez le compte Windows dedie aux tests, jamais le profil clinique U0.'
     Write-Host 'Lancez sans Executer en tant qu administrateur.'
     $cache=Join-Path $env:LOCALAPPDATA 'CabinetCardio\Installation\Sources'
     [void][IO.Directory]::CreateDirectory($cache)
