@@ -460,10 +460,13 @@ ResolutionSuivante:
         Call modGras.AppliquerGrasDocumentComplet(docDemande)
         etapeMultipage = "Préparation de l'ajout au document principal"
 
+        Dim corAnnexe As Object, paramAnnexe As Object
+        Set paramAnnexe = modServiceNas.Parametres(): paramAnnexe("cle") = cleDestination
+        Set corAnnexe = modServiceNas.Appeler("correspondent.resolve", paramAnnexe)
         PR_AjouterDocumentEnNouvellePage _
             docPrincipal, _
             docDemande, _
-            etapeMultipage
+            etapeMultipage, i, CStr(corAnnexe("ID"))
 
         etapeMultipage = "Marquage de la demande comme générée"
         PR_MarquerDemandeMultipageGeneree i
@@ -1112,7 +1115,9 @@ End Function
 Private Sub PR_AjouterDocumentEnNouvellePage( _
     ByVal docDestination As Document, _
     ByVal docSource As Document, _
-    ByRef etapeMultipage As String)
+    ByRef etapeMultipage As String, _
+    Optional ByVal numeroAnnexe As Long = 0, _
+    Optional ByVal destinataireID As String = "")
 
     Dim rngInsertion As Range
     Dim rngSource As Range
@@ -1209,6 +1214,7 @@ Private Sub PR_AjouterDocumentEnNouvellePage( _
         docDestination, _
         debutInsertion
 
+    If numeroAnnexe > 0 Then modIndexAnnexes.IndexerAnnexe docDestination, docSource, debutInsertion, numeroAnnexe, destinataireID
     etapeMultipage = "Fusion : terminée"
 
 End Sub

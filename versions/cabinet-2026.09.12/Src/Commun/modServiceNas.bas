@@ -20,7 +20,7 @@ Public Function SHA256(ByVal texte As String) As String
 End Function
 Public Function EstLecture(ByVal operation As String) As Boolean
     Select Case operation
-        Case "whoami", "table.read", "record.get", "attentes", "reprises", "publications", "correspondent.resolve", "clinical.compare", "dictionary.read", "journal.read", "nir.validate", "command.result", "billing.get", "stale_arrivals": EstLecture = True
+        Case "whoami", "table.read", "record.get", "attentes", "reprises", "publications", "correspondent.resolve", "clinical.compare", "dictionary.read", "journal.read", "nir.validate", "command.result", "billing.get", "stale_arrivals", "publication.get": EstLecture = True
     End Select
 End Function
 

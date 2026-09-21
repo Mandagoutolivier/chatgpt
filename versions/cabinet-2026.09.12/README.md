@@ -2,7 +2,7 @@
 
 Cette version reprend l'audit du commit `44ff5bb` et remplace les écritures concurrentes dans les classeurs par un service transactionnel PostgreSQL sur le Synology. Word reste l'interface de dictée, Excel celle du secrétariat. U1 filtre et trie les arrivées en mémoire sur le poste médecin ; SQLite n'est plus requis.
 
-**Correctifs ciblés des audits : `2026.09.16-u2b`, destinés à une recette isolée.** Voir [le bilan des corrections et les validations restantes](U2_CORRECTIFS_AUDITS.md). L'installation clinique est conservée. Les nouveaux changements VBA doivent encore être compilés et testés dans Office ; les 54 contrôles réussis de la [qualification antérieure U2](U2_RECETTE.md) ne les couvrent pas.
+**Correctifs ciblés des audits : `2026.09.21-u2c`, destinés à une recette isolée.** Voir [le bilan des corrections et les validations restantes](U2_CORRECTIFS_AUDITS.md). L'installation clinique est conservée. Les nouveaux changements VBA doivent encore être compilés et testés dans Office ; les 54 contrôles réussis de la [qualification antérieure U2](U2_RECETTE.md) ne les couvrent pas.
 
 Les fichiers dans `ModelesSource` sont les originaux de référence, pas les binaires corrigés à installer directement. Le parcours Office/NAS/Dragon/ECG/imprimante reste à qualifier avant utilisation avec des patients.
 

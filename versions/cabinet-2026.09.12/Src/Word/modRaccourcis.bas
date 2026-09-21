@@ -20,6 +20,7 @@ Public Sub AutoExec()
     On Error Resume Next
     modLog.LogInfo "AutoExec CabinetUnifie.dotm : demarrage"
     InstallerRaccourcisSession False
+    modFileArrivees.DemarrerFileAuChargement
 End Sub
 
 ' Sonde sans interface : prouve qu'une liaison de touche declenche bien une
@@ -111,3 +112,7 @@ Public Function ModeleUnifie() As Template
     Set ModeleUnifie = TrouverModeleCabinet()
     If ModeleUnifie Is Nothing Then Err.Raise vbObjectError + 965, , "CabinetUnifie.dotm n est pas charge."
 End Function
+
+Public Sub AutoExit()
+    modFileArrivees.FermerFileArrivees
+End Sub

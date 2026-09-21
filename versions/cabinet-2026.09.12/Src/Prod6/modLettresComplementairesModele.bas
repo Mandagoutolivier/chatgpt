@@ -405,6 +405,7 @@ Private Function LCM_RemplacerDestinataireEnConservantModele( _
                 rng, _
                 texteDestinataire
 
+            doc.Bookmarks.Add "U2_DEST_SOURCE", doc.Range(rng.Start, rng.Start + Len(texteDestinataire))
             LCM_RemplacerDestinataireEnConservantModele = True
             Exit Function
 

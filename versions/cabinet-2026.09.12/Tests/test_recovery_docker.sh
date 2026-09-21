@@ -3,7 +3,7 @@ set -eu
 cd "$(dirname "$0")/../Serveur"
 project="cabinet-u2b-ci-$(date +%s)-$$"
 export CABINET_BACKUP_VOLUME=/tmp/cabinet-u2b-unused
-export CABINET_MAINTENANCE_IMAGE=cabinet-maintenance:2026.09.16-u2b
+export CABINET_MAINTENANCE_IMAGE=cabinet-maintenance:2026.09.21-u2c
 compose() { docker compose -f compose.verification.yaml -f compose.recette.yaml -p "$project" "$@"; }
 cleanup() {
     result=$?

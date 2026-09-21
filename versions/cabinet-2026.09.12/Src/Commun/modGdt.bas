@@ -2,9 +2,11 @@ Attribute VB_Name = "modGdt"
 Option Explicit
 ' =====================================================================
 ' modGdt - Envoi de l'identite patient au logiciel ECG Resting12Lead
-' par fichier GDT (dialecte valide en essai reel le 31/08/2026) :
-'   satz 6302, GDT 02.00, jeu de caracteres 9206=3 (ANSI),
-'   date de naissance JJMMAAAA, fichier IMPORT.GDT en ANSI cp1252.
+' Profil minimal pour le RL Premier du cabinet, essai du 20/09/2026 :
+'   satz 6302, GDT 02.00, jeu de caracteres 9206=3, ANSI CP1252.
+'   Identifiant complet, nom et prenom uniquement ; ni DDN ni sexe.
+'   DDN et sexe restent obligatoires dans le dossier U2, mais sont saisis
+'   manuellement dans RL Premier. Ce dossier GDT n isole pas sa base ECG.
 ' Cote Resting12Lead : Parametres > Parametres Interface >
 '   "Saisie Auto info Patient" = GDT (et "Connection Systeme Info DMS"
 '   DEcochee - les deux modes sont exclusifs), Interface GDT In/Out
@@ -75,13 +77,6 @@ Public Function ConstruireGdt(ByVal pat As Object) As String
     ConstruireGdt = contenu
 End Function
 
-Private Function SexeVersGdt(ByVal sexe As String) As String
-    Select Case modTexte.SexeNormalise(sexe)
-        Case "M": SexeVersGdt = "1"
-        Case "F": SexeVersGdt = "2"
-        Case Else: Err.Raise vbObjectError + 802, "modGdt", "Sexe patient non renseigne pour l ECG."
-    End Select
-End Function
 Private Function LigneGdt(ByVal champ As String, ByVal valeur As String) As String
     Dim st As Object, retour As String, i As Long
     If Len(champ & valeur) + 5 > 999 Then Err.Raise vbObjectError + 806, "modGdt", "Champ GDT trop long."
@@ -96,10 +91,4 @@ Private Function LigneGdt(ByVal champ As String, ByVal valeur As String) As Stri
     st.Close
     If retour <> valeur Then Err.Raise vbObjectError + 808, "modGdt", "Un caractere de l identite ne peut pas etre transmis en CP1252."
     LigneGdt = Format$(Len(champ & valeur) + 5, "000") & champ & valeur
-End Function
-' "01/01/1935" -> "01011935"
-Private Function DdnVersGdt(ByVal ddn As String) As String
-    If Not modTexte.DateFrValide(ddn) Then Err.Raise vbObjectError + 803, "modGdt", "Date de naissance invalide."
-    If modTexte.DateFr(ddn) > Date Then Err.Raise vbObjectError + 804, "modGdt", "Date de naissance future."
-    DdnVersGdt = Format$(modTexte.DateFr(ddn), "ddmmyyyy")
 End Function

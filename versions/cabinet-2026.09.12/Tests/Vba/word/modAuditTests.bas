@@ -48,12 +48,22 @@ Public Function Audit_TestsSansReseau() As String
     lignes = Split(texte, vbCrLf)
     Audit_Verifier lignes(0) = "01380006302", "GDT satz 6302"
     Audit_Verifier CLng(Mid$(lignes(1), 8)) = Len(texte), "GDT longueur totale"
-    Audit_Verifier InStr(texte, "01031102") > 0, "GDT sexe femme"
+    Audit_Verifier InStr(texte, vbCrLf & "0103110") = 0 And InStr(texte, vbCrLf & "0173103") = 0, "GDT sans sexe ni naissance"
     For Each ligne In lignes
         If Len(ligne) > 0 Then Audit_Verifier CLng(Left$(ligne, 3)) = Len(ligne) + 2, "GDT longueur de ligne"
     Next ligne
-    pat("Sexe") = "": Audit_Verifier Audit_GdtRefuse(pat), "GDT sexe absent refuse"
-    pat("Sexe") = "F": pat("DDN") = "31/02/1960": Audit_Verifier Audit_GdtRefuse(pat), "GDT date impossible refusee"
+    pat("Sexe") = "": Audit_Verifier modGdt.ConstruireGdt(pat) = texte, "GDT minimal independant du sexe"
+    pat("Sexe") = "F": pat("DDN") = "31/02/1960": Audit_Verifier modGdt.ConstruireGdt(pat) = texte, "GDT minimal ne transmet jamais la naissance"
+    pat.Remove "Sexe": pat.Remove "DDN"
+    Audit_Verifier modGdt.ConstruireGdt(pat) = texte, "GDT accepte uniquement ID nom prenom"
+    pat("ID") = "P1234567890aaaaaaaaaaaaaaaaaaaaaa1"
+    texte = modGdt.ConstruireGdt(pat)
+    Audit_Verifier InStr(texte, "3000" & pat("ID") & vbCrLf) > 0, "GDT identifiant long integral"
+    pat("ID") = "P1234567890aaaaaaaaaaaaaaaaaaaaaa2"
+    Audit_Verifier modGdt.ConstruireGdt(pat) <> texte, "GDT deux identifiants de meme prefixe distincts"
+    pat("Prenom") = "El" & ChrW$(233) & "odie"
+    texte = modGdt.ConstruireGdt(pat)
+    Audit_Verifier InStr(texte, "3102" & pat("Prenom") & vbCrLf) > 0, "GDT accent CP1252 conserve"
     pat("DDN") = "29/02/1960": pat("Nom") = "FICTIF" & vbCrLf & "31101"
     Audit_Verifier Audit_GdtRefuse(pat), "GDT injection de champ refusee"
     pat("Nom") = ChrW$(&H4E2D): Audit_Verifier Audit_GdtRefuse(pat), "GDT caractere hors CP1252 refuse"
@@ -120,4 +130,15 @@ Private Function Audit_GdtRefuse(ByVal patient As Object) As Boolean
     Exit Function
 Attendu:
     Audit_GdtRefuse = True
+End Function
+
+Public Function Audit_ExecuterJson() As String
+    Dim resultat As String, description As String
+    On Error GoTo Echec
+    resultat = Audit_TestsSansReseau()
+    Audit_ExecuterJson = "{""reussis"":" & CStr(mVerifications) & ",""echec"":false}"
+    Exit Function
+Echec:
+    description = Err.Description
+    Audit_ExecuterJson = "{""reussis"":" & CStr(mVerifications) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
 End Function

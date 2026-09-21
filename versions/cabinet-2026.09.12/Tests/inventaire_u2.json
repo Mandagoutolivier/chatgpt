@@ -198,8 +198,8 @@
       "role": "production",
       "module": "modLettresComplementairesModele",
       "source": "Src/Prod6/modLettresComplementairesModele.bas",
-      "lignes": 1223,
-      "sha256": "57186d7b8da7eecfda55763e0bac2a5b323f56031129184f0ab7aad594c13a88",
+      "lignes": 1224,
+      "sha256": "910b3a9ffe1bfce04291a1457f857879d82fade2fd76de59e1053c1972594567",
       "entrees_publiques": [
         "LCM_ChoisirModeleLettreComplementaire",
         "LCM_CreerLettreDepuisModele",
@@ -263,8 +263,8 @@
       "role": "production",
       "module": "modProdRapide",
       "source": "Src/Prod6/modProdRapide.bas",
-      "lignes": 1275,
-      "sha256": "b58f3e2dd80ce2825e64adfc6bd1806faf2645b89f8ce0a122ab9dfa3e72ec4b",
+      "lignes": 1281,
+      "sha256": "1e890098202bf7f1daabfb0f7b659a883688682c00cb4f9e0eef2a971353c339",
       "entrees_publiques": [
         "PR_AjouterDemandesAuDocumentPrincipal",
         "PR_CorrigerReferentPatientOrientationCCN",
@@ -548,8 +548,8 @@
       "role": "production",
       "module": "modGdt",
       "source": "Src/Commun/modGdt.bas",
-      "lignes": 107,
-      "sha256": "fdcf14f9fdd26074345a970e812ca0979b1a11ee2e29754f3f33f053cd67ce5b",
+      "lignes": 94,
+      "sha256": "4c575e42fa465925e3a46112d0bd5f99940adff521affdfd278fb76682590271",
       "entrees_publiques": [
         "ConstruireGdt",
         "EcrireGdtPatient"
@@ -642,11 +642,12 @@
       "role": "production",
       "module": "modRaccourcis",
       "source": "Src/Word/modRaccourcis.bas",
-      "lignes": 113,
-      "sha256": "7a375fdcaed4e0351254c8a5bc8b423d3fc89e33d6090fb63975c3f26e23dc1a",
+      "lignes": 118,
+      "sha256": "ce1d8b35755be82e5539bebb358d1b12b8571db73d2d72c3469f3788cb06e417",
       "entrees_publiques": [
         "AideCabinet",
         "AutoExec",
+        "AutoExit",
         "DiagnosticCabinet",
         "ModeleUnifie",
         "ReinstallerRaccourcis",
@@ -752,8 +753,8 @@
       "role": "production",
       "module": "modAttenteLocale",
       "source": "Src/Integration/modAttenteLocale.bas",
-      "lignes": 65,
-      "sha256": "1069e93b6e2b01993d5981674e09d6a16b7ff26a8271a9e4b372b2a056446254",
+      "lignes": 70,
+      "sha256": "e41813ce204b60d60ab15667ba006bc2b205c491917dcd6dcde8589c7794897f",
       "entrees_publiques": [
         "ChoisirAttente",
         "ConsommerAttente",
@@ -787,13 +788,15 @@
       "role": "production",
       "module": "modPowerMicUnifie",
       "source": "Src/Integration/modPowerMicUnifie.bas",
-      "lignes": 73,
-      "sha256": "3948b45445aaccc4896508a1f50e99dcd04b6da9e30f3ee95b029a52b61c486d",
+      "lignes": 83,
+      "sha256": "f3b8c25e4165a2b6e9800602d8b21c96a38bc2bdee87462c118677fb2a945a65",
       "entrees_publiques": [
         "Unifie_A_NouvelleLettre",
         "Unifie_B_FormuleAppel",
         "Unifie_C_InsererPatient",
-        "Unifie_D_Finaliser"
+        "Unifie_D_Finaliser",
+        "Unifie_DemarrerConsultation",
+        "Unifie_OperationEnCours"
       ]
     },
     {
@@ -802,7 +805,7 @@
       "module": "modServiceNas",
       "source": "Src/Commun/modServiceNas.bas",
       "lignes": 165,
-      "sha256": "89b6cfc06e8c8d95937164d85d906693cc32a5e806309cc8d2a3f203b6239205",
+      "sha256": "2894660337f3c746849f5160b48d903418e3b137fc9da66c76cf9dd0f79f6e08",
       "entrees_publiques": [
         "Appeler",
         "CommandeID",
@@ -824,12 +827,14 @@
       "role": "production",
       "module": "modControleCourrier",
       "source": "Src/Integration/modControleCourrier.bas",
-      "lignes": 131,
-      "sha256": "3a1d28bdff8a1df1ba8156985bf8e0262700db9fc32e736a772656871afae14c",
+      "lignes": 178,
+      "sha256": "b38de4a5e54893f6aa9f99b64d0a009a1b674f089f794435ae0a603cd3c560dd",
       "entrees_publiques": [
         "AssurerDestinataire",
+        "DestinataireRelectureConforme",
         "EmpreinteCourrier",
         "EmpreinteXmlCourrier",
+        "InvaliderRelecture",
         "PreparerRelecture",
         "ValiderEtTransmettre"
       ]
@@ -897,8 +902,8 @@
       "role": "production",
       "module": "modCycleCourrier",
       "source": "Src/Integration/modCycleCourrier.bas",
-      "lignes": 130,
-      "sha256": "67ed2d079b47e3e95051599b15995418acc7065f2cfe680cd61fc7667a2b00aa",
+      "lignes": 131,
+      "sha256": "d15600d1a7634c93db5f80355fe98cdf856e43aeefc4068c72a611a48cbb9c91",
       "entrees_publiques": [
         "CycleEnCours",
         "DocumentSource",
@@ -907,12 +912,59 @@
     },
     {
       "hote": "word",
+      "role": "production",
+      "module": "modFileArrivees",
+      "source": "Src/Integration/modFileArrivees.bas",
+      "lignes": 87,
+      "sha256": "5990f478c63f1ff31f15cff7b8ecd47309b92b5b37a8b5c138ed83357a636df3",
+      "entrees_publiques": [
+        "ActualiserFileArrivees",
+        "DemarrerFileAuChargement",
+        "DemarrerSelection",
+        "FermerFileArrivees",
+        "SuspendreFileArrivees",
+        "TickFileArrivees",
+        "Unifie_AfficherFileArrivees"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "ufArriveesMedecin",
+      "source": "Src/Word/ufArriveesMedecin.vba",
+      "lignes": 102,
+      "sha256": "e933be7228273a37e7ace7953bf0fde186cb04b2d80cc5e996133395ba7f61d3",
+      "entrees_publiques": [
+        "Charger",
+        "IdentifiantSelection",
+        "Indisponible",
+        "NombreAffiche"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modIndexAnnexes",
+      "source": "Src/Commun/modIndexAnnexes.bas",
+      "lignes": 68,
+      "sha256": "6cf4a3a89edf23c90f9c7f3af982da7e33e80d2ed6862c83e0c7c353a10022b5",
+      "entrees_publiques": [
+        "FixerMeta",
+        "IndexerAnnexe",
+        "LireMeta",
+        "ListerAnnexes",
+        "RemplacerDestinataireAnnexe"
+      ]
+    },
+    {
+      "hote": "word",
       "role": "recette",
       "module": "modAuditTests",
       "source": "Tests/Vba/word/modAuditTests.bas",
-      "lignes": 123,
-      "sha256": "a87d4d6082bdaa5d231eb59f114d9b9da7971b9b1951733b8021f9c536bcc75a",
+      "lignes": 144,
+      "sha256": "290f74cff7025931df0106d1ecc7d8046e888010f5dc0ccb9523bcceb9a2eae2",
       "entrees_publiques": [
+        "Audit_ExecuterJson",
         "Audit_LancerTests",
         "Audit_TestsSansReseau"
       ]
@@ -944,9 +996,10 @@
       "role": "recette",
       "module": "modRecetteU2",
       "source": "Tests/Vba/word/modRecetteU2.bas",
-      "lignes": 102,
-      "sha256": "30bb3f61463bdfe06fcdd97a291487d71ffcf52e592405fc74774756828def30",
+      "lignes": 227,
+      "sha256": "798ace1db06d0b8d04a98cf1460bdfc9c494b3c0e8a347ca28db54290aaf7fb8",
       "entrees_publiques": [
+        "ExecuterFileAnnexes",
         "ExecuterU2"
       ]
     },
@@ -1004,8 +1057,8 @@
       "role": "production",
       "module": "modActes",
       "source": "Src/Excel/modActes.bas",
-      "lignes": 265,
-      "sha256": "cd57f24d7d3bb51995e6b9732a8d35f087778d556f547a04577ed5fc52dc07e5",
+      "lignes": 263,
+      "sha256": "7ca1b47cfc92a74115d8779af826fafd2212ce40321a39118060ebccb89dace2",
       "entrees_publiques": [
         "ActeParCode",
         "ConstruireLignesFacturation",
@@ -1075,12 +1128,13 @@
       "role": "production",
       "module": "modCerfaPrint",
       "source": "Src/Excel/modCerfaPrint.bas",
-      "lignes": 314,
-      "sha256": "0b8f5393191a2900cdd5e12b932751107ce566d82ef710e42adf9b8b63cd125f",
+      "lignes": 322,
+      "sha256": "dfd8b669367e0513b57f6997d0d204ef07ecafdf287a892f0c1b958583180324",
       "entrees_publiques": [
         "AnalyserPositions",
         "CalageCerfa",
         "ImprimerFeuille",
+        "NirFacultatifPourFeuille",
         "VerifierAvantFacturation",
         "VerifierAvantReimpression"
       ]
@@ -1166,8 +1220,8 @@
       "role": "production",
       "module": "modGdt",
       "source": "Src/Commun/modGdt.bas",
-      "lignes": 107,
-      "sha256": "fdcf14f9fdd26074345a970e812ca0979b1a11ee2e29754f3f33f053cd67ce5b",
+      "lignes": 94,
+      "sha256": "4c575e42fa465925e3a46112d0bd5f99940adff521affdfd278fb76682590271",
       "entrees_publiques": [
         "ConstruireGdt",
         "EcrireGdtPatient"
@@ -1273,8 +1327,8 @@
       "role": "production",
       "module": "ufChoixActe",
       "source": "Src/Excel/ufChoixActe.vba",
-      "lignes": 267,
-      "sha256": "dde15d9a0886eb4e0a5023ac516158f8da6bfb84e084f7fd8e35dd3e9e0115c2",
+      "lignes": 287,
+      "sha256": "09aa766e715379c97afec5068b605fa8b042cbd21b65c02d2679d7e7d9bb60f0",
       "entrees_publiques": [
         "Charger",
         "ReimprimerFeuille"
@@ -1332,7 +1386,7 @@
       "module": "modServiceNas",
       "source": "Src/Commun/modServiceNas.bas",
       "lignes": 165,
-      "sha256": "89b6cfc06e8c8d95937164d85d906693cc32a5e806309cc8d2a3f203b6239205",
+      "sha256": "2894660337f3c746849f5160b48d903418e3b137fc9da66c76cf9dd0f79f6e08",
       "entrees_publiques": [
         "Appeler",
         "CommandeID",
@@ -1378,13 +1432,44 @@
     },
     {
       "hote": "excel",
+      "role": "production",
+      "module": "modIndexAnnexes",
+      "source": "Src/Commun/modIndexAnnexes.bas",
+      "lignes": 68,
+      "sha256": "6cf4a3a89edf23c90f9c7f3af982da7e33e80d2ed6862c83e0c7c353a10022b5",
+      "entrees_publiques": [
+        "FixerMeta",
+        "IndexerAnnexe",
+        "LireMeta",
+        "ListerAnnexes",
+        "RemplacerDestinataireAnnexe"
+      ]
+    },
+    {
+      "hote": "excel",
+      "role": "production",
+      "module": "modEditionSecretariat",
+      "source": "Src/Excel/modEditionSecretariat.bas",
+      "lignes": 402,
+      "sha256": "fc6eb35079f6d125aeee4b0f7a83ac75248e82915d1282ac363f5e290cffbd0f",
+      "entrees_publiques": [
+        "AbandonnerEditionAnnexes",
+        "ChoisirDestinataireAnnexe",
+        "EditionEnCours",
+        "EnregistrerEditionAnnexes",
+        "OuvrirEditionAnnexes"
+      ]
+    },
+    {
+      "hote": "excel",
       "role": "recette",
       "module": "modRecetteU1Excel",
       "source": "Tests/Vba/excel/modRecetteU1Excel.bas",
-      "lignes": 203,
-      "sha256": "aef0d609295b7196ccbd4d1c38e4433495098ee2eb93b6f6001161c1710f2990",
+      "lignes": 269,
+      "sha256": "491c10b6f2c40284a9a3286c11922d37647d15cc1ac97d3dbc17f220e2b9476b",
       "entrees_publiques": [
-        "Executer"
+        "Executer",
+        "ExecuterEditionSecretariat"
       ]
     }
   ],
@@ -1770,8 +1855,20 @@
     {
       "hote": "word",
       "source": "modProdRapide",
+      "cible": "modIndexAnnexes",
+      "membre": "IndexerAnnexe"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
       "cible": "modJson",
       "membre": "JsonParse"
+    },
+    {
+      "hote": "word",
+      "source": "modProdRapide",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
     },
     {
       "hote": "word",
@@ -2231,24 +2328,6 @@
     },
     {
       "hote": "word",
-      "source": "modGdt",
-      "cible": "modTexte",
-      "membre": "DateFr"
-    },
-    {
-      "hote": "word",
-      "source": "modGdt",
-      "cible": "modTexte",
-      "membre": "DateFrValide"
-    },
-    {
-      "hote": "word",
-      "source": "modGdt",
-      "cible": "modTexte",
-      "membre": "SexeNormalise"
-    },
-    {
-      "hote": "word",
       "source": "modGras",
       "cible": "modConfig",
       "membre": "chemin"
@@ -2402,6 +2481,18 @@
       "source": "modRaccourcis",
       "cible": "modFichiers",
       "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modFileArrivees",
+      "membre": "DemarrerFileAuChargement"
+    },
+    {
+      "hote": "word",
+      "source": "modRaccourcis",
+      "cible": "modFileArrivees",
+      "membre": "FermerFileArrivees"
     },
     {
       "hote": "word",
@@ -2677,12 +2768,6 @@
       "hote": "word",
       "source": "modPowerMicUnifie",
       "cible": "modAttenteLocale",
-      "membre": "ChoisirAttente"
-    },
-    {
-      "hote": "word",
-      "source": "modPowerMicUnifie",
-      "cible": "modAttenteLocale",
       "membre": "ConsommerAttente"
     },
     {
@@ -2726,6 +2811,18 @@
       "source": "modPowerMicUnifie",
       "cible": "modCourrier",
       "membre": "TexteIdentitePatient"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modCycleCourrier",
+      "membre": "CycleEnCours"
+    },
+    {
+      "hote": "word",
+      "source": "modPowerMicUnifie",
+      "cible": "modFileArrivees",
+      "membre": "Unifie_AfficherFileArrivees"
     },
     {
       "hote": "word",
@@ -3037,6 +3134,12 @@
       "hote": "word",
       "source": "modCycleCourrier",
       "cible": "modControleCourrier",
+      "membre": "InvaliderRelecture"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modControleCourrier",
       "membre": "PreparerRelecture"
     },
     {
@@ -3206,6 +3309,96 @@
       "source": "modCycleCourrier",
       "cible": "modServiceNas",
       "membre": "SHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modAttenteLocale",
+      "membre": "FiltrerEtTrier"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modConfig",
+      "membre": "Config"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modConfig",
+      "membre": "ConfigNum"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modLog",
+      "membre": "Diagnostic"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_DemarrerConsultation"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_OperationEnCours"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modServiceNas",
+      "membre": "ItemsValides"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "ufArriveesMedecin",
+      "cible": "modFileArrivees",
+      "membre": "ActualiserFileArrivees"
+    },
+    {
+      "hote": "word",
+      "source": "ufArriveesMedecin",
+      "cible": "modFileArrivees",
+      "membre": "DemarrerSelection"
+    },
+    {
+      "hote": "word",
+      "source": "ufArriveesMedecin",
+      "cible": "modFileArrivees",
+      "membre": "SuspendreFileArrivees"
+    },
+    {
+      "hote": "word",
+      "source": "ufArriveesMedecin",
+      "cible": "modIntegrationUnifie",
+      "membre": "Unifie_ReprendreBrouillon"
+    },
+    {
+      "hote": "word",
+      "source": "ufArriveesMedecin",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_OperationEnCours"
+    },
+    {
+      "hote": "word",
+      "source": "ufArriveesMedecin",
+      "cible": "modTexte",
+      "membre": "Plier"
     },
     {
       "hote": "word",
@@ -3498,6 +3691,24 @@
     {
       "hote": "word",
       "source": "modRecetteU2",
+      "cible": "modControleCourrier",
+      "membre": "DestinataireRelectureConforme"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modControleCourrier",
+      "membre": "InvaliderRelecture"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modCourrier",
+      "membre": "RemplirSignet"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
       "cible": "modCycleCourrier",
       "membre": "CycleEnCours"
     },
@@ -3518,6 +3729,48 @@
       "source": "modRecetteU2",
       "cible": "modFichiers",
       "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modIndexAnnexes",
+      "membre": "FixerMeta"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modIndexAnnexes",
+      "membre": "IndexerAnnexe"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modIndexAnnexes",
+      "membre": "LireMeta"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modIndexAnnexes",
+      "membre": "ListerAnnexes"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modIndexAnnexes",
+      "membre": "RemplacerDestinataireAnnexe"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
     },
     {
       "hote": "word",
@@ -4067,24 +4320,6 @@
     },
     {
       "hote": "excel",
-      "source": "modGdt",
-      "cible": "modTexte",
-      "membre": "DateFr"
-    },
-    {
-      "hote": "excel",
-      "source": "modGdt",
-      "cible": "modTexte",
-      "membre": "DateFrValide"
-    },
-    {
-      "hote": "excel",
-      "source": "modGdt",
-      "cible": "modTexte",
-      "membre": "SexeNormalise"
-    },
-    {
-      "hote": "excel",
       "source": "modJournal",
       "cible": "modBaseIO",
       "membre": "AjouterLignes"
@@ -4280,6 +4515,36 @@
       "source": "ufChoixActe",
       "cible": "modEchange",
       "membre": "OuvrirCourrier"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modEditionSecretariat",
+      "membre": "AbandonnerEditionAnnexes"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modEditionSecretariat",
+      "membre": "ChoisirDestinataireAnnexe"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modEditionSecretariat",
+      "membre": "EditionEnCours"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modEditionSecretariat",
+      "membre": "EnregistrerEditionAnnexes"
+    },
+    {
+      "hote": "excel",
+      "source": "ufChoixActe",
+      "cible": "modEditionSecretariat",
+      "membre": "OuvrirEditionAnnexes"
     },
     {
       "hote": "excel",
@@ -4505,6 +4770,120 @@
     },
     {
       "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modDonneesTransport",
+      "membre": "EmpreinteFichierSHA256"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "DossierExiste"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "LireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "RenommerAtomique"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modFichiers",
+      "membre": "VerifierIdentifiantFichier"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modIndexAnnexes",
+      "membre": "FixerMeta"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modIndexAnnexes",
+      "membre": "LireMeta"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modIndexAnnexes",
+      "membre": "ListerAnnexes"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modIndexAnnexes",
+      "membre": "RemplacerDestinataireAnnexe"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modJson",
+      "membre": "JsonParse"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modServiceNas",
+      "membre": "CommandeID"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modServiceNas",
+      "membre": "JsonValeur"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modServiceNas",
+      "membre": "LireTable"
+    },
+    {
+      "hote": "excel",
+      "source": "modEditionSecretariat",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "excel",
       "source": "modRecetteU1Excel",
       "cible": "modActes",
       "membre": "ConstruireLignesFacturation"
@@ -4536,8 +4915,50 @@
     {
       "hote": "excel",
       "source": "modRecetteU1Excel",
+      "cible": "modCerfaPrint",
+      "membre": "NirFacultatifPourFeuille"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
       "cible": "modConfig",
       "membre": "AnalyserConfigurationIni"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modEditionSecretariat",
+      "membre": "EditionEnCours"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modFichiers",
+      "membre": "EcrireTexteUTF8"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modFichiers",
+      "membre": "IdUnique"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modFichiers",
+      "membre": "SupprimerTemporaire"
+    },
+    {
+      "hote": "excel",
+      "source": "modRecetteU1Excel",
+      "cible": "modServiceNas",
+      "membre": "EstLecture"
     },
     {
       "hote": "excel",
@@ -4577,11 +4998,7 @@
     },
     {
       "source": "Src/Word/modRaccourcis.bas",
-      "ligne": 67
-    },
-    {
-      "source": "Src/Word/modRaccourcis.bas",
-      "ligne": 71
+      "ligne": 68
     },
     {
       "source": "Src/Word/modRaccourcis.bas",
@@ -4593,7 +5010,11 @@
     },
     {
       "source": "Src/Word/modRaccourcis.bas",
-      "ligne": 76
+      "ligne": 74
+    },
+    {
+      "source": "Src/Word/modRaccourcis.bas",
+      "ligne": 77
     },
     {
       "source": "Src/Word/modRuban.bas",
@@ -4606,6 +5027,10 @@
     {
       "source": "Src/Integration/modRechercheWord.bas",
       "ligne": 21
+    },
+    {
+      "source": "Src/Integration/modFileArrivees.bas",
+      "ligne": 55
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",

@@ -29,6 +29,7 @@ Public Sub ExecuterCycleCourrier()
     Set cor = modControleCourrier.AssurerDestinataire(docPrincipal)
     If cor Is Nothing Then GoTo Sortie
     modEtatCourrier.PrendreVerrou docPrincipal, verrou
+    modControleCourrier.InvaliderRelecture docPrincipal
     modIntegrationUnifie.SauvegarderBrouillon docPrincipal
     If Not modAnonymisation.LocaliserCorpsCourrier(docPrincipal, rngCorps, premier) Then Err.Raise vbObjectError + 960, , "Corps du courrier introuvable."
     Set gPlageOriginale = rngCorps.Duplicate

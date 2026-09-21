@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 import audit_statique
 from inventaire_architecture import inventorier
+from test_edition_documents import AnnexesXML
 from cabinet import APPLICATION_VERSION, PROTOCOL_VERSION, SERVICE_REVISION, TARGET_SCHEMA_VERSION
 
 
@@ -51,8 +52,8 @@ class ArchitectureU2(unittest.TestCase):
         root=audit_statique.ROOT
         word=(root/'Tests/Vba/word/modRecetteU2.bas').read_text(encoding='utf-8-sig')
         excel=(root/'Tests/Vba/excel/modRecetteU1Excel.bas').read_text(encoding='utf-8-sig')
-        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 29\b')
-        self.assertRegex(excel,r'NOMBRE_ATTENDU_EXCEL As Long = 70\b')
+        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 36\b')
+        self.assertRegex(excel,r'NOMBRE_ATTENDU_EXCEL As Long = 74\b')
         for source in (word,excel):
             self.assertIn('""attendus"":',source)
             self.assertRegex(source,r'(?:reussis|mNombre) <> NOMBRE_ATTENDU_')
@@ -89,14 +90,14 @@ class ArchitectureU2(unittest.TestCase):
             declencheur=next(line for line in source.splitlines() if line.strip().startswith('assureDistinct ='))
             for champ in ('AssureNom','AssurePrenom','AssureDDN','AssureNIR'):
                 self.assertIn('"'+champ+'"',declencheur)
-            validation=source.split('If assureDistinct Then',1)[1].split('Else',1)[0]
-            for champ in ('AssureNom','AssurePrenom','AssureDDN','AssureNIR'):
+            validation=source.split('If assureDistinct Then',1)[1].split('Else',1)[0].split('End If',1)[0]
+            for champ in ('AssureNom','AssurePrenom','AssureDDN'):
                 self.assertIn('"'+champ+'"',validation)
             self.assertIn('modTexte.DateFrValide',validation)
         impression=cerfa.split('Public Sub ImprimerFeuille',1)[1].split('End Sub',1)[0]
         self.assertLess(impression.index('vbObjectError + 703'),impression.index('ExigerPositions'))
-        self.assertLess(impression.index('vbObjectError + 703'),impression.index('Appeler("nir.validate"'))
-        self.assertLess(impression.index('Appeler("nir.validate"'),impression.index('ImprimerDocumentCale'))
+        self.assertLess(impression.index('vbObjectError + 703'),impression.index('NirFacultatifPourFeuille(nir)'))
+        self.assertLess(impression.index('NirFacultatifPourFeuille(nir)'),impression.index('ImprimerDocumentCale'))
 
     def test_reprise_excel_precede_selection_et_propage_annulation(self):
         root=audit_statique.ROOT

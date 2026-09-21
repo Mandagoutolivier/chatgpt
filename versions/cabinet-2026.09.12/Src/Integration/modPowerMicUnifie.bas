@@ -3,15 +3,25 @@ Option Explicit
 Private mOccupe As Boolean
 
 Public Sub Unifie_A_NouvelleLettre()
+    modFileArrivees.Unifie_AfficherFileArrivees
+End Sub
+
+Public Function Unifie_OperationEnCours() As Boolean
+    Unifie_OperationEnCours = mOccupe Or modProdRapide.PR_EnCours() Or modCycleCourrier.CycleEnCours()
+End Function
+
+Public Sub Unifie_DemarrerConsultation(ByVal attente As Object)
     If mOccupe Or modProdRapide.PR_EnCours() Then Exit Sub
     mOccupe = True
     On Error GoTo Erreur
-    Dim attente As Object, pat As Object, doc As Document, sauvegarde As Boolean
-    Set attente = modAttenteLocale.ChoisirAttente()
+    Dim pat As Object, doc As Document, sauvegarde As Boolean
     If attente Is Nothing Then GoTo Sortie
     Set pat = modBase.PatientParID(CStr(attente("PatientID")), True)
     If pat Is Nothing Then Err.Raise vbObjectError + 980, "modPowerMicUnifie", "Patient absent de la base NAS."
     modAttenteLocale.ConsommerAttente attente
+    ' Relire apres la reservation atomique ; le serveur controle l identite affichee.
+    Set pat = modBase.PatientParID(CStr(attente("PatientID")), True)
+    If CStr(pat("Nom")) <> CStr(attente("Nom")) Or CStr(pat("Prenom")) <> CStr(attente("Prenom")) Or CStr(pat("DDN")) <> CStr(attente("DDN")) Or CStr(pat("Sexe")) <> CStr(attente("Sexe")) Then Err.Raise vbObjectError + 981, , "Identite modifiee : actualisez la liste."
     ' Le destinataire est dicte avec le raccourci Dragon, comme demande.
     Set doc = modCourrier.CreerCourrierRapidePour(pat)
     modIntegrationUnifie.FixerVariable doc, "RdvID", CStr(attente("RdvID"))
@@ -59,7 +69,11 @@ Public Sub Unifie_D_Finaliser()
     mOccupe = True
     On Error GoTo Erreur
     modIntegrationUnifie.InitialiserPatientProd ActiveDocument
-    modProdRapide.PR_CorrigerToutEnUnClic
+    If Trim$(modIntegrationUnifie.VariableDoc(ActiveDocument, "RelectureEnAttente")) = "1" Then
+        modControleCourrier.ValiderEtTransmettre ActiveDocument
+    Else
+        modProdRapide.PR_CorrigerToutEnUnClic
+    End If
 Sortie:
     mOccupe = False
     Exit Sub
