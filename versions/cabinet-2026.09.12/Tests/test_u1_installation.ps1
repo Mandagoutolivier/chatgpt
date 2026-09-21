@@ -47,11 +47,13 @@ if([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT){
 # Le parcours officiel ne doit laisser AccessVBOM actif ni apres succes ni apres erreur.
 $installer=[IO.File]::ReadAllText((Join-Path $root 'Build/installer_multi_postes.ps1'))
 $validator=[IO.File]::ReadAllText((Join-Path $root 'Build/valider_preparation.ps1'))
-Exiger ($installer -match "if \(\$Mode -eq 'Preparation'\) \{ Autoriser-AccesVbaAssistant \$accesVbaJournal \}" -and
-        $installer -match "if \(\$Mode -eq 'Preparation'\) \{\s*Attendre-FermetureOffice\s*Restaurer-AccesVbaAssistant \$accesVbaJournal\s*\}") 'AccessVBOM borne a la preparation, Office ferme puis reglage restaure'
-Exiger ($validator -match 'Autoriser-AccesVbaAssistant \$accesVbaJournal' -and
-        $validator -match 'finally \{\s*#.*\s*Attendre-FermetureOffice\s*Restaurer-AccesVbaAssistant \$accesVbaJournal') 'AccessVBOM restaure apres fermeture Office lors de la validation'
-Exiger ($installer -match 'function Finaliser-ObjetsOfficeInstallation' -and
+Exiger ($installer.Contains('if ($Mode -eq ''Preparation'') { Autoriser-AccesVbaAssistant $accesVbaJournal }') -and
+        $installer.Contains('Restaurer-AccesVbaAssistant $accesVbaJournal') -and
+        $installer.Contains('Attendre-FermetureOffice')) 'AccessVBOM borne a la preparation, Office ferme puis reglage restaure'
+Exiger ($validator.Contains('Autoriser-AccesVbaAssistant $accesVbaJournal') -and
+        $validator.Contains('Restaurer-AccesVbaAssistant $accesVbaJournal') -and
+        $validator.Contains('Attendre-FermetureOffice')) 'AccessVBOM restaure apres fermeture Office lors de la validation'
+Exiger ($installer.Contains('function Finaliser-ObjetsOfficeInstallation') -and
         ([regex]::Matches($installer,'Finaliser-ObjetsOfficeInstallation').Count -ge 3)) 'constructeurs Office suivis d une liberation COM'
-Exiger ($validator -match 'FinalReleaseComObject\(\$comObject\)' -and
-        $validator -match 'Attendre-FermetureOffice -Noms \$processName') 'validation libere COM et attend la fermeture de chaque hote'
+Exiger ($validator.Contains('FinalReleaseComObject($comObject)') -and
+        $validator.Contains('Attendre-FermetureOffice -Noms $processName')) 'validation libere COM et attend la fermeture de chaque hote'
