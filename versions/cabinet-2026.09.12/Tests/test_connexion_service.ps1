@@ -31,7 +31,7 @@ function Invoke-RestMethod {
     }
     $script:appelsSimules++
     return [pscustomobject]@{result=[pscustomobject]@{
-        protocole=2; revision='2026.09.16-u2b'; schema=2; roles=@('medecin','secretariat')
+        protocole=2; revision='2026.09.21-u2c'; schema=2; roles=@('medecin','secretariat')
     }}
 }
 function Read-Host { throw 'Aucune saisie interactive autorisee dans ce test.' }
@@ -65,3 +65,5 @@ try {
 } finally {
     if (Test-Path -LiteralPath $local) { Remove-Item -LiteralPath $local -Recurse -Force }
 }
+
+[executed on device: RDC (851a212c-2a55-4d12-8c1a-7ceb6ea36f05)]
