@@ -43,3 +43,15 @@ if([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT){
         Exiger ((Get-Acl -LiteralPath $cible).Sddl -eq $sddl) 'droits restaures apres echec simule'
     }finally{if(Test-Path -LiteralPath $aclRoot){Remove-Item -LiteralPath $aclRoot -Recurse -Force}}
 }
+
+# Le parcours officiel ne doit laisser AccessVBOM actif ni apres succes ni apres erreur.
+$installer=[IO.File]::ReadAllText((Join-Path $root 'Build/installer_multi_postes.ps1'))
+$validator=[IO.File]::ReadAllText((Join-Path $root 'Build/valider_preparation.ps1'))
+Exiger ($installer -match "if \(\$Mode -eq 'Preparation'\) \{ Autoriser-AccesVbaAssistant \$accesVbaJournal \}" -and
+        $installer -match "if \(\$Mode -eq 'Preparation'\) \{\s*Attendre-FermetureOffice\s*Restaurer-AccesVbaAssistant \$accesVbaJournal\s*\}") 'AccessVBOM borne a la preparation, Office ferme puis reglage restaure'
+Exiger ($validator -match 'Autoriser-AccesVbaAssistant \$accesVbaJournal' -and
+        $validator -match 'finally \{\s*#.*\s*Attendre-FermetureOffice\s*Restaurer-AccesVbaAssistant \$accesVbaJournal') 'AccessVBOM restaure apres fermeture Office lors de la validation'
+Exiger ($installer -match 'function Finaliser-ObjetsOfficeInstallation' -and
+        ([regex]::Matches($installer,'Finaliser-ObjetsOfficeInstallation').Count -ge 3)) 'constructeurs Office suivis d une liberation COM'
+Exiger ($validator -match 'FinalReleaseComObject\(\$comObject\)' -and
+        $validator -match 'Attendre-FermetureOffice -Noms \$processName') 'validation libere COM et attend la fermeture de chaque hote'

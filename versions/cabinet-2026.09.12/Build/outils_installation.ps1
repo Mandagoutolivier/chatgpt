@@ -11,6 +11,16 @@ function Empreintes-Sources([string]$Racine) {
     return $result
 }
 function Ecrire-Preparation([string]$Dossier,[string]$Profil,[string]$Racine) {
+    $commitSources=[string]$env:CABINET_SOURCE_COMMIT
+    $receiptPath=Join-Path $Dossier 'preparation.json'
+    # Une validation reecrit les empreintes des binaires apres compilation.
+    # Si elle est lancee dans un nouveau processus, conserver le commit qui a produit la preparation.
+    if ([string]::IsNullOrWhiteSpace($commitSources) -and (Test-Path -LiteralPath $receiptPath)) {
+        try {
+            $precedent=Get-Content -LiteralPath $receiptPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($precedent.PSObject.Properties['commitSources']) { $commitSources=[string]$precedent.commitSources }
+        } catch { throw 'Preparation existante illisible : commit source non preservable.' }
+    }
     $binaries=[ordered]@{}
     foreach ($name in @('CabinetUnifie.dotm','Cabinet.xlsm')) {
         $path=Join-Path $Dossier $name
@@ -18,8 +28,8 @@ function Ecrire-Preparation([string]$Dossier,[string]$Profil,[string]$Racine) {
     }
     $receipt=[ordered]@{version='2026.09.12';profil=$Profil;sources=(Empreintes-Sources $Racine);binaires=$binaries;compilationOffice='A effectuer sur ce PC'}
     $receipt['release']='2026.09.21-u2c'
-    $receipt['commitSources']=$env:CABINET_SOURCE_COMMIT
-    $receipt | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $Dossier 'preparation.json') -Encoding UTF8
+    $receipt['commitSources']=$commitSources
+    $receipt | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $receiptPath -Encoding UTF8
 }
 function Verifier-Preparation([string]$Dossier,[string]$Profil,[string]$Racine) {
     $receipt=Get-Content -LiteralPath (Join-Path $Dossier 'preparation.json') -Raw -Encoding UTF8 | ConvertFrom-Json

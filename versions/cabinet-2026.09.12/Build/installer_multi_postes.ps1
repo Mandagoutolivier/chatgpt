@@ -40,6 +40,7 @@ $log = Join-Path $backupDir 'installation.log'
 $changes = New-Object 'System.Collections.Generic.List[object]'
 $lock = $null; $transcript = $false
 $script:wordStartup = $null
+$accesVbaJournal = Join-Path $backupDir 'acces-vba-a-restaurer.json'
 
 function Memoriser-Fichier([string]$Destination) {
     $backup = $null; $sddl=$null
@@ -99,6 +100,14 @@ function Installer-ConnexionService {
     Proteger-FichierLocal $tokenPath
     $token=$null
 }
+function Finaliser-ObjetsOfficeInstallation {
+    # Les constructeurs s executent dans un scope enfant ; apres leur retour,
+    # forcer la liberation de leurs proxies/collections COM devenus inaccessibles.
+    [GC]::Collect()
+    [GC]::WaitForPendingFinalizers()
+    [GC]::Collect()
+    [GC]::WaitForPendingFinalizers()
+}
 function Tester-Office {
     foreach ($name in @('Word.Application','Excel.Application')) {
         $app = $null
@@ -114,6 +123,9 @@ function Tester-Office {
 try {
     $lock = [IO.File]::Open((Join-Path $local 'installation.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
     Start-Transcript -LiteralPath $log | Out-Null; $transcript=$true
+    # La construction et elle seule a besoin de l acces programmatique au projet VBA.
+    # L ancien reglage est journalise avant toute modification puis restaure dans finally.
+    if ($Mode -eq 'Preparation') { Autoriser-AccesVbaAssistant $accesVbaJournal }
     # Les constructeurs utilisent Office ; Excel utilise Word pour la feuille de soins.
     Tester-Office
     # Les applications creees pour verifier Office doivent etre vraiment fermees avant les constructeurs.
@@ -123,10 +135,14 @@ try {
             -Prod6 (Join-Path $DossierSources 'ModeleCourrierChatGPT_PROD(6).dotm') `
             -Cabinet1 (Join-Path $DossierSources 'Cabinet(1).dotm') `
             -Sortie (Join-Path $stage 'CabinetUnifie.dotm') -RacineSources $root
+        Finaliser-ObjetsOfficeInstallation
+        Attendre-FermetureOffice -Noms 'WINWORD'
     }
     if ($Mode -eq 'Preparation' -and $secretariat) {
         & (Join-Path $PSScriptRoot 'construire_cabinet_secretariat.ps1') `
             -CabinetXlsm (Join-Path $DossierSources 'Cabinet.xlsm') -Sortie (Join-Path $stage 'Cabinet.xlsm') -RacineSources $root
+        Finaliser-ObjetsOfficeInstallation
+        Attendre-FermetureOffice -Noms 'EXCEL'
     }
     if ($Mode -eq 'Preparation') {
         Ecrire-Preparation $stage $Profil $root
@@ -189,6 +205,11 @@ try {
     Write-Warning "Installation interrompue. Les ressources NAS deja creees et les sauvegardes sont conservees. Journal : $log"
     throw $cause
 } finally {
+    # Ne jamais laisser AccessVBOM active par le lanceur, y compris apres une erreur de construction.
+    if ($Mode -eq 'Preparation') {
+        Attendre-FermetureOffice
+        Restaurer-AccesVbaAssistant $accesVbaJournal
+    }
     if ($transcript) { Stop-Transcript | Out-Null }
     if ($null -ne $lock) { $lock.Dispose() }
     # Les modeles construits sont toujours conserves pour la recette et le diagnostic.
