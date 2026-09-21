@@ -65,5 +65,3 @@ try {
 } finally {
     if (Test-Path -LiteralPath $local) { Remove-Item -LiteralPath $local -Recurse -Force }
 }
-
-[executed on device: RDC (851a212c-2a55-4d12-8c1a-7ceb6ea36f05)]
