@@ -76,7 +76,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='a492cd0e00fb8924823799ebe048fe932af8e941'
+$Commit='e3be66c5f44bc46bac74810baacc21a30d7f6ffe'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -120,15 +120,15 @@ $Empreintes=@'
   "DonneesInitiales/Config/cerfa_positions.txt": "f09aece2ca125f32bb303bbbd16b9dbdc20e006807d0977d5fa95bdeb95a9876",
   "DonneesInitiales/Config/substitutions.txt": "80f82f0cf411b94c10368c3458703a6ad44e779778d3741d2008717f5692078a",
   "DonneesInitiales/Modeles/LETTRE TYPE.dot": "56c0ff3cb8167cb6746fda4ca772dee83d1e49a9480ead4f94017681c5dd55ed",
-  "INSTALLATION_MULTI_POSTES.md": "2295885a45e99f42c28420456f8959c8409b98c8e39f8f6f58ae80d2f73acf65",
+  "INSTALLATION_MULTI_POSTES.md": "bc9e6d0f61903e4929d89750084c579329977e74dd797928ef2556e1fea5d7df",
   "INTEGRATION_UNIFIEE.md": "57198c83114597fc15ff24ca4857edc680dc6ff750a8ac8c7350d99287e9a64d",
   "Installer.cmd": "8074b6ad7a2734a6c962b3641aeb2199cb611e1c9325c84aa3e8635576830efb",
   "Installer.ps1": "4c283264e30752b0093ab59e75bde31b721a8e2829df00f1b1ebea47f57c8c8a",
   "ModelesSource/Cabinet(1).dotm": "493ed179d97ec4f15cafe39e44f9a6d2c0ce56a42927cf0fd4acafd860dabdb5",
   "ModelesSource/Cabinet.xlsm": "714e9458066bd28b8b6e6f6e9f65b2d673d3285c1915b57216e780d5e75f04ff",
   "ModelesSource/ModeleCourrierChatGPT_PROD(6).dotm": "a8ccb702e8defc9fce19b9afb968c4f7cd5b25d59da562dba172bc6b51b85524",
-  "README.md": "ed249c84b436c59c82b92548a00a3734ea891bd1998c5f3c6ab5aea8e3259703",
-  "RECETTE_WINDOWS.md": "a157287ea0028c4d85089430ce3d984560f9ecca2f82a644725b9a40aab05016",
+  "README.md": "20f7e0151237d2c83a312a2f6bc05ecd95076c1a12d379b69ff08a47ea42a3bc",
+  "RECETTE_WINDOWS.md": "d60ae3a80f9552a80b1cd754ab7e8f4aa2dfe8db4516ce7d4349b9a40007a56e",
   "Serveur/.dockerignore": "891c19e4a4cc9f2b65c507511effbb989345d165389833708b19671f3fc4b58f",
   "Serveur/.env.example": "15e5c5794c9e58cd13075352a65d4d147c89328efb839612aefc63e6766cd0df",
   "Serveur/.env.u2-test.example": "3ab3b24b3b84b3499f8d6cf3dba8dbd0dc249da01df3e88ec607574a55871a1e",
@@ -178,7 +178,7 @@ $Empreintes=@'
   "Src/Commun/modConfig.bas": "1b4185d53f368160c731a978f636a029aa4d00e679fe48e78cf06868218477c3",
   "Src/Commun/modDonneesTransport.bas": "a2c730b1976a2f37b779f2a945f85a1e15bc11601656423f8d9079654dc556e8",
   "Src/Commun/modFichiers.bas": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9",
-  "Src/Commun/modGdt.bas": "4c575e42fa465925e3a46112d0bd5f99940adff521affdfd278fb76682590271",
+  "Src/Commun/modGdt.bas": "f3948d2084646be7aa3f736fb997c70c2af2afe67fa05092096b7c36570e24d9",
   "Src/Commun/modIndexAnnexes.bas": "6cf4a3a89edf23c90f9c7f3af982da7e33e80d2ed6862c83e0c7c353a10022b5",
   "Src/Commun/modJson.bas": "95a7c2ceb1c7d4041ffdc6b92e144d1a0066523d89a3836bd0c383bdf0317636",
   "Src/Commun/modLog.bas": "487da3c9f9fa8266aef430a63f92422787a28f0bc1d12ef7cfd0c9cb94e2faf8",
@@ -238,7 +238,7 @@ $Empreintes=@'
   "Src/Word/modCourrier.bas": "574eab221674a2257d8c44b789971d2196fbbcdbb9e716ace9e5ede22802a500",
   "Src/Word/modDemandes.bas": "c3ac084dabdd22670a00afce8e9018989dc501816f5144eed27148b3798c77ef",
   "Src/Word/modDerivees.bas": "b169a58e21e0bd874e80927aceeaa1fdde03578f770f7e2049cf9dc7a5be1edc",
-  "Src/Word/modEcg.bas": "bda7e2dcdc3025cb98bfc55b6da2c87c75b3abcf85f710a113735053c9b29811",
+  "Src/Word/modEcg.bas": "906cab15ceffbb3a6ff7080d68531911e8c6dd9c5a2adc78abe6bd5bb59dca25",
   "Src/Word/modGras.bas": "18f266fa40ef6491292ea4a36d7212c2fc580323e6bc8c8da434c6412232d351",
   "Src/Word/modPatient.bas": "01a8553d774e7df3cbbfd9d39b9ba106006b9d6ce0b5e041e8608bb0daf2d1b6",
   "Src/Word/modPowerMic.bas": "4f22aa1ec058f8663fdba691405ab887f9ff6c77666a59f5c61873fa5e572da3",
@@ -251,7 +251,7 @@ $Empreintes=@'
   "Src/Word/ufListe.vba": "fd55bbfcc0c18450f1d5ff2739aaa5f266c2b52d40b7fbcee5358c520c683113",
   "Src/Word/ufProgression.vba": "49b383108d2e7c85f27b4f4aadd438c0251042e412cc36c06a60adb7a611f6b2",
   "Tests/Vba/excel/modRecetteU1Excel.bas": "491c10b6f2c40284a9a3286c11922d37647d15cc1ac97d3dbc17f220e2b9476b",
-  "Tests/Vba/word/modAuditTests.bas": "290f74cff7025931df0106d1ecc7d8046e888010f5dc0ccb9523bcceb9a2eae2",
+  "Tests/Vba/word/modAuditTests.bas": "e0508005c8f785b5ee156bccf336c34082068d52e99b05b9acccda95c04cfeed",
   "Tests/Vba/word/modRecetteModeleCourrier.bas": "21b0b49a516097d2787544c51bc1093d593282fe82d729bc871fb8c94a9c0797",
   "Tests/Vba/word/modRecettePresentationAnnexe.bas": "134ef91fd9e1b50ec84ad3b9fe770f370d416f33ce03de118b2c7c504bf27f66",
   "Tests/Vba/word/modRecetteU0.bas": "75fe44170262584fc150b0417451e0d87d2b4d9b4cfa7a98f4b738a57f56f1a5",
@@ -259,8 +259,8 @@ $Empreintes=@'
   "Tests/Vba/word/modRecetteU2.bas": "798ace1db06d0b8d04a98cf1460bdfc9c494b3c0e8a347ca28db54290aaf7fb8",
   "Tests/audit_statique.py": "11e10b5757c30b3cc5718841d0d6ebfe235a7bcdbc13d77fae7356da01dba671",
   "Tests/inventaire_architecture.py": "1667db4e7a5f1e5fa0bdedd293a179188a9e8dff2b8bde4116273e4641d5b384",
-  "Tests/inventaire_sources.json": "52c6fdcbbd448a900c3344c1d780b1fdc349973a2500dc509b382540c67a4f33",
-  "Tests/inventaire_u2.json": "943f8f29c0eb0fd00d3878ab8a82902dd98f646d88fcc36e68d75ae0c636a058",
+  "Tests/inventaire_sources.json": "7b7b818b107b6fd3f22f4161d6ed1ecda2570b1f294c18e535c2e42e2c184c37",
+  "Tests/inventaire_u2.json": "da6db600c51bcd729f5daf661b4faba88c89721a87d612571f928eadb2a61466",
   "Tests/nettoyage_sources.json": "f3b54768aca28e41878d9bd36a147d7f2f7da5815609e85576d2a03986c5e07d",
   "Tests/schema_reponse_api.json": "fbf5f9805faa23b77cdffe368bdd737e320665c58b75a528a268f69ac06665f4",
   "Tests/test_assistant.ps1": "11cc4bb1293777569a72537d23a203dbc70da60f191ae37fc9650b9b728bc2f6",
@@ -274,7 +274,7 @@ $Empreintes=@'
   "Tests/test_image_permissions.sh": "ea684664d1111acf78305173ece4fac556511f1d6c7e7041a3c9d47ff3f97305",
   "Tests/test_installation.ps1": "1ac1034ba5b4c917ad45313d956056fc2c131d0e217c20ad6205499de0a9b7b0",
   "Tests/test_lancement_direct.ps1": "44dd1fc6b61d15d73c779b298764470954a77f51a6f158ec9282c77bbdf71cc5",
-  "Tests/test_recette_20260920.py": "84221b1a0256f2a6a112272da8b1d9f67fa75ec99dc8eaf9541021439e6bb2d7",
+  "Tests/test_recette_20260920.py": "ee6012f3d596b67afe92ef948343fa1b5a230520869b45004588d12d1dab8de2",
   "Tests/test_recette_isolee.ps1": "2027086609d48bbef79407065e04f6b52f5acd27f7571b2bb4df63b880776672",
   "Tests/test_recovery_docker.sh": "3fac41479b6ffe419633b8287102f336e4db84861c0fc879637dc49d608b4fec",
   "Tests/test_restauration_poste.ps1": "46672e21e6e44c79609af2b04a862bc31327f4c5222e2962840bd6434ce4d352",
@@ -285,6 +285,7 @@ $Empreintes=@'
   "Tests/verification_livraison.json": "e1733c2ce5b5523783ef9d8385971ba768499d6acb7e411b98179576cf9cbb50",
   "U0_RECETTE.md": "30208817c337df7b89349d71ecbf80bfe77b9f456ebde5e184aef27ef1531987",
   "U1_RECETTE.md": "faec11f24bc95db3e35a2d690483ba76b9d1cd8c18c30f136ad837962a86d959",
+  "U2C_GDT_20260924.md": "23bf02501273a52965cc85b3dd48ab732b7ca6459a8832ae23ac10d2e9742ea6",
   "U2_CORRECTIFS_AUDITS.md": "1d435d0ecf702209c34d9c7639cf74fa541daa6d2f62e652f24147f673608c5b",
   "U2_RECETTE.md": "26c95631d51b1ef4f3ecd1c07fb78a4e5280d7fb4f87207279d9f402b72ec856"
 }
