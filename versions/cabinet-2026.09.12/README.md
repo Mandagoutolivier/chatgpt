@@ -31,6 +31,7 @@ Le destinataire est confirmé par identifiant ; les homonymes ou anciennes clés
 
 ## Documents de livraison
 
+- [Correctif GDT : date de naissance et qualification de l'âge](U2C_GDT_20260924.md).
 - [Correctifs U1 et qualification](U1_RECETTE.md).
 - [Audit antérieur et limites](AUDIT.md) : correspondance avec les recommandations précédentes.
 - [Architecture et contrats](INTEGRATION_UNIFIEE.md).

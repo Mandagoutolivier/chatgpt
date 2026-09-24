@@ -2,11 +2,14 @@ Attribute VB_Name = "modGdt"
 Option Explicit
 ' =====================================================================
 ' modGdt - Envoi de l'identite patient au logiciel ECG Resting12Lead
-' Profil minimal pour le RL Premier du cabinet, essai du 20/09/2026 :
+' Profil pour le RL Premier du cabinet, essais des 20 et 24/09/2026 :
 '   satz 6302, GDT 02.00, jeu de caracteres 9206=3, ANSI CP1252.
-'   Identifiant complet, nom et prenom uniquement ; ni DDN ni sexe.
-'   DDN et sexe restent obligatoires dans le dossier U2, mais sont saisis
-'   manuellement dans RL Premier. Ce dossier GDT n isole pas sa base ECG.
+'   Identifiant complet, nom, prenom et DDN (3103 = JJ.MM.AAAA).
+'   Ce format DDN est propre au Resting12Lead27 du cabinet : JJMMAAAA
+'   a donne une date incorrecte. Le sexe n est pas transmis (non valide).
+'   L age doit etre recalcule dans la fiche ECG en faisant varier le
+'   calendrier puis en restaurant exactement la DDN importee.
+'   Ce dossier GDT n isole pas la base ECG.
 ' Cote Resting12Lead : Parametres > Parametres Interface >
 '   "Saisie Auto info Patient" = GDT (et "Connection Systeme Info DMS"
 '   DEcochee - les deux modes sont exclusifs), Interface GDT In/Out
@@ -48,8 +51,17 @@ End Function
 
 Public Function ConstruireGdt(ByVal pat As Object) As String
     Dim lignes As Collection, l As Variant, total As Long, contenu As String
+    Dim ddn As String, naissance As Date
     If Len(Trim$(CStr(pat("ID")))) = 0 Or Len(Trim$(CStr(pat("Nom")))) = 0 Or Len(Trim$(CStr(pat("Prenom")))) = 0 Then
         Err.Raise vbObjectError + 805, "modGdt", "Identite patient incomplete."
+    End If
+    ddn = modTexte.DdnPatient(pat)
+    If Not modTexte.DateFrValide(ddn) Then
+        Err.Raise vbObjectError + 809, "modGdt", "Date de naissance absente ou invalide pour l envoi ECG (JJ/MM/AAAA attendu)."
+    End If
+    naissance = modTexte.DateFr(ddn)
+    If naissance > Date Then
+        Err.Raise vbObjectError + 809, "modGdt", "Date de naissance future : envoi ECG refuse."
     End If
     Set lignes = New Collection
     lignes.Add LigneGdt("8000", "6302")
@@ -59,6 +71,7 @@ Public Function ConstruireGdt(ByVal pat As Object) As String
     lignes.Add LigneGdt("3000", pat("ID"))
     lignes.Add LigneGdt("3101", UCase$(pat("Nom")))
     lignes.Add LigneGdt("3102", pat("Prenom"))
+    lignes.Add LigneGdt("3103", Format$(naissance, "dd.mm.yyyy"))
     lignes.Add LigneGdt("8402", modConfig.Config("ECG", "CodeExamen", "EKG01"))
 
     ' champ 8100 = longueur totale, sa propre ligne comprise (14 octets)

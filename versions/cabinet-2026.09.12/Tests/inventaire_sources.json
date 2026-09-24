@@ -236,8 +236,8 @@
     "host": "word",
     "module": "modEcg",
     "source": "Src/Word/modEcg.bas",
-    "lines": 26,
-    "sha256": "bda7e2dcdc3025cb98bfc55b6da2c87c75b3abcf85f710a113735053c9b29811"
+    "lines": 28,
+    "sha256": "906cab15ceffbb3a6ff7080d68531911e8c6dd9c5a2adc78abe6bd5bb59dca25"
   },
   {
     "role": "production",
@@ -252,8 +252,8 @@
     "host": "word",
     "module": "modGdt",
     "source": "Src/Commun/modGdt.bas",
-    "lines": 94,
-    "sha256": "4c575e42fa465925e3a46112d0bd5f99940adff521affdfd278fb76682590271"
+    "lines": 107,
+    "sha256": "f3948d2084646be7aa3f736fb997c70c2af2afe67fa05092096b7c36570e24d9"
   },
   {
     "role": "production",
@@ -556,8 +556,8 @@
     "host": "excel",
     "module": "modGdt",
     "source": "Src/Commun/modGdt.bas",
-    "lines": 94,
-    "sha256": "4c575e42fa465925e3a46112d0bd5f99940adff521affdfd278fb76682590271"
+    "lines": 107,
+    "sha256": "f3948d2084646be7aa3f736fb997c70c2af2afe67fa05092096b7c36570e24d9"
   },
   {
     "role": "production",

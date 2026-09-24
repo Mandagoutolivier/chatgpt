@@ -31,6 +31,8 @@ Pour la recette Office locale, utiliser un compte Windows standard dédié, sans
 | Deux médecins sélectionnent la même arrivée | Une seule réservation réussit |
 | A puis dictée du destinataire, B puis corps, C | Signets et formule d'appel corrects ; identité/âge du patient réservé |
 | Export GDT, accents et identité fictive | Fichier correct dans le dossier U2c dédié ; import uniquement via un profil ECG de test distinct, jamais via le profil clinique |
+| GDT Resting12Lead27 : DDN `3103` | `JJ.MM.AAAA` ; vérifier janvier, novembre, 29 février et 31 décembre via F2 / Nouveau Patient ; DDN absente, invalide ou future refusée avant écriture |
+| Âge après import GDT | Changer temporairement le jour dans le calendrier puis restaurer la DDN exacte ; âge cohérent ; geste encore manuel, sexe à renseigner ; Annuler sans Suivant, acquisition ni sauvegarde — voir [qualification GDT](U2C_GDT_20260924.md) |
 | D : sortie complète de l'API, puis relecture et D | Texte et annexes proposés ; rien dans la file avant confirmation ; toutes les pages relues |
 | Réponse API incomplète, refus, JSON invalide, annexe vide | Erreur explicite ; aucun courrier incomplet publié |
 | Négation/dose/nombre changé | Différence signalée ; relire même si aucun signal n'apparaît |

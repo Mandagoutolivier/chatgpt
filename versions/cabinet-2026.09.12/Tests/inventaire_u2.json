@@ -506,8 +506,8 @@
       "role": "production",
       "module": "modEcg",
       "source": "Src/Word/modEcg.bas",
-      "lignes": 26,
-      "sha256": "bda7e2dcdc3025cb98bfc55b6da2c87c75b3abcf85f710a113735053c9b29811",
+      "lignes": 28,
+      "sha256": "906cab15ceffbb3a6ff7080d68531911e8c6dd9c5a2adc78abe6bd5bb59dca25",
       "entrees_publiques": [
         "EnvoyerECG"
       ]
@@ -548,8 +548,8 @@
       "role": "production",
       "module": "modGdt",
       "source": "Src/Commun/modGdt.bas",
-      "lignes": 94,
-      "sha256": "4c575e42fa465925e3a46112d0bd5f99940adff521affdfd278fb76682590271",
+      "lignes": 107,
+      "sha256": "f3948d2084646be7aa3f736fb997c70c2af2afe67fa05092096b7c36570e24d9",
       "entrees_publiques": [
         "ConstruireGdt",
         "EcrireGdtPatient"
@@ -961,8 +961,8 @@
       "role": "recette",
       "module": "modAuditTests",
       "source": "Tests/Vba/word/modAuditTests.bas",
-      "lignes": 144,
-      "sha256": "290f74cff7025931df0106d1ecc7d8046e888010f5dc0ccb9523bcceb9a2eae2",
+      "lignes": 205,
+      "sha256": "e0508005c8f785b5ee156bccf336c34082068d52e99b05b9acccda95c04cfeed",
       "entrees_publiques": [
         "Audit_ExecuterJson",
         "Audit_LancerTests",
@@ -1220,8 +1220,8 @@
       "role": "production",
       "module": "modGdt",
       "source": "Src/Commun/modGdt.bas",
-      "lignes": 94,
-      "sha256": "4c575e42fa465925e3a46112d0bd5f99940adff521affdfd278fb76682590271",
+      "lignes": 107,
+      "sha256": "f3948d2084646be7aa3f736fb997c70c2af2afe67fa05092096b7c36570e24d9",
       "entrees_publiques": [
         "ConstruireGdt",
         "EcrireGdtPatient"
@@ -2328,6 +2328,24 @@
     },
     {
       "hote": "word",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DdnPatient"
+    },
+    {
+      "hote": "word",
       "source": "modGras",
       "cible": "modConfig",
       "membre": "chemin"
@@ -3422,7 +3440,19 @@
       "hote": "word",
       "source": "modAuditTests",
       "cible": "modFichiers",
+      "membre": "FichierExiste"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modFichiers",
       "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modFichiers",
+      "membre": "ListerFichiers"
     },
     {
       "hote": "word",
@@ -3435,6 +3465,12 @@
       "source": "modAuditTests",
       "cible": "modGdt",
       "membre": "ConstruireGdt"
+    },
+    {
+      "hote": "word",
+      "source": "modAuditTests",
+      "cible": "modGdt",
+      "membre": "EcrireGdtPatient"
     },
     {
       "hote": "word",
@@ -4317,6 +4353,24 @@
       "source": "modGdt",
       "cible": "modLog",
       "membre": "LogInfo"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "excel",
+      "source": "modGdt",
+      "cible": "modTexte",
+      "membre": "DdnPatient"
     },
     {
       "hote": "excel",

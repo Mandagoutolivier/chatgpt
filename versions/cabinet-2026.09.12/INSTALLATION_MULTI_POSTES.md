@@ -64,6 +64,8 @@ Le dossier de recette ECG se règle avec `-DossierGdt 'C:\CabinetCardioTestU2\GD
 
 Affecter les touches Dragon/PowerMic aux macros `Unifie_A_NouvelleLettre`, `Unifie_B_FormuleAppel`, `Unifie_C_InsererPatient`, `Unifie_D_Finaliser`. La clé OpenAI demeure locale au poste médecin, via `OPENAI_API_KEY` ou `%APPDATA%\CabinetCardio\openai.key`.
 
+Le [correctif GDT du 24 septembre](U2C_GDT_20260924.md) ajoute la DDN au format `JJ.MM.AAAA` attendu par la version testée de Resting12Lead27. Après import par **F2 / Nouveau Patient**, contrôler l'identité et la date complète. L'import de la date ne déclenche pas à lui seul le calcul de l'âge : le changement temporaire du jour dans le calendrier, puis le retour à la DDN exacte, reste à effectuer et à vérifier. Le sexe n'est pas transmis. Cette qualification ne permet aucune acquisition ni sauvegarde dans la base clinique.
+
 ## Feuille de soins et comptabilité
 
 Les boutons ajoutés à l'accueil donnent accès à l'assuré distinct, aux paramètres des destinataires et à l'encaissement d'une séance. Les réglages inhabituels restent hors de la saisie courante.

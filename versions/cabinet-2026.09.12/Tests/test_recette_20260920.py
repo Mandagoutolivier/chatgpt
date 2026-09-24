@@ -51,17 +51,63 @@ class Recette20Septembre(unittest.TestCase):
         self.assertLess(text.index('InvaliderRelecture'), text.index('SauvegarderBrouillon'))
         self.assertLess(text.index('InvaliderRelecture'), text.index('AppelerOpenAIStructure'))
 
-    def test_gdt_minimal_ne_lit_pas_les_champs_ecartes(self):
+    def test_gdt_transmet_la_ddn_validee_sans_inventer_de_sexe(self):
         text = procedure(source("Src/Commun/modGdt.bas"), "ConstruireGdt")
         champs = re.findall(r'LigneGdt\("(\d{4})"', text)
-        self.assertEqual(champs, ['8000', '9206', '9218', '3000', '3101', '3102', '8402', '8100'])
+        self.assertEqual(champs, ['8000', '9206', '9218', '3000', '3101', '3102', '3103', '8402', '8100'])
         self.assertIn('LigneGdt("3000", pat("ID"))', text)
-        self.assertNotIn('pat("DDN")', text)
+        self.assertIn('ddn = modTexte.DdnPatient(pat)', text)
+        self.assertIn('If Not modTexte.DateFrValide(ddn) Then', text)
+        self.assertIn('naissance = modTexte.DateFr(ddn)', text)
+        self.assertIn('If naissance > Date Then', text)
+        self.assertIn('LigneGdt("3103", Format$(naissance, "dd.mm.yyyy"))', text)
+        self.assertLess(text.index('DateFrValide(ddn)'), text.index('modTexte.DateFr(ddn)'))
+        self.assertLess(text.index('If naissance > Date Then'), text.index('Set lignes = New Collection'))
+        for conversion_regionale in ('CDate(', 'DateValue('):
+            self.assertNotIn(conversion_regionale, text)
         self.assertNotIn('pat("Sexe")', text)
         identity = procedure(source("Src/Integration/modIntegrationUnifie.bas"), "PatientVerifie")
         self.assertIn('Array("Nom", "Prenom", "DDN", "Sexe")', identity)
         self.assertIn('DateFrValide', identity)
         self.assertIn('SexeNormalise', identity)
+
+    def test_gdt_conserve_longueurs_crlf_et_ecriture_cp1252_atomique(self):
+        gdt = source("Src/Commun/modGdt.bas")
+        construction = procedure(gdt, "ConstruireGdt")
+        self.assertIn('total = 14', construction)
+        self.assertIn('total = total + Len(l) + 2', construction)
+        self.assertIn('LigneGdt("8100", Format$(total, "00000")) & vbCrLf', construction)
+        self.assertIn('contenu = contenu & l & vbCrLf', construction)
+        ligne = procedure(gdt, "LigneGdt")
+        self.assertIn('st.Charset = "windows-1252"', ligne)
+        self.assertIn('If retour <> valeur Then Err.Raise', ligne)
+        self.assertIn('Format$(Len(champ & valeur) + 5, "000")', ligne)
+        ecriture = procedure(gdt, "EcrireGdtPatient")
+        self.assertLess(ecriture.index('contenu = ConstruireGdt(pat)'), ecriture.index('EcrireTexteAnsi tmp, contenu'))
+        self.assertIn('RenommerAtomique tmp, chemin, True', ecriture)
+
+    def test_recette_gdt_couvre_dates_validees_et_rejets(self):
+        audit = source('Tests/Vba/word/modAuditTests.bas')
+        for date in ('15/01/1980', '15/11/1980', '29/02/1980', '31/12/1980', '1/2/1980', '29/02/2000'):
+            self.assertIn('"' + date + '"', audit)
+        for controle in ('GDT DDN avec points', 'GDT DDN courte normalisee', 'GDT DDN absente refusee',
+                         'GDT DDN invalide refusee', 'GDT DDN future refusee', 'GDT DDN du jour acceptee',
+                         'GDT sans sexe', 'GDT longueurs CRLF', 'GDT octets CP1252 sans BOM',
+                         'GDT DDN refusee avant ecriture', 'GDT existant preserve apres refus DDN',
+                         'GDT aucun temporaire apres refus DDN', 'GDT futur ne cree aucun import'):
+            self.assertIn(controle, audit)
+        for date in ('31/02/1960', '29/02/1900', '29/02/1981', '15.01.1980', '1980-01-15', '15011980'):
+            self.assertIn('"' + date + '"', audit)
+
+    def test_gdt_points_entree_et_limite_du_calcul_age_explicites(self):
+        ecg = procedure(source('Src/Word/modEcg.bas'), 'EnvoyerECG')
+        consultation = procedure(source('Src/Integration/modPowerMicUnifie.bas'), 'Unifie_DemarrerConsultation')
+        for parcours in (ecg, consultation):
+            self.assertIn('modGdt.EcrireGdtPatient(pat)', parcours.replace('modGdt.EcrireGdtPatient pat', 'modGdt.EcrireGdtPatient(pat)'))
+        for consigne in ('F2 / Nouveau Patient', "controlez l'ID et la DDN", 'retablissez exactement la DDN', "Ce geste n'est pas automatise", 'renseignez le sexe'):
+            self.assertIn(consigne, ecg)
+        for commande in ('SendKeys', 'SendMessage', 'Shell', 'AppActivate'):
+            self.assertNotIn(commande, ecg)
 
     def test_nir_facultatif_sans_invention_ni_appel_vide(self):
         text = source("Src/Excel/modCerfaPrint.bas")
@@ -92,7 +138,7 @@ class Recette20Septembre(unittest.TestCase):
         self.assertIn('TesterDestinataireRelecture', word)
         self.assertIn('changement adresse serveur refuse', word)
         audit = source('Tests/Vba/word/modAuditTests.bas')
-        for controle in ('GDT sans sexe ni naissance', 'GDT identifiant long integral', 'GDT deux identifiants de meme prefixe distincts', 'GDT accent CP1252 conserve'):
+        for controle in ('GDT sans sexe', 'GDT identifiant long integral', 'GDT deux identifiants de meme prefixe distincts', 'GDT accent CP1252 conserve'):
             self.assertIn(controle, audit)
 
 
