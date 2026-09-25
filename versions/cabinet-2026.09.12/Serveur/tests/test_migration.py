@@ -71,7 +71,7 @@ def test_historique_valide_sans_champs_nouveaux_conserve_son_identite(tmp_path):
 
 
 @pytest.mark.parametrize('champ',[
-    'Nom','Prenom','DDN','NIR','CodeActe','Date','Montant','TiersPayant','Paye','FeuilleSoinsImprimee'])
+    'Nom','Prenom','DDN','CodeActe','Date','Montant','TiersPayant','Paye','FeuilleSoinsImprimee'])
 @pytest.mark.parametrize('absent',[False,True])
 def test_historique_incomplet_bloque_sans_deduire_depuis_patient(tmp_path,champ,absent):
     original=ligne_historique()
@@ -111,7 +111,7 @@ def test_historique_assure_distinct_accepte_sans_nir_patient(tmp_path):
     assert plan['historique'][0]['lignes'][0]==dict(original,SeanceID='H2020_S1')
 
 
-@pytest.mark.parametrize('champ',['AssureNom','AssurePrenom','AssureDDN','AssureNIR'])
+@pytest.mark.parametrize('champ',['AssureNom','AssurePrenom','AssureDDN'])
 def test_historique_assure_distinct_incomplet_refuse(tmp_path,champ):
     original=ligne_historique(AssureNom='FICTIF ASSURE',AssurePrenom='Essai',
                              AssureDDN='01/01/1980',AssureNIR='180010100000192')
@@ -124,7 +124,7 @@ def test_historique_assure_distinct_incomplet_refuse(tmp_path,champ):
 def test_historique_assure_ddn_seule_ne_peut_pas_etre_ignoree(tmp_path,naissance):
     original=ligne_historique(AssureDDN=naissance)
     plan=historique(tmp_path,[original])
-    for champ in ('AssureNom','AssurePrenom','AssureNIR'):
+    for champ in ('AssureNom','AssurePrenom'):
         assert any(champ in error for error in plan['erreurs'])
     if naissance=='31/02/1980':
         assert any('AssureDDN' in error for error in plan['erreurs'])
@@ -192,3 +192,31 @@ def test_import_etat_papier_absent_inconnu_ou_mixte_ne_cree_aucune_seance(servic
         assert db.execute('SELECT count(*) AS n FROM consultations').fetchone()['n']==0
     with pytest.raises(Refus,match='introuvable'):
         rpc(service,'print.request',{'id':'H2020_S1','reimpression_confirmee':False})
+
+
+@pytest.mark.parametrize('absent',[False,True])
+@pytest.mark.parametrize('assure_distinct',[False,True])
+@pytest.mark.parametrize('imprime',['O','N'])
+def test_historique_sans_nir_conserve_ses_valeurs_sans_substitution(tmp_path,absent,assure_distinct,imprime):
+    original=ligne_historique(NIR='',FeuilleSoinsImprimee=imprime)
+    if absent:original.pop('NIR')
+    if assure_distinct:
+        original.update(AssureNom='ASSURE FICTIF',AssurePrenom='Essai',AssureDDN='02/02/1970')
+        if not absent:original['AssureNIR']=''
+    plan=historique(tmp_path,[original])
+    assert not plan['erreurs']
+    saved=plan['historique'][0]['lignes'][0]
+    assert saved==dict(original,SeanceID='H2020_S1')
+    assert not saved.get('NIR') and not saved.get('AssureNIR')
+    # La fiche courante contient pourtant un NIR : aucun ajout a l'historique.
+    if absent:assert 'NIR' not in saved and 'AssureNIR' not in saved
+
+
+@pytest.mark.parametrize('champ',['NIR','AssureNIR'])
+def test_historique_nir_present_invalide_reste_refuse(tmp_path,champ):
+    original=ligne_historique(NIR='',AssureNom='ASSURE FICTIF',AssurePrenom='Essai',
+                             AssureDDN='02/02/1970',AssureNIR='')
+    original[champ]='180010100000100'
+    plan=historique(tmp_path,[original])
+    assert any(champ in error for error in plan['erreurs'])
+    with pytest.raises(Refus,match='simulation'):appliquer(None,plan)

@@ -21,6 +21,11 @@ $secretariat=$receipt.profil -in @('Domicile','CabinetSecretariat')
 if (-not $RecetteValidee -or ($medecin -and -not $CompilationWordValidee) -or ($secretariat -and -not $CompilationExcelValidee)) {
     throw 'Effectuez la compilation VBA et RECETTE_WINDOWS.md, puis renseignez les commutateurs correspondant aux controles vraiment realises.'
 }
+$local=Join-Path $env:APPDATA 'CabinetCardio'
+[void][IO.Directory]::CreateDirectory($local)
+$accesVbaJournal=Join-Path $local 'validation-vba-a-restaurer.json'
+Autoriser-AccesVbaAssistant $accesVbaJournal
+try {
 $manifest=Lire-Manifeste $root
 foreach ($hostName in @('word','excel')) {
     if (($hostName -eq 'word' -and -not $medecin) -or ($hostName -eq 'excel' -and -not $secretariat)) { continue }
@@ -45,8 +50,18 @@ foreach ($hostName in @('word','excel')) {
         }
         foreach ($reference in $document.VBProject.References) { if ($reference.IsBroken) { throw "Reference Office manquante : $($reference.Name)" } }
     } finally {
-        if ($null -ne $document) { $document.Close($false) }
-        if ($null -ne $app) { $app.Quit();[void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($app) }
+        if ($null -ne $document) { try { $document.Close($false) } catch {} }
+        if ($null -ne $app) { try { $app.Quit() } catch {} }
+        foreach ($comObject in @($document,$app)) {
+            if ($null -ne $comObject -and [Runtime.InteropServices.Marshal]::IsComObject($comObject)) {
+                try { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($comObject) } catch {}
+            }
+        }
+        $document=$null;$app=$null
+        [GC]::Collect();[GC]::WaitForPendingFinalizers()
+        [GC]::Collect();[GC]::WaitForPendingFinalizers()
+        $processName=if ($hostName -eq 'word') { 'WINWORD' } else { 'EXCEL' }
+        Attendre-FermetureOffice -Noms $processName
     }
 }
 # La compilation peut modifier le p-code : figer les nouveaux binaires dont les sources viennent d etre comparees.
@@ -57,3 +72,8 @@ $receipt | Add-Member -NotePropertyName recetteValidee -NotePropertyValue $true
 $receipt | Add-Member -NotePropertyName dateValidation -NotePropertyValue ([DateTime]::UtcNow.ToString('o'))
 $receipt | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $stage 'preparation.json') -Encoding UTF8
 Write-Host 'Preparation validee et empreintes figees. Vous pouvez activer ce dossier avec Installer.ps1 -Mode Installation.'
+} finally {
+    # Quit() peut revenir avant la fin du processus Office : attendre avant de restaurer le registre.
+    Attendre-FermetureOffice
+    Restaurer-AccesVbaAssistant $accesVbaJournal
+}

@@ -4,8 +4,8 @@ Option Explicit
 ' modEcg - Commande "Envoyer a l'ECG" (Ctrl+Alt+G / voix) :
 ' ecrit l'identite du patient (du courrier actif, sinon via le
 ' selecteur) dans le fichier GDT surveille par Resting12Lead.
-' Sur le poste ECG, il ne reste qu'a cliquer "Nouveau Patient" :
-' la fiche arrive pre-remplie.
+' Sur le poste ECG, F2 / Nouveau Patient importe l identite et la DDN.
+' L age et le sexe restent a controler dans la fiche avant utilisation.
 ' =====================================================================
 
 Public Sub EnvoyerECG()
@@ -15,7 +15,9 @@ Public Sub EnvoyerECG()
     If pat Is Nothing Then Exit Sub
     chemin = modGdt.EcrireGdtPatient(pat)
     MsgBox "Identite envoyee a l'ECG : " & pat("Prenom") & " " & pat("Nom") & vbCrLf & _
-           "Dans Resting12Lead, cliquez simplement 'Nouveau Patient'.", _
+           "Dans Resting12Lead : F2 / Nouveau Patient, puis controlez l'ID et la DDN." & vbCrLf & _
+           "Pour recalculer l'age : changez le jour dans le calendrier, puis retablissez exactement la DDN." & vbCrLf & _
+           "Ce geste n'est pas automatise. Verifiez l'age obtenu et renseignez le sexe.", _
            vbInformation, "Cabinet - ECG"
     Exit Sub
 Erreur:

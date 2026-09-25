@@ -31,7 +31,7 @@ function Invoke-RestMethod {
     }
     $script:appelsSimules++
     return [pscustomobject]@{result=[pscustomobject]@{
-        protocole=2; revision='2026.09.16-u2b'; schema=2; roles=@('medecin','secretariat')
+        protocole=2; revision='2026.09.21-u2c'; schema=2; roles=@('medecin','secretariat')
     }}
 }
 function Read-Host { throw 'Aucune saisie interactive autorisee dans ce test.' }

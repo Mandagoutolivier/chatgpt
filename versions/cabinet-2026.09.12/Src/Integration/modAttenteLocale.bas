@@ -48,7 +48,12 @@ End Sub
 
 Public Sub ConsommerAttente(ByVal attente As Object)
     Dim r As Object, k As Variant
-    Set r = modServiceNas.CommandeID("claim", CStr(attente("SourceNas")))
+    Dim p As Object
+    If Not attente.Exists("RevisionSelection") Then Err.Raise vbObjectError + 974, , "Service NAS a mettre a jour : selection protegee indisponible."
+    Set p = modServiceNas.Parametres()
+    p("id") = CStr(attente("SourceNas"))
+    p("selection") = CStr(attente("RevisionSelection"))
+    Set r = modServiceNas.Appeler("claim", p)
     For Each k In r.Keys: attente(k) = r(k): Next k
 End Sub
 

@@ -274,6 +274,98 @@
       "name": "modCycleCourrier",
       "kind": "module",
       "path": "Src/Integration/modCycleCourrier.bas"
+    },
+    {
+      "name": "modFileArrivees",
+      "kind": "module",
+      "path": "Src/Integration/modFileArrivees.bas"
+    },
+    {
+      "name": "ufArriveesMedecin",
+      "kind": "form",
+      "path": "Src/Word/ufArriveesMedecin.vba",
+      "designer": {
+        "Caption": "Patients arrives - medecin",
+        "Width": 375,
+        "Height": 414,
+        "controls": [
+          {
+            "name": "lblAide",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 8,
+            "width": 345,
+            "height": 30,
+            "caption": "Verifiez l identite avec le patient, puis double-cliquez pour commencer."
+          },
+          {
+            "name": "txtFiltre",
+            "type": "Forms.TextBox.1",
+            "left": 10,
+            "top": 42,
+            "width": 345,
+            "height": 20
+          },
+          {
+            "name": "lblColonnes",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 69,
+            "width": 345,
+            "height": 15,
+            "caption": "Arrivee     RDV       NOM Prenom                              Naissance"
+          },
+          {
+            "name": "lstPatients",
+            "type": "Forms.ListBox.1",
+            "left": 10,
+            "top": 86,
+            "width": 345,
+            "height": 220
+          },
+          {
+            "name": "lblEtat",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 314,
+            "width": 345,
+            "height": 30,
+            "caption": "Chargement..."
+          },
+          {
+            "name": "btnActualiser",
+            "type": "Forms.CommandButton.1",
+            "left": 10,
+            "top": 351,
+            "width": 104,
+            "height": 24,
+            "caption": "Actualiser"
+          },
+          {
+            "name": "btnReprendre",
+            "type": "Forms.CommandButton.1",
+            "left": 121,
+            "top": 351,
+            "width": 123,
+            "height": 24,
+            "caption": "Reprendre brouillon"
+          },
+          {
+            "name": "btnMasquer",
+            "type": "Forms.CommandButton.1",
+            "left": 251,
+            "top": 351,
+            "width": 104,
+            "height": 24,
+            "caption": "Masquer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "modIndexAnnexes",
+      "kind": "module",
+      "path": "Src/Commun/modIndexAnnexes.bas"
     }
   ],
   "excel": [
@@ -367,7 +459,48 @@
     {
       "name": "ufChoixActe",
       "kind": "form",
-      "path": "Src/Excel/ufChoixActe.vba"
+      "path": "Src/Excel/ufChoixActe.vba",
+      "designer": {
+        "append": true,
+        "controls": [
+          {
+            "name": "btnEditerAnnexes",
+            "type": "Forms.CommandButton.1",
+            "left": 12,
+            "top": 0,
+            "width": 206,
+            "height": 25,
+            "caption": "Modifier les annexes dans Word"
+          },
+          {
+            "name": "btnDestAnnexe",
+            "type": "Forms.CommandButton.1",
+            "left": 228,
+            "top": 0,
+            "width": 206,
+            "height": 25,
+            "caption": "Changer le destinataire d une annexe"
+          },
+          {
+            "name": "btnSauverEdition",
+            "type": "Forms.CommandButton.1",
+            "left": 12,
+            "top": 32,
+            "width": 206,
+            "height": 25,
+            "caption": "Enregistrer la version corrigee"
+          },
+          {
+            "name": "btnAbandonnerEdition",
+            "type": "Forms.CommandButton.1",
+            "left": 228,
+            "top": 32,
+            "width": 206,
+            "height": 25,
+            "caption": "Abandonner cette edition"
+          }
+        ]
+      }
     },
     {
       "name": "ufCorrespEdit",
@@ -403,6 +536,16 @@
       "name": "modCommandesLocales",
       "kind": "module",
       "path": "Src/Commun/modCommandesLocales.bas"
+    },
+    {
+      "name": "modIndexAnnexes",
+      "kind": "module",
+      "path": "Src/Commun/modIndexAnnexes.bas"
+    },
+    {
+      "name": "modEditionSecretariat",
+      "kind": "module",
+      "path": "Src/Excel/modEditionSecretariat.bas"
     }
   ],
   "models": {

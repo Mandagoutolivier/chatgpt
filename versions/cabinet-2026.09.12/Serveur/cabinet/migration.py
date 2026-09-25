@@ -66,13 +66,15 @@ def verifier_seance_historique(ident,lines):
             if not line.get(champ,'').strip():erreur('Champ historique absent : '+champ+'.')
         for champ in ('Date','DDN'):verifier(champ,date_fr)
         verifier('Montant',montant)
-        if any(line.get(champ,'') for champ in ('AssureNom','AssurePrenom','AssureDDN','AssureNIR')):
+        if any(line.get(champ,'').strip() for champ in ('AssureNom','AssurePrenom','AssureDDN','AssureNIR')):
             for champ in ('AssureNom','AssurePrenom'):
                 if not line.get(champ,'').strip():erreur('Identite de l assure figee incomplete : '+champ+'.')
             verifier('AssureDDN',date_fr)
-            verifier('AssureNIR',valider_nir)
-        else:
-            verifier('NIR',valider_nir)
+        # Le NIR n'est pas recueilli au cabinet. Son absence ne doit ni
+        # bloquer un historique, ni etre comblee avec la fiche actuelle.
+        # Tout NIR effectivement renseigne reste soumis au controle.
+        for champ in ('NIR','AssureNIR'):
+            if line.get(champ,'').strip():verifier(champ,valider_nir)
         for champ in ('TiersPayant','Paye'):
             if line.get(champ) not in {'O','N'}:erreur('Indicateur comptable absent ou invalide : '+champ+'.')
         if line.get('FeuilleSoinsImprimee') not in {'O','N'}:

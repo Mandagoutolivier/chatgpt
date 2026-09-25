@@ -92,6 +92,7 @@ Public Function Executer(ByVal dossier As String) As String
     Exiger modEtatCourrier.LireProtege(id, "-etat") = "ETAPE 2", "Etat atomique remplace"
     Set doc = Documents.Add
     doc.Content.Text = "COURRIER FICTIF : TEST 5 mg."
+    doc.Content.Font.Bold = False
     Set d = modServiceNas.Parametres(): Set d("destinations_confirmees") = modServiceNas.Parametres()
     d("destinations_confirmees")("1") = "COR-FICTIF"
     Exiger modEtatCourrier.DestinationConfirmee(d, 1, "cor-fictif"), "Choix de destinataire conserve"

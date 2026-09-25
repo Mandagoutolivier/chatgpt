@@ -2,10 +2,12 @@ from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import hashlib
+import io
 import json
 import os
 import uuid
 import zipfile
+from xml.etree import ElementTree as ET
 import pytest
 import psycopg
 from psycopg import sql
@@ -88,7 +90,7 @@ def test_u0_explicit_correspondent_cannot_fall_back(service):
 
 def test_u0_service_release_contract(service):
     result=rpc(service,'whoami',role='medecin')
-    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.16-u2b'
+    assert result['protocole']==2 and result['schema']==1 and result['revision']=='2026.09.21-u2c'
 
 
 def test_u0_rebase_sql_preserves_identity_and_cached_results(service):
@@ -258,3 +260,92 @@ def test_migration_import_atomique_et_reexecution(service,tmp_path):
 def test_refus_statut_arrive_sans_transition(service):
     _,pat,_,_=parcours(service)
     with pytest.raises(Refus,match='nouveau rendez-vous'):rpc(service,'table.add',{'genre':'RDV','data':{'PatientID':pat['ID'],'Date':'12/09/2026','Heure':'13:00','DureeMin':'15','Statut':'Arrive'}})
+
+
+def _u2c_docx(patient, consultation_id, principal, annexe, annexe_id):
+    ns='{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
+    settings=ET.Element(ns+'settings'); variables=ET.SubElement(settings,ns+'docVars')
+    values={'PatientID':patient['ID'],'ConsultationID':consultation_id,
+            'Patient_Nom':patient['Nom'],'Patient_Prenom':patient['Prenom'],
+            'Patient_DDN':patient['DDN'],'Patient_Sexe':patient['Sexe'],
+            'AnnexeDestinataire_001':annexe_id}
+    for key,value in values.items():
+        ET.SubElement(variables,ns+'docVar',{ns+'name':key,ns+'val':str(value)})
+    document=ET.Element(ns+'document');body=ET.SubElement(document,ns+'body')
+    for ident,name,text in [('1','DESTINATAIRE',principal),('2','U2ANN_DEST_001',annexe)]:
+        p=ET.SubElement(body,ns+'p')
+        ET.SubElement(p,ns+'bookmarkStart',{ns+'id':ident,ns+'name':name})
+        ET.SubElement(ET.SubElement(p,ns+'r'),ns+'t').text=text
+        ET.SubElement(p,ns+'bookmarkEnd',{ns+'id':ident})
+    out=io.BytesIO()
+    with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as z:
+        z.writestr('word/settings.xml',ET.tostring(settings))
+        z.writestr('word/document.xml',ET.tostring(document))
+    return out.getvalue()
+
+
+def test_u2c_selection_arrivee_refuse_identite_perimee(service):
+    _,pat,_,arr=parcours(service)
+    before=rpc(service,'attentes',role='medecin')['items']
+    item=next(x for x in before if x['ConsultationID']==arr['ID'])
+    old=item['RevisionSelection']
+    current=rpc(service,'record.get',{'genre':'PATIENTS','id':pat['ID']})
+    updated=rpc(service,'table.update',{'genre':'PATIENTS','data':dict(current,Prenom='MODIFIE')})
+    with pytest.raises(Refus,match='Identite modifiee'):
+        rpc(service,'claim',{'id':arr['ID'],'selection':old},'medecin')
+    after=rpc(service,'attentes',role='medecin')['items']
+    fresh=next(x for x in after if x['ConsultationID']==arr['ID'])
+    assert fresh['RevisionSelection']!=old
+    claimed=rpc(service,'claim',{'id':arr['ID'],'selection':fresh['RevisionSelection']},'medecin')
+    assert claimed['Prenom']==updated['Prenom']=='MODIFIE'
+
+
+def test_u2c_revision_secretariat_preserve_original_et_facturation_unique(service,monkeypatch):
+    if os.name == 'nt':
+        def conserver(data,extension):
+            sha=hashlib.sha256(data).hexdigest();service.documents.objects.mkdir(parents=True,exist_ok=True)
+            target=service.documents.objects/(sha+extension);target.write_bytes(data)
+            return str(service.documents.unc/'Documents'/target.name),sha
+        monkeypatch.setattr(service.documents,'_conserver_octets',conserver)
+    arr,pat,p=publication(service)
+    main=rpc(service,'record.get',{'genre':'CORRESPONDANTS','id':p['DestinataireID']})
+    ann_a=rpc(service,'table.add',{'genre':'CORRESPONDANTS','data':{
+        'ID':'C-ANN-A','Nom':'ANNEXE A','Actif':'1','AValider':'0',
+        'BlocDestinataire':'Docteur ANNEXE A\n1 RUE A'}})
+    ann_b=rpc(service,'table.add',{'genre':'CORRESPONDANTS','data':{
+        'ID':'C-ANN-B','Nom':'ANNEXE B','Actif':'1','AValider':'0',
+        'BlocDestinataire':'Docteur ANNEXE B\n2 RUE B'}})
+    source=service.documents.root/'essai.docx'
+    source.write_bytes(_u2c_docx(pat,arr['ID'],main['BlocDestinataire'],
+                                  ann_a['BlocDestinataire'],ann_a['ID']))
+    pub=rpc(service,'publish',p,'medecin')
+    revid=uuid.uuid4().hex
+    folder=service.documents.root/'Patients'/'_EditionsSecretariat'/revid
+    folder.mkdir(parents=True)
+    rdoc=folder/'revision.docx';rpdf=folder/'revision.pdf'
+    rdoc.write_bytes(_u2c_docx(pat,arr['ID'],main['BlocDestinataire'],
+                               ann_b['BlocDestinataire'],ann_b['ID']))
+    rpdf.write_bytes(b'%PDF-1.4\n% REVISION FICTIVE U2C')
+
+    args={'source_id':p['PublicationID'],'source_sha':pub['sha_docx'],
+          'revision_id':revid,'patient_id':pat['ID'],
+          'docx':str(service.documents.unc/'Patients'/'_EditionsSecretariat'/revid/'revision.docx'),
+          'pdf':str(service.documents.unc/'Patients'/'_EditionsSecretariat'/revid/'revision.pdf'),
+          'sha_docx':hashlib.sha256(rdoc.read_bytes()).hexdigest(),
+          'sha_pdf':hashlib.sha256(rpdf.read_bytes()).hexdigest()}
+    revision=rpc(service,'publication.revise',args)
+    assert revision['PublicationMedicaleID']==p['PublicationID']
+    assert revision['Annexes']==[{'Numero':'001','DestinataireID':ann_b['ID']}]
+    with pytest.raises(Refus):
+        rpc(service,'publication.revise',dict(args,revision_id=uuid.uuid4().hex))
+    selection={'id':arr['ID'],'publication_id':revid,'lignes':[ligne(arr,pat)]}
+    assert rpc(service,'bill',selection)['ajoute'] is True
+    assert rpc(service,'bill',selection)['ajoute'] is False
+    with pytest.raises(Refus):
+        rpc(service,'bill',dict(selection,publication_id=p['PublicationID']))
+    with service.connexion() as db:
+        rows=db.execute('SELECT id,etat FROM publications WHERE consultation_id=%s ORDER BY cree_le,id',
+                        (arr['ID'],)).fetchall()
+        count=db.execute('SELECT count(*) AS n FROM seances WHERE id=%s',(arr['ID'],)).fetchone()['n']
+    assert [(x['id'],x['etat']) for x in rows]==[(p['PublicationID'],'remplacee'),(revid,'a_traiter')]
+    assert count==1
