@@ -985,8 +985,8 @@
       "role": "recette",
       "module": "modRecetteU1",
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "lignes": 219,
-      "sha256": "d992b9d3fdd312e1b65e9621d616edd20973a3757a17585fa640266c13379992",
+      "lignes": 220,
+      "sha256": "934f39d2e4ea77230afd5d8306eba00b68e7985b2cd12f8830df8b661935b4d1",
       "entrees_publiques": [
         "Executer"
       ]
@@ -1019,8 +1019,8 @@
       "role": "recette",
       "module": "modRecettePresentationAnnexe",
       "source": "Tests/Vba/word/modRecettePresentationAnnexe.bas",
-      "lignes": 385,
-      "sha256": "134ef91fd9e1b50ec84ad3b9fe770f370d416f33ce03de118b2c7c504bf27f66",
+      "lignes": 386,
+      "sha256": "b0ec1c84a0265049f3a2134cbf78ac9a155e78244e5c8b558a842799003d2de3",
       "entrees_publiques": [
         "ExecuterPresentationAnnexe"
       ]
@@ -5088,19 +5088,19 @@
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 153
+      "ligne": 154
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 156
+      "ligne": 157
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 161
+      "ligne": 162
     },
     {
       "source": "Tests/Vba/word/modRecetteU1.bas",
-      "ligne": 170
+      "ligne": 171
     },
     {
       "source": "Src/Excel/modEchange.bas",
