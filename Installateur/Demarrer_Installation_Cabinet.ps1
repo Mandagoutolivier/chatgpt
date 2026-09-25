@@ -76,7 +76,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='819b0804a0da7f2395965b758cdc1311f568b6f5'
+$Commit='2bc2cd1d3c2dc75f2c04ab956167674a015ac852'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -260,7 +260,7 @@ $Empreintes=@'
   "Tests/audit_statique.py": "11e10b5757c30b3cc5718841d0d6ebfe235a7bcdbc13d77fae7356da01dba671",
   "Tests/inventaire_architecture.py": "1667db4e7a5f1e5fa0bdedd293a179188a9e8dff2b8bde4116273e4641d5b384",
   "Tests/inventaire_sources.json": "7b7b818b107b6fd3f22f4161d6ed1ecda2570b1f294c18e535c2e42e2c184c37",
-  "Tests/inventaire_u2.json": "da6db600c51bcd729f5daf661b4faba88c89721a87d612571f928eadb2a61466",
+  "Tests/inventaire_u2.json": "2115dc7414ec0fc80ccc32b75b8684eeeca932a8a4e85cdf65601814778b3b15",
   "Tests/nettoyage_sources.json": "f3b54768aca28e41878d9bd36a147d7f2f7da5815609e85576d2a03986c5e07d",
   "Tests/schema_reponse_api.json": "fbf5f9805faa23b77cdffe368bdd737e320665c58b75a528a268f69ac06665f4",
   "Tests/test_assistant.ps1": "11cc4bb1293777569a72537d23a203dbc70da60f191ae37fc9650b9b728bc2f6",
