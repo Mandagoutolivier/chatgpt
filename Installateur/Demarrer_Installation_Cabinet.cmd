@@ -103,7 +103,7 @@ function Isoler-PaquetInvalide([string]$Dossier,$Empreintes) {
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='e3be66c5f44bc46bac74810baacc21a30d7f6ffe'
+$Commit='819b0804a0da7f2395965b758cdc1311f568b6f5'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
@@ -280,9 +280,9 @@ $Empreintes=@'
   "Tests/Vba/excel/modRecetteU1Excel.bas": "491c10b6f2c40284a9a3286c11922d37647d15cc1ac97d3dbc17f220e2b9476b",
   "Tests/Vba/word/modAuditTests.bas": "e0508005c8f785b5ee156bccf336c34082068d52e99b05b9acccda95c04cfeed",
   "Tests/Vba/word/modRecetteModeleCourrier.bas": "21b0b49a516097d2787544c51bc1093d593282fe82d729bc871fb8c94a9c0797",
-  "Tests/Vba/word/modRecettePresentationAnnexe.bas": "134ef91fd9e1b50ec84ad3b9fe770f370d416f33ce03de118b2c7c504bf27f66",
+  "Tests/Vba/word/modRecettePresentationAnnexe.bas": "b0ec1c84a0265049f3a2134cbf78ac9a155e78244e5c8b558a842799003d2de3",
   "Tests/Vba/word/modRecetteU0.bas": "75fe44170262584fc150b0417451e0d87d2b4d9b4cfa7a98f4b738a57f56f1a5",
-  "Tests/Vba/word/modRecetteU1.bas": "d992b9d3fdd312e1b65e9621d616edd20973a3757a17585fa640266c13379992",
+  "Tests/Vba/word/modRecetteU1.bas": "934f39d2e4ea77230afd5d8306eba00b68e7985b2cd12f8830df8b661935b4d1",
   "Tests/Vba/word/modRecetteU2.bas": "798ace1db06d0b8d04a98cf1460bdfc9c494b3c0e8a347ca28db54290aaf7fb8",
   "Tests/audit_statique.py": "11e10b5757c30b3cc5718841d0d6ebfe235a7bcdbc13d77fae7356da01dba671",
   "Tests/inventaire_architecture.py": "1667db4e7a5f1e5fa0bdedd293a179188a9e8dff2b8bde4116273e4641d5b384",
