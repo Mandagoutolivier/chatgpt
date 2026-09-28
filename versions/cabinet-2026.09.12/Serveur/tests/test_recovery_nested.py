@@ -21,7 +21,7 @@ def test_nested_sql_restore_preserves_identity_and_cached_results(service):
     _, patient, data = publication(service)
     published = rpc(service, 'publish', data, 'medecin')
     old = str(service.documents.unc)
-    target = old + r'\Patients\Restauration'
+    target = str(service.documents.unc / 'Patients' / 'Restauration')
     with service.connexion() as db:
         rebase_database(db, old, target)
         counts = check_references(db, regular_tree(service.documents.root), target, service.documents.root)
