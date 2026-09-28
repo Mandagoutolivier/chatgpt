@@ -1,9 +1,9 @@
 name: Cabinet NAS 2026.09.12
 on:
   pull_request:
-    paths: ['Installateur/**', 'cabinet-unifie/**', 'versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
+    paths: ['Installateur/**', 'Qualification/20260929/**', 'cabinet-unifie/**', 'versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
   push:
-    paths: ['Installateur/**', 'versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
+    paths: ['Installateur/**', 'Qualification/20260929/**', 'versions/cabinet-2026.09.12/**', '.github/workflows/cabinet-2026-09-12.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -48,6 +48,8 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r versions/cabinet-2026.09.12/Serveur/requirements.txt
       - run: python -m pytest -q versions/cabinet-2026.09.12/Serveur/tests
+      - name: Interruptions de publication et reprise sans doublons
+        run: PYTHONPATH="$PYTHONPATH:versions/cabinet-2026.09.12/Serveur/tests" python -m pytest -q Qualification/20260929/test_interruptions.py
       - run: python versions/cabinet-2026.09.12/Tests/audit_statique.py
       - run: python versions/cabinet-2026.09.12/Tests/audit_statique.py --recette
       - run: python versions/cabinet-2026.09.12/Tests/inventaire_architecture.py
