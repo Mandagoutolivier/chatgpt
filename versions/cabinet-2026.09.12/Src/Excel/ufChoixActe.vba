@@ -113,7 +113,11 @@ Private Sub lstActes_Change()
 End Sub
 
 Private Sub btnOuvrir_Click()
+    On Error GoTo Echec
     modEchange.OuvrirCourrier mDrapeau
+    Exit Sub
+Echec:
+    MsgBox "Ouverture interrompue : " & Err.Description, vbExclamation, "Cabinet"
 End Sub
 
 Private Sub AffecterPayeur(ByVal resultat As Object, ByVal code As String, ByVal organisme As Boolean)
