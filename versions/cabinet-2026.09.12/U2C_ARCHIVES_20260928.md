@@ -26,7 +26,7 @@ Sur le compte Windows standard de recette RDC, Word/Excel 2016 :
 
 Le fragment Tests/RecetteArchives_lecture.vba doit être ajouté temporairement au module modEchange d'une COPIE de classeur, puis retiré avant recompilation et livraison. U2TesterArchives reçoit une racine UNC isolée contenant Documents/<shaDocx>.docx et Documents/<shaPdf>.pdf. Utiliser des fichiers fictifs aux empreintes distinctes des archives : le test altère volontairement sa source DOCX de test et sa copie locale. Créer une instance Word dédiée sans document avant l'appel. Ne jamais passer la racine réelle des archives à ce test. Les essais ne remplacent pas les autres lignes de RECETTE_WINDOWS.md.
 
-## Blocage NAS observé — qualification clinique NON acquise
+## Constat NAS initial — qualification clinique NON acquise
 
 Les sondes CreateFile réalisées depuis RDC et AX8_MAX demandent un droit puis ferment immédiatement le handle, sans écrire ni supprimer. Résultat sur les archives DOCX/PDF de recette :
 
@@ -49,4 +49,37 @@ Avant toute activation clinique :
 5. Qualifier séparément le compte applicatif strictement secrétariat. La recette présente utilisait le compte historique de test à deux rôles.
 6. Poursuivre GDT, calage papier, restauration isolée et les autres contrôles du guide avant toute activation.
 
-Aucune modification des ACL NAS, aucun déploiement clinique et aucune validation globale de préparation n'ont été effectués dans cette intervention.
+Lors de cette première intervention, aucune ACL NAS n'avait été modifiée. Le complément ci-dessous décrit la reprise via DSM. Aucun déploiement clinique ni aucune validation globale de préparation n'a été effectué.
+
+## Complément DSM et SMB — 28 septembre 2026, vers 23 h 10
+
+### Cause et corrections effectuées
+
+Le moniteur DSM a identifié les connexions SMB de RDC et AX8_MAX sous le compte administrateur Mandagout. Documents était déjà réservé en écriture au propriétaire cabinet-api-u2 ; cabinet-u2-archives n'y avait que la lecture. La racine autorisait la lecture à ce groupe, mais Mandagout et administrators avaient lecture/écriture. Le compte effectif expliquait l'échec des sondes.
+
+- RDC : compte NAS existant cabinet-rdc-u2, non administrateur et membre de cabinet-u2-archives, réutilisé. Son mot de passe de recette a été renouvelé et conservé sous forme chiffrée dans le seul profil Windows de recette ; l'identifiant DS224 a été remplacé dans ce profil. Les métadonnées de l'ancien identifiant ont été conservées ; Windows n'en restituait pas le secret. Après renouvellement de la seule connexion SMB RDC desservant U2, DSM confirme cabinet-rdc-u2.
+- AX8_MAX : compte NAS cabinet-ax8-u2 créé, membre de cabinet-u2-archives et users, sans appartenance administrateur. Accès aux autres partages explicitement refusé. Identifiant conservé chiffré et enregistré dans le seul profil CabinetU2Medecin.
+- Une autorisation de lecture/écriture héritée a été ajoutée pour cabinet-ax8-u2 dans Patients, sans changement des permissions de Documents ni de la racine. Les propriétaires sont conservés. Les ACL de 34 objets ont été relevées avant et après ; DSM a normalisé huit entrées héritées redondantes de cabinet-rdc-u2, dont les droits restent couverts par l'autorisation plus large préexistante.
+- Les comptes des services API et les modèles cliniques n'ont pas été modifiés.
+
+### Résultats des sondes
+
+| Session réellement testée | Lecture DOCX/PDF | Écriture, suppression, création d'archives et suppression via le parent |
+|---|---|---|
+| RDC, session Windows courante après reconnexion | Accordée (0) | Refusées (5) |
+| AX8_MAX, nouvelle session réseau isolée sous cabinet-ax8-u2 | Accordée (0) | Refusées (5) |
+| AX8_MAX, session Windows courante conservant Mandagout | Accordée (0) | Encore accordées (0) — blocage restant |
+
+Les mêmes contrôles ont été refaits sur les archives d'une nouvelle publication. La création dans Patients et l'écriture du brouillon fictif sont accordées aux comptes limités. Les sondes n'écrivent et ne suppriment aucun contenu.
+
+### Publication réelle avec les droits limités RDC
+
+Depuis l'interface du classeur corrigé : copie d'édition distincte, changement d'une phrase de l'annexe fictive, courrier principal inchangé, sauvegarde et publication.revise réussies. Le service a créé un nouveau DOCX et un nouveau PDF dans Documents. Les empreintes des deux nouvelles archives et des quatre archives précédentes sont conformes à leurs noms. La nouvelle publication a été rouverte par le bouton de consultation : copie locale, ReadOnly=True, deux pages et phrase corrigée présentes. Aucune facturation ni impression.
+
+Publication active : 19a96f877b1d413fb0fa620fff54caee, révision du 28/09/2026 à 23:06:48. La date de validation médicale source reste 21:45:31 ; l'API renvoie Relu=false pour cette correction du secrétariat. Cela ne vaut pas nouvelle validation médicale.
+
+### Point de reprise
+
+La session habituelle AX8_MAX doit encore être reconnectée avec le compte limité puis retestée. Sa connexion DSM observée sous Mandagout dessert simultanément CabinetCardio et CabinetCardioTestU2 ; elle n'a pas été interrompue afin de préserver le travail clinique en cours. Enregistrer et fermer les fichiers NAS concernés avant de renouveler cette connexion, puis confirmer l'identité cabinet-ax8-u2 dans DSM et refaire les sondes dans la session habituelle, sans impersonation.
+
+La protection est validée pour le compte limité RDC et pour une connexion isolée du compte limité AX8 ; elle n'est pas encore effective dans la session habituelle AX8. Il ne s'agit pas d'une immutabilité face à un administrateur NAS. La qualification clinique globale, notamment les rôles applicatifs séparés et les autres contrôles du guide, reste à terminer.
