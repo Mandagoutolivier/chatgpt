@@ -902,7 +902,7 @@ Public Function ValiderStructure(ByVal sortie As Object) As Object
     Set ValiderStructure = sortie
 End Function
 
-Public Function AppelerOpenAIStructure(ByVal source As String, ByVal consignes As String) As Object
+Public Function AppelerOpenAIStructure(ByVal source As String, ByVal consignes As String, Optional ByVal phase As String = "structure") As Object
     Dim pat As Object, ctx As Object, anonyme As String, problemes As String
     Dim cor As Object, ident As String, medecin As Object, jsonBody As String, requete As Object
     Dim envelope As Object, sortie As Object, demande As Object
@@ -932,11 +932,54 @@ Public Function AppelerOpenAIStructure(ByVal source As String, ByVal consignes A
     Set envelope = modJson.JsonParse(AppelerOpenAIRaw(jsonBody))
     Set sortie = ValiderStructure(modJson.JsonParse(modJson.JsonTexteReponseOpenAI(envelope)))
     problemes = modAnonymise.VerifierBalisesRetour(modServiceNas.JsonValeur(sortie), ctx, anonyme)
-    If Len(problemes) > 0 Then Err.Raise vbObjectError + 434, , "Marqueurs d identite incoherents."
+    If Len(problemes) > 0 Then
+        JournaliserBalisesStructure modServiceNas.JsonValeur(sortie), ctx, anonyme, phase
+        Err.Raise vbObjectError + 434, , "Marqueurs d identite incoherents."
+    End If
     sortie("corps_courrier") = modAnonymise.Reinjecter(CStr(sortie("corps_courrier")), ctx)
     For Each demande In sortie("demandes")
         demande("corps") = modAnonymise.Reinjecter(CStr(demande("corps")), ctx)
         demande("cle_destination") = modAnonymise.Reinjecter(CStr(demande("cle_destination")), ctx)
     Next demande
     Set AppelerOpenAIStructure = sortie
+End Function
+
+
+' Diagnostic borne : aucun texte clinique ni contenu de balise inconnue.
+Private Sub JournaliserBalisesStructure(ByVal texteRetour As String, ByVal ctx As Object, ByVal texteEnvoye As String, ByVal phase As String)
+    On Error Resume Next
+    Dim re As Object, retour As Object, vues As Object, signalees As Object
+    Dim m As Object, inconnues As Long, code As String, etape As String
+    Select Case phase
+        Case "corps", "annexes": etape = "ia." & phase
+        Case Else: etape = "ia.structure"
+    End Select
+    Set retour = ctx("retour")
+    Set vues = CreateObject("Scripting.Dictionary")
+    Set signalees = CreateObject("Scripting.Dictionary")
+    Set re = CreateObject("VBScript.RegExp")
+    re.Global = True: re.Pattern = "\{\{[^}]{1,40}\}\}"
+    For Each m In re.Execute(texteRetour)
+        vues(m.Value) = True
+        If Not retour.Exists(m.Value) Then inconnues = inconnues + 1
+    Next m
+    For Each m In re.Execute(texteEnvoye)
+        If retour.Exists(m.Value) And Not vues.Exists(m.Value) And Not signalees.Exists(m.Value) Then
+            code = CodeBaliseDiagnostic(CStr(m.Value))
+            modLog.Diagnostic etape, "balise.manquante", 434, code
+            signalees(m.Value) = True
+        End If
+    Next m
+    If inconnues > 0 Then modLog.Diagnostic etape, "balise.inconnue", 434, "nombre." & CStr(inconnues)
+End Sub
+
+Private Function CodeBaliseDiagnostic(ByVal balise As String) As String
+    Dim re As Object
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^\{\{(PAT_(ID|NOM|NOM_NAISSANCE|PRENOM|DDN|NIR|ADRESSE|ADRESSE2|TEL|MOBILE|EMAIL)|(DEST|MT|AUTEUR)_(NOM|PRENOM|ADRESSE1|ADRESSE2|TEL|MOBILE|EMAIL))\}\}$"
+    If re.Test(balise) Then
+        CodeBaliseDiagnostic = Mid$(balise, 3, Len(balise) - 4)
+    Else
+        CodeBaliseDiagnostic = "connue.non_standard"
+    End If
 End Function

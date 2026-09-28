@@ -45,7 +45,7 @@ Word et Excel sont contrôlés dans les trois profils. Le poste médecin reçoit
 
 Compiler les projets VBA Word et Excel préparés avec **Débogage > Compiler**, enregistrer, fermer et rouvrir. Dérouler [RECETTE_WINDOWS.md](RECETTE_WINDOWS.md). La préparation n'est pas une preuve de compilation. Exemple pour domicile :
 
-Exécuter ensuite `Build\Tester_U2_Office.ps1`. La recette automatisée n'est valide que si le socle Word réussit au moins **34 contrôles**, l'extension Word U2 exactement **29/29**, Excel exactement **70/70**, et qu'aucun échec ni essai manquant n'est signalé.
+Exécuter ensuite `Build\Tester_U2_Office.ps1`. La recette automatisée n'est valide que si le socle Word réussit au moins **50 contrôles**, l'extension Word U2 exactement **36/36**, Excel exactement **74/74**, et qu'aucun échec ni essai manquant n'est signalé.
 
 ```powershell
 .\Build\valider_preparation.ps1 -DossierPrepare 'C:\chemin\du\dossier\prepare' -CompilationWordValidee -CompilationExcelValidee -RecetteValidee

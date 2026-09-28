@@ -240,8 +240,8 @@
       "role": "production",
       "module": "modOpenAI_v22_corrige",
       "source": "Src/Prod6/modOpenAI_v22_corrige.bas",
-      "lignes": 942,
-      "sha256": "a74a543adfe6cbde3b906da5820b77cde40ec5cba7147b59b00058e7bd346e3b",
+      "lignes": 985,
+      "sha256": "3619a142229c518aee0561b6a76a35186007a1659f2c7f6910078e412eff63d2",
       "entrees_publiques": [
         "AppelerOpenAI",
         "AppelerOpenAIStructure",
@@ -283,8 +283,8 @@
       "role": "production",
       "module": "modPrompts",
       "source": "Src/Prod6/modPrompts.bas",
-      "lignes": 543,
-      "sha256": "01ca059b62885151338a8a73dd7f4f1ad744a9cf0664d7d6e4654ad729f5791c",
+      "lignes": 545,
+      "sha256": "a06df5d2389b2416b4960755f4fd34aeb4b1dd51c2bb61461fe4e5ee0565cc7d",
       "entrees_publiques": [
         "ConstruireConsignesDemandesExamensDetaillees",
         "ConstruireConsignesDemandesStructureesAPI",
@@ -903,7 +903,7 @@
       "module": "modCycleCourrier",
       "source": "Src/Integration/modCycleCourrier.bas",
       "lignes": 131,
-      "sha256": "d15600d1a7634c93db5f80355fe98cdf856e43aeefc4068c72a611a48cbb9c91",
+      "sha256": "79d985629d0166c1e58c8fe0ccea3c44479ff88ae625f1363b90712db9c67660",
       "entrees_publiques": [
         "CycleEnCours",
         "DocumentSource",
@@ -1168,8 +1168,8 @@
       "role": "production",
       "module": "modEchange",
       "source": "Src/Excel/modEchange.bas",
-      "lignes": 123,
-      "sha256": "fbcfa55845fdaacf87330f1c6e07b8108e6b75b2d4f9f00462b4f3932a2cd318",
+      "lignes": 210,
+      "sha256": "8378c26f30b622f14c6625a2dae689732410dad7c6d3ef9d83dce7edaed6f4df",
       "entrees_publiques": [
         "ArreterScrutation",
         "CourriersEnAttente",
@@ -1327,8 +1327,8 @@
       "role": "production",
       "module": "ufChoixActe",
       "source": "Src/Excel/ufChoixActe.vba",
-      "lignes": 287,
-      "sha256": "09aa766e715379c97afec5068b605fa8b042cbd21b65c02d2679d7e7d9bb60f0",
+      "lignes": 291,
+      "sha256": "b91d14a90a5da44fcba1930c39655977142c2b2aca20c7ae39a6e12bb6e0e893",
       "entrees_publiques": [
         "Charger",
         "ReimprimerFeuille"
@@ -1450,8 +1450,8 @@
       "role": "production",
       "module": "modEditionSecretariat",
       "source": "Src/Excel/modEditionSecretariat.bas",
-      "lignes": 402,
-      "sha256": "fc6eb35079f6d125aeee4b0f7a83ac75248e82915d1282ac363f5e290cffbd0f",
+      "lignes": 403,
+      "sha256": "2eaad1f00150b05a5e0cff8d82380971142f5578cf3427ac8eb60a6dbe631e2c",
       "entrees_publiques": [
         "AbandonnerEditionAnnexes",
         "ChoisirDestinataireAnnexe",
@@ -1779,6 +1779,12 @@
       "source": "modOpenAI_v22_corrige",
       "cible": "modJson",
       "membre": "JsonTexteReponseOpenAI"
+    },
+    {
+      "hote": "word",
+      "source": "modOpenAI_v22_corrige",
+      "cible": "modLog",
+      "membre": "Diagnostic"
     },
     {
       "hote": "word",
@@ -4275,6 +4281,24 @@
       "source": "modEchange",
       "cible": "modConfig",
       "membre": "ConfigNum"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modConfig",
+      "membre": "chemin"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modDonneesTransport",
+      "membre": "EmpreinteFichierSHA256"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
+      "cible": "modFichiers",
+      "membre": "EnsureDossier"
     },
     {
       "hote": "excel",
