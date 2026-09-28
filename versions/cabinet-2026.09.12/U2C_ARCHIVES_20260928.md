@@ -1,5 +1,7 @@
 # Protection de la consultation des archives — recette du 28 septembre 2026
 
+**État à 23 h 38 : protection effective vérifiée dans les deux profils Windows de recette RDC et AX8_MAX. La qualification clinique globale reste incomplète.**
+
 ## Correctif client
 
 - Le bouton « Ouvrir le courrier » consulte une copie locale, jamais l'archive NAS.
@@ -62,7 +64,7 @@ Le moniteur DSM a identifié les connexions SMB de RDC et AX8_MAX sous le compte
 - Une autorisation de lecture/écriture héritée a été ajoutée pour cabinet-ax8-u2 dans Patients, sans changement des permissions de Documents ni de la racine. Les propriétaires sont conservés. Les ACL de 34 objets ont été relevées avant et après ; DSM a normalisé huit entrées héritées redondantes de cabinet-rdc-u2, dont les droits restent couverts par l'autorisation plus large préexistante.
 - Les comptes des services API et les modèles cliniques n'ont pas été modifiés.
 
-### Résultats des sondes
+### Résultats des sondes à 23 h 10
 
 | Session réellement testée | Lecture DOCX/PDF | Écriture, suppression, création d'archives et suppression via le parent |
 |---|---|---|
@@ -78,10 +80,27 @@ Depuis l'interface du classeur corrigé : copie d'édition distincte, changement
 
 Publication active : 19a96f877b1d413fb0fa620fff54caee, révision du 28/09/2026 à 23:06:48. La date de validation médicale source reste 21:45:31 ; l'API renvoie Relu=false pour cette correction du secrétariat. Cela ne vaut pas nouvelle validation médicale.
 
-### Point de reprise
+### Tentative de reconnexion avant fermeture du compte Windows
 
 Après le signal d'Olivier, la reprise de 23 h 20–23 h 30 a vérifié le profil CabinetU2Medecin (session Windows 4), l'absence de Word/Excel et l'identifiant DS224/cabinet-ax8-u2 enregistré. La connexion IPC$ du profil a été fermée sans forçage. La connexion SMB administrateur AX8 identifiée dans DSM a ensuite été fermée, mais les sondes ordinaires restent toutes accordées (0) et une connexion explicite sous le compte limité renvoie 1219. Aucun mapping utilisateur ou global n'a été trouvé ; les suppressions ciblées des connexions UNC renvoient 2250. Ces essais n'ont pas modifié les archives.
 
 **Prochaine action : fermer puis rouvrir la session Windows CabinetU2Medecin, puis refaire les sondes ordinaires et confirmer cabinet-ax8-u2 dans DSM.** La session olivi (5) est conservée. Aucun redémarrage du PC ou du service SMB, aucun changement supplémentaire d'ACL. La fermeture/réouverture du compte Windows reste nécessaire pour repartir d'une session neuve ; elle n'a pas été exécutée à distance, car Olivier doit pouvoir rouvrir sa session. Preuves du profil AX8 : droits-ax8-session-apres-reconnexion-20260928.json (échec), droits-ax8-apres-deconnexion-IPC-seule-ECHEC.json et ReconnexionAX8-20260928.json.
 
-La protection est validée pour le compte limité RDC et pour une connexion isolée du compte limité AX8 ; elle n'est pas encore effective dans la session habituelle AX8. Il ne s'agit pas d'une immutabilité face à un administrateur NAS. La qualification clinique globale, notamment les rôles applicatifs séparés et les autres contrôles du guide, reste à terminer.
+À la fin de cette tentative, la protection était validée pour RDC et pour une connexion isolée AX8 ; la session habituelle AX8 restait non protégée. Il ne s'agit pas d'une immutabilité face à un administrateur NAS. La qualification clinique globale, notamment les rôles applicatifs séparés et les autres contrôles du guide, reste à terminer.
+
+## Validation après réouverture du compte Windows — 23 h 34–23 h 38
+
+Olivier a fermé puis rouvert CabinetU2Medecin et relancé l'agent de contrôle à distance. La nouvelle session Windows 7 a été vérifiée, ouverte le 28/09/2026 à 23:31 ; l'ancienne était la session 4. Aucun processus Word/Excel n'était ouvert. La session olivi (5) est conservée.
+
+- Sondes exécutées dans la session Windows ordinaire, **sans impersonation** : lecture=0, écriture=5, suppression=5 sur les six archives DOCX/PDF des trois versions successives.
+- Documents : création, suppression du dossier et suppression de ses enfants refusées (5). Suppression via le parent refusée (5).
+- Les six SHA-256 sont conformes aux noms des fichiers : archives intactes.
+- Création dans Patients, dans le dossier du patient fictif et dans _EditionsSecretariat accordée (0). Écriture du brouillon fictif accordée (0), sans modification réelle.
+- Connexion explicite à \\DS224\CabinetCardioTestU2 sous DS224\cabinet-ax8-u2 réussie (0). NetUseEnum niveau 2 confirme dans cette session Remote=\\DS224\CabinetCardioTestU2, User=cabinet-ax8-u2, Domain=DS224, Status=0. Le conflit 1219 est levé.
+- Le moniteur DSM ne présente pas séparément cabinet-ax8-u2 dans le relevé obtenu ; il conserve notamment une ligne Mandagout/127.0.0.1 sur les partages clinique et de recette. Son origine et le regroupement éventuel ne sont pas établis. L'identité AX8 est prouvée ici par l'API réseau Windows et l'accès explicite réussi, et les droits effectifs par les sondes ordinaires. Ne pas présenter l'affichage DSM comme une confirmation nominative.
+- Preuves AX8 : droits-ax8-apres-reouverture-20260928.json, droits-ax8-medical-original-session-20260928.json, QualificationArchives-AX8-session-20260928.json (six empreintes, droits, session et identité SMB). Les rapports précédents en échec sont conservés.
+- Aucun contenu NAS modifié par ces contrôles, aucune nouvelle ACL, aucun redémarrage du PC ou du service SMB et aucun lancement d'Office.
+
+La protection contre la modification ou la suppression directe des archives est désormais vérifiée pour **RDC\\CabinetU2Test et AX8_MAX\\CabinetU2Medecin**, avec leurs comptes SMB limités. L'API a déjà publié avec succès une nouvelle révision après limitation des accès RDC. Cette vérification reste limitée à la recette et ne rend pas les archives immuables face à un administrateur NAS.
+
+Suite : qualification des rôles applicatifs séparés, intégration du correctif Word des balises d'identité, GDT, impression et restauration isolée, puis contrôles restants de RECETTE_WINDOWS.md. Aucun déploiement clinique ni validation globale de préparation.
