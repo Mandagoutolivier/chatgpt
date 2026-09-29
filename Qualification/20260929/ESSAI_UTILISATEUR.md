@@ -262,3 +262,59 @@ puis traitement secrétariat. Ces comportements sont présents dans les
 binaires compilés ; leur parcours interactif complet avec cette version
 n'est pas encore validé. Pas d'activation clinique ni de facturation/impression
 effectuée par ces vérifications.
+
+### Qualification finale à distance après le parcours complet
+
+Cette section remplace l'état « restent à essayer » ci-dessus. Le parcours
+fonctionnel a été mené de bout en bout avec des données exclusivement fictives.
+
+- Sur AX8_MAX, la sélection de l'arrivée `PESSAI2909DIST` ferme la liste,
+  remet Word au premier plan et place le curseur au signet destinataire. Le
+  bouton **Fiche patient** a permis de modifier le téléphone ; la révision 2
+  a été relue depuis RDC.
+- La lettre exemple a été collée, corrigée et relue. Le destinataire principal
+  est `CESSAI2909A`. Une seule annexe de test d'effort a été produite pour
+  `CESSAI2909E`, sans annexe issue d'une simple mention négative d'IRM.
+- La commande D a publié sans fenêtre finale, enregistré puis fermé le
+  document. La publication `ba9f314b-dccf-464b-8e9b-0393ae305c9c` porte les
+  noms `TESTDISTANCE Clara 202609292048.docx` et `.pdf`. Les empreintes des
+  deux archives ont été vérifiées.
+- Sur RDC, le DOCX archivé s'est ouvert en lecture seule sur deux pages. La
+  séance CSC + MCC, 52,50 euros, mode **Impaye**, a été enregistrée sans CERFA
+  ni impression. La publication traitée a disparu de la file ; les deux
+  anciens cas d'essai n'ont pas été touchés.
+- La dictée Dragon fonctionne selon la validation de l'utilisateur. Aucun
+  nouvel essai de dictée n'est requis ; l'affectation des boutons du PowerMic
+  est reportée à la fin.
+
+Deux défauts révélés par cet essai ont ensuite été corrigés : sélection visible
+et directe lorsque le filtre d'annexe ne laisse qu'un correspondant, et retrait
+des paragraphes vides qui repoussent seuls la signature sur une page suivante.
+Les binaires finaux issus de `b7071c1f7fa0a10ddfd46c441510840dc1a4715f`
+ont été reconstruits et qualifiés : Word 60 composants, Excel 27 composants,
+recette Office isolée réussie, aucun NAS contacté et aucune impression pendant
+cette recette. Empreintes finales :
+
+- Word : `642B71795B296C2E22EF668F9828CEB66D7380974E13937B75A57C1A260BF7B3` ;
+- Excel : `94FC014E2C990A3F2823A2D98833E96A58A4C8ED7F786C07CA91C673E9117020`.
+
+Ces binaires sont installés uniquement dans les deux profils d'essai. Les
+contrôles de démarrage du 29 septembre à 21 h 04–05 ont réussi sous les rôles
+médecin et secrétariat. Le contrôle ciblé du binaire Word installé a ramené
+une signature artificiellement repoussée de la page 2 à la page 1 sans perte
+de texte. Le filtre fictif `TEST NORD` retourne une seule fiche, clé
+`CESSAI2909E`, avec le binaire final qualifié.
+
+Preuves ajoutées dans le dossier `CorrectifsFinaux-b7071c1` du partage d'essai :
+`installation-finale-AX8_MAX.json`, `installation-finale-RDC.json`,
+`verification-signature-installee.json` et
+`verification-selection-annexe-installee.json`.
+
+La chaîne logicielle d'essai est donc validée. Avant le déploiement réel, il
+reste à arrêter la date de bascule, sauvegarder les profils cliniques, installer
+les binaires qualifiés sur le profil clinique d'AX8_MAX, préparer RDC comme
+poste secrétariat et y reprendre les éléments utiles de l'ancien PC secrétaire,
+puis effectuer un contrôle de démarrage et un parcours court après bascule.
+La programmation des boutons PowerMic peut être faite ensuite. Aucune activation
+clinique, migration du poste secrétaire, impression physique ou modification
+de données réelles n'a été effectuée pendant cette qualification.

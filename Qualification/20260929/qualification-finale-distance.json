@@ -1,0 +1,72 @@
+{
+  "date": "2026-09-29T21:13:07+02:00",
+  "environnement": "essai U2c uniquement",
+  "activation_clinique": false,
+  "donnees_reelles": false,
+  "source_produit": "b7071c1f7fa0a10ddfd46c441510840dc1a4715f",
+  "binaires": {
+    "word_sha256": "642B71795B296C2E22EF668F9828CEB66D7380974E13937B75A57C1A260BF7B3",
+    "excel_sha256": "94FC014E2C990A3F2823A2D98833E96A58A4C8ED7F786C07CA91C673E9117020",
+    "construction": "SUCCESS",
+    "recette_office_isolee": "SUCCESS"
+  },
+  "postes": {
+    "AX8_MAX": {
+      "compte": "AX8_MAX\\CabinetU2Medecin",
+      "role": "medecin",
+      "installation_finale": "SUCCESS",
+      "connexion_office": true
+    },
+    "RDC": {
+      "compte": "RDC\\CabinetU2Test",
+      "role": "secretariat",
+      "installation_finale": "SUCCESS",
+      "connexion_office": true,
+      "lecture_seule": false
+    }
+  },
+  "scenario_fictif": {
+    "patient_id": "PESSAI2909DIST",
+    "consultation_id": "consult-RESSAI2909DIST1",
+    "publication_id": "ba9f314b-dccf-464b-8e9b-0393ae305c9c",
+    "selection_arrivee_fermee": true,
+    "word_au_premier_plan": true,
+    "curseur_destinataire": true,
+    "fiche_patient_modifiee_et_relue_sur_rdc": true,
+    "correction_et_relecture": true,
+    "annexes": 1,
+    "transfert_sans_fenetre_finale": true,
+    "courrier_enregistre_et_ferme": true,
+    "nom_docx": "TESTDISTANCE Clara 202609292048.docx",
+    "nom_pdf": "TESTDISTANCE Clara 202609292048.pdf",
+    "docx_sha256": "8e91501c2193dfce34cdc973a5f24f040c975cc6273a640bd1e7dc1d221b17dd",
+    "pdf_sha256": "8ae9ffe1204093e578110b5d8ce7ed6437acba0b44f766515260808e9e7da36f",
+    "lecture_archive_rdc": true,
+    "pages": 2,
+    "actes": ["CSC", "MCC"],
+    "total_euros": 52.50,
+    "mode_paiement": "Impaye",
+    "impression_reelle": false,
+    "traite_et_retire_de_la_file": true
+  },
+  "correctifs_finaux_installes": {
+    "selection_annexe_unique": {
+      "statut": "SUCCESS",
+      "filtre": "TEST NORD",
+      "correspondances": 1,
+      "cle": "CESSAI2909E"
+    },
+    "signature_repoussee_par_vides": {
+      "statut": "SUCCESS",
+      "page_avant": 2,
+      "page_apres": 1,
+      "texte_conserve": true,
+      "signature_conservee": true
+    }
+  },
+  "dragon": {
+    "dictee": "fonctionne selon validation utilisateur",
+    "nouveau_test_requis": false,
+    "programmation_boutons_powermic": "differee"
+  }
+}
