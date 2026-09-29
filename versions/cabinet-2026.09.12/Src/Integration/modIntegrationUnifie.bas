@@ -100,6 +100,9 @@ Public Sub Unifie_ReprendreBrouillon()
     Dim doc As Document
     Set doc = Documents.Open(FileName:=CStr(choisi("CheminBrouillon")), AddToRecentFiles:=False)
     InitialiserPatientProd doc
+    modFileArrivees.FermerFileArrivees
+    doc.Activate
+    Application.Activate
     modControleCourrier.AfficherEtatRelecture doc
     Exit Sub
 Echec:

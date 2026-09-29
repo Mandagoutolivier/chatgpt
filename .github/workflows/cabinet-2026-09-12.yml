@@ -56,6 +56,8 @@ jobs:
       - run: python versions/cabinet-2026.09.12/Tests/test_u2_architecture.py
       - name: Contrats de recette U2c et export GDT avec date de naissance
         run: python versions/cabinet-2026.09.12/Tests/test_recette_20260920.py
+      - name: Fiche patient du medecin et formulaire Word
+        run: python versions/cabinet-2026.09.12/Tests/test_fiche_patient.py
       - name: Construction OOXML et preparation
         shell: pwsh
         run: |

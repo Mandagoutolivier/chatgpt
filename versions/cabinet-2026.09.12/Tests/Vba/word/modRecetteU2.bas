@@ -1,6 +1,6 @@
 Attribute VB_Name = "modRecetteU2"
 Option Explicit
-Private Const NOMBRE_ATTENDU_U2 As Long = 45
+Private Const NOMBRE_ATTENDU_U2 As Long = 52
 Private mNombre As Long
 
 Private Sub ExigerU2(ByVal condition As Boolean, ByVal nom As String)
@@ -90,6 +90,7 @@ Public Function ExecuterU2(ByVal sortie As String) As String
     TesterDestinataireAvantIA
     TesterDestinataireRelecture
     TesterNomCourrier
+    TesterIdentiteFiche
     If mNombre <> NOMBRE_ATTENDU_U2 Then Err.Raise vbObjectError + 1192, "Recette U2", "Nombre de controles inattendu."
     ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_U2) & ",""echec"":false}"
 Sortie:
@@ -102,6 +103,36 @@ Echec:
     ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_U2) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
     Resume Sortie
 End Function
+
+Private Sub TesterIdentiteFiche()
+    Dim doc As Document, pat As Object, k As Variant, ancien As String
+    Dim numero As Long, description As String
+    On Error GoTo Echec
+    Set doc = Documents.Add
+    Set pat = modServiceNas.Parametres()
+    pat("Nom") = "FICTIF": pat("Prenom") = "Camille": pat("DDN") = "01/01/1980": pat("Sexe") = "F"
+    ExigerU2 modFichePatient.IdentiteCourrierDifferente(doc, pat), "instantane absent ne confirme pas l identite"
+    For Each k In Array("Nom", "Prenom", "DDN", "Sexe")
+        modIntegrationUnifie.FixerVariable doc, "Patient_" & k, CStr(pat(k))
+    Next k
+    ExigerU2 Not modFichePatient.IdentiteCourrierDifferente(doc, pat), "fiche et courrier concordants"
+    For Each k In Array("Nom", "Prenom", "DDN", "Sexe")
+        ancien = CStr(pat(k)): pat(k) = "DIFFERENT"
+        ExigerU2 modFichePatient.IdentiteCourrierDifferente(doc, pat), "modification detectee : " & k
+        pat(k) = ancien
+    Next k
+    pat("Tel") = "0100000000"
+    ExigerU2 Not modFichePatient.IdentiteCourrierDifferente(doc, pat), "coordonnees sans changement d identite"
+Sortie:
+    On Error Resume Next
+    If Not doc Is Nothing Then doc.Close wdDoNotSaveChanges
+    On Error GoTo 0
+    If numero <> 0 Then Err.Raise numero, "TesterIdentiteFiche", description
+    Exit Sub
+Echec:
+    numero = Err.Number: description = Err.Description
+    Resume Sortie
+End Sub
 
 Private Sub TesterNomCourrier()
     Dim nom As String

@@ -660,8 +660,8 @@
       "role": "production",
       "module": "modRuban",
       "source": "Src/Word/modRuban.bas",
-      "lignes": 37,
-      "sha256": "916589363e15d1c5c4bf3cc9909c43cb80985db58846eb2a7d03a1c85ace2f1e",
+      "lignes": 38,
+      "sha256": "ee74bd9d8656ec9afd2c3b6666892b41cca6560005df7ed8d93d3ec835349418",
       "entrees_publiques": [
         "Ruban_Action"
       ]
@@ -770,8 +770,8 @@
       "role": "production",
       "module": "modIntegrationUnifie",
       "source": "Src/Integration/modIntegrationUnifie.bas",
-      "lignes": 176,
-      "sha256": "247b9ec6396d31439f32d89cb3552dedff716cd7ebd3dcdb5c989beeb14eda63",
+      "lignes": 179,
+      "sha256": "54c7a64dc97591c44af169bf1702a46960f7565863d59990e6ea6b9424ff56c2",
       "entrees_publiques": [
         "FixerVariable",
         "InitialiserPatientProd",
@@ -789,8 +789,8 @@
       "role": "production",
       "module": "modPowerMicUnifie",
       "source": "Src/Integration/modPowerMicUnifie.bas",
-      "lignes": 83,
-      "sha256": "f3b8c25e4165a2b6e9800602d8b21c96a38bc2bdee87462c118677fb2a945a65",
+      "lignes": 84,
+      "sha256": "3e8008875fea1f7e39bd46f1cd84c4ad0612718a146f18a39ff834aa9b5240c4",
       "entrees_publiques": [
         "Unifie_A_NouvelleLettre",
         "Unifie_B_FormuleAppel",
@@ -918,8 +918,8 @@
       "role": "production",
       "module": "modFileArrivees",
       "source": "Src/Integration/modFileArrivees.bas",
-      "lignes": 87,
-      "sha256": "5990f478c63f1ff31f15cff7b8ecd47309b92b5b37a8b5c138ed83357a636df3",
+      "lignes": 95,
+      "sha256": "96398b492e9213a2f8e590806cb29573926e245d18ac6407b72b9fb6e154835b",
       "entrees_publiques": [
         "ActualiserFileArrivees",
         "DemarrerFileAuChargement",
@@ -957,6 +957,30 @@
         "LireMeta",
         "ListerAnnexes",
         "RemplacerDestinataireAnnexe"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "modFichePatient",
+      "source": "Src/Word/modFichePatient.bas",
+      "lignes": 58,
+      "sha256": "5f3b951d76541ea2af46b3682bf135dc571f9bdbc5490e6a687616b995e04a6c",
+      "entrees_publiques": [
+        "ConfirmerIdentiteCourrier",
+        "IdentiteCourrierDifferente",
+        "Unifie_FichePatient"
+      ]
+    },
+    {
+      "hote": "word",
+      "role": "production",
+      "module": "ufPatientMedecin",
+      "source": "Src/Word/ufPatientMedecin.vba",
+      "lignes": 137,
+      "sha256": "dffa509773aaa346b916892f4c51eb7ff7def04621096363bd556d0ecb2dc3e4",
+      "entrees_publiques": [
+        "Charger"
       ]
     },
     {
@@ -999,8 +1023,8 @@
       "role": "recette",
       "module": "modRecetteU2",
       "source": "Tests/Vba/word/modRecetteU2.bas",
-      "lignes": 252,
-      "sha256": "7bcaae81f51a31ac27cc5b83f2e0ed7f65e00b5e7e081b22d741bd360ce455db",
+      "lignes": 283,
+      "sha256": "8dba74ae79694ddcb14c4bdf42314562ffdeef2063a03aa0d563818d56d66a9a",
       "entrees_publiques": [
         "ExecuterFileAnnexes",
         "ExecuterU2"
@@ -2795,6 +2819,12 @@
     {
       "hote": "word",
       "source": "modIntegrationUnifie",
+      "cible": "modFileArrivees",
+      "membre": "FermerFileArrivees"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
       "cible": "modPatient",
       "membre": "DossierPatient"
     },
@@ -3425,6 +3455,12 @@
     {
       "hote": "word",
       "source": "modFileArrivees",
+      "cible": "modCourrier",
+      "membre": "AllerDestinataire"
+    },
+    {
+      "hote": "word",
+      "source": "modFileArrivees",
       "cible": "modLog",
       "membre": "Diagnostic"
     },
@@ -3493,6 +3529,108 @@
       "source": "ufArriveesMedecin",
       "cible": "modTexte",
       "membre": "Plier"
+    },
+    {
+      "hote": "word",
+      "source": "modFichePatient",
+      "cible": "modBase",
+      "membre": "PatientParID"
+    },
+    {
+      "hote": "word",
+      "source": "modFichePatient",
+      "cible": "modControleCourrier",
+      "membre": "InvaliderRelecture"
+    },
+    {
+      "hote": "word",
+      "source": "modFichePatient",
+      "cible": "modIntegrationUnifie",
+      "membre": "FixerVariable"
+    },
+    {
+      "hote": "word",
+      "source": "modFichePatient",
+      "cible": "modIntegrationUnifie",
+      "membre": "InitialiserPatientProd"
+    },
+    {
+      "hote": "word",
+      "source": "modFichePatient",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "modFichePatient",
+      "cible": "modPowerMicUnifie",
+      "membre": "Unifie_OperationEnCours"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modBase",
+      "membre": "CorrespondantParID"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modControleCourrier",
+      "membre": "InvaliderRelecture"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modFichePatient",
+      "membre": "ConfirmerIdentiteCourrier"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modFichePatient",
+      "membre": "IdentiteCourrierDifferente"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modPatient",
+      "membre": "ChoisirCorrespondant"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modServiceNas",
+      "membre": "Appeler"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modServiceNas",
+      "membre": "Parametres"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
+      "source": "ufPatientMedecin",
+      "cible": "modTexte",
+      "membre": "SexeNormalise"
     },
     {
       "hote": "word",
@@ -3835,6 +3973,12 @@
       "source": "modRecetteU2",
       "cible": "modDonneesTransport",
       "membre": "EmpreinteFichierSHA256"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
+      "cible": "modFichePatient",
+      "membre": "IdentiteCourrierDifferente"
     },
     {
       "hote": "word",
@@ -5190,7 +5334,7 @@
     },
     {
       "source": "Src/Word/modRuban.bas",
-      "ligne": 32
+      "ligne": 33
     },
     {
       "source": "Src/Integration/modRechercheWord.bas",

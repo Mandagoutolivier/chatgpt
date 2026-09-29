@@ -366,6 +366,358 @@
       "name": "modIndexAnnexes",
       "kind": "module",
       "path": "Src/Commun/modIndexAnnexes.bas"
+    },
+    {
+      "name": "modFichePatient",
+      "kind": "module",
+      "path": "Src/Word/modFichePatient.bas"
+    },
+    {
+      "name": "ufPatientMedecin",
+      "kind": "form",
+      "path": "Src/Word/ufPatientMedecin.vba",
+      "designer": {
+        "Caption": "Fiche patient",
+        "Width": 710,
+        "Height": 500,
+        "controls": [
+          {
+            "name": "lblPatient",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 8,
+            "width": 680,
+            "height": 18,
+            "caption": "Dossier patient"
+          },
+          {
+            "name": "lblNom",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 35,
+            "width": 120,
+            "height": 18,
+            "caption": "Nom"
+          },
+          {
+            "name": "txtNom",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 32,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblPrenom",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 64,
+            "width": 120,
+            "height": 18,
+            "caption": "Prenom"
+          },
+          {
+            "name": "txtPrenom",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 61,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblNomNaissance",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 93,
+            "width": 120,
+            "height": 18,
+            "caption": "Nom de naissance"
+          },
+          {
+            "name": "txtNomNaissance",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 90,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblDDN",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 122,
+            "width": 120,
+            "height": 18,
+            "caption": "Naissance (jj/mm/aaaa)"
+          },
+          {
+            "name": "txtDDN",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 119,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblSexe",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 151,
+            "width": 120,
+            "height": 18,
+            "caption": "Sexe (M / F)"
+          },
+          {
+            "name": "txtSexe",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 148,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblNIR",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 180,
+            "width": 120,
+            "height": 18,
+            "caption": "NIR"
+          },
+          {
+            "name": "txtNIR",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 177,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblAdresse1",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 209,
+            "width": 120,
+            "height": 18,
+            "caption": "Adresse"
+          },
+          {
+            "name": "txtAdresse1",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 206,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblAdresse2",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 238,
+            "width": 120,
+            "height": 18,
+            "caption": "Complement"
+          },
+          {
+            "name": "txtAdresse2",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 235,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblCP",
+            "type": "Forms.Label.1",
+            "left": 360,
+            "top": 35,
+            "width": 120,
+            "height": 18,
+            "caption": "Code postal"
+          },
+          {
+            "name": "txtCP",
+            "type": "Forms.TextBox.1",
+            "left": 485,
+            "top": 32,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblVille",
+            "type": "Forms.Label.1",
+            "left": 360,
+            "top": 64,
+            "width": 120,
+            "height": 18,
+            "caption": "Ville"
+          },
+          {
+            "name": "txtVille",
+            "type": "Forms.TextBox.1",
+            "left": 485,
+            "top": 61,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblTel",
+            "type": "Forms.Label.1",
+            "left": 360,
+            "top": 93,
+            "width": 120,
+            "height": 18,
+            "caption": "Telephone"
+          },
+          {
+            "name": "txtTel",
+            "type": "Forms.TextBox.1",
+            "left": 485,
+            "top": 90,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblMobile",
+            "type": "Forms.Label.1",
+            "left": 360,
+            "top": 122,
+            "width": 120,
+            "height": 18,
+            "caption": "Mobile"
+          },
+          {
+            "name": "txtMobile",
+            "type": "Forms.TextBox.1",
+            "left": 485,
+            "top": 119,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblEmail",
+            "type": "Forms.Label.1",
+            "left": 360,
+            "top": 151,
+            "width": 120,
+            "height": 18,
+            "caption": "Courriel"
+          },
+          {
+            "name": "txtEmail",
+            "type": "Forms.TextBox.1",
+            "left": 485,
+            "top": 148,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblMutuelle",
+            "type": "Forms.Label.1",
+            "left": 360,
+            "top": 180,
+            "width": 120,
+            "height": 18,
+            "caption": "Mutuelle"
+          },
+          {
+            "name": "txtMutuelle",
+            "type": "Forms.TextBox.1",
+            "left": 485,
+            "top": 177,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblALD",
+            "type": "Forms.Label.1",
+            "left": 360,
+            "top": 209,
+            "width": 120,
+            "height": 18,
+            "caption": "ALD (O / N)"
+          },
+          {
+            "name": "txtALD",
+            "type": "Forms.TextBox.1",
+            "left": 485,
+            "top": 206,
+            "width": 200,
+            "height": 22
+          },
+          {
+            "name": "lblNotes",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 273,
+            "width": 100,
+            "height": 18,
+            "caption": "Notes"
+          },
+          {
+            "name": "txtNotes",
+            "type": "Forms.TextBox.1",
+            "left": 135,
+            "top": 270,
+            "width": 550,
+            "height": 54
+          },
+          {
+            "name": "lblMedecin",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 337,
+            "width": 480,
+            "height": 25,
+            "caption": "Medecin traitant"
+          },
+          {
+            "name": "btnMedecin",
+            "type": "Forms.CommandButton.1",
+            "left": 525,
+            "top": 332,
+            "width": 160,
+            "height": 26,
+            "caption": "Choisir le medecin traitant"
+          },
+          {
+            "name": "lblEtat",
+            "type": "Forms.Label.1",
+            "left": 10,
+            "top": 370,
+            "width": 675,
+            "height": 48,
+            "caption": ""
+          },
+          {
+            "name": "btnConfirmerIdentite",
+            "type": "Forms.CommandButton.1",
+            "left": 10,
+            "top": 429,
+            "width": 260,
+            "height": 28,
+            "caption": "Identite du courrier verifiee"
+          },
+          {
+            "name": "btnEnregistrer",
+            "type": "Forms.CommandButton.1",
+            "left": 445,
+            "top": 429,
+            "width": 115,
+            "height": 28,
+            "caption": "Enregistrer"
+          },
+          {
+            "name": "btnFermer",
+            "type": "Forms.CommandButton.1",
+            "left": 575,
+            "top": 429,
+            "width": 110,
+            "height": 28,
+            "caption": "Fermer"
+          }
+        ]
+      }
     }
   ],
   "excel": [

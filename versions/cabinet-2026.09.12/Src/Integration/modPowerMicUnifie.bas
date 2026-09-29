@@ -10,8 +10,8 @@ Public Function Unifie_OperationEnCours() As Boolean
     Unifie_OperationEnCours = mOccupe Or modProdRapide.PR_EnCours() Or modCycleCourrier.CycleEnCours()
 End Function
 
-Public Sub Unifie_DemarrerConsultation(ByVal attente As Object)
-    If mOccupe Or modProdRapide.PR_EnCours() Then Exit Sub
+Public Function Unifie_DemarrerConsultation(ByVal attente As Object) As Document
+    If mOccupe Or modProdRapide.PR_EnCours() Then Exit Function
     mOccupe = True
     On Error GoTo Erreur
     Dim pat As Object, doc As Document, sauvegarde As Boolean
@@ -35,9 +35,10 @@ Public Sub Unifie_DemarrerConsultation(ByVal attente As Object)
     modGdt.EcrireGdtPatient pat
     doc.Activate
     modCourrier.AllerDestinataire
+    Set Unifie_DemarrerConsultation = doc
 Sortie:
     mOccupe = False
-    Exit Sub
+    Exit Function
 Erreur:
     Dim description As String
     description = Err.Description
@@ -49,7 +50,7 @@ Erreur:
     On Error GoTo 0
     mOccupe = False
     MsgBox "Ouverture interrompue : " & description & IIf(sauvegarde, vbCrLf & "Le brouillon reste ouvert et enregistre sur le NAS.", ""), vbExclamation, "Cabinet"
-End Sub
+End Function
 
 Public Sub Unifie_B_FormuleAppel()
     modCourrier.AllerAppel

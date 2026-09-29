@@ -52,7 +52,7 @@ class ArchitectureU2(unittest.TestCase):
         root=audit_statique.ROOT
         word=(root/'Tests/Vba/word/modRecetteU2.bas').read_text(encoding='utf-8-sig')
         excel=(root/'Tests/Vba/excel/modRecetteU1Excel.bas').read_text(encoding='utf-8-sig')
-        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 45\b')
+        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 52\b')
         self.assertRegex(excel,r'NOMBRE_ATTENDU_EXCEL As Long = 74\b')
         for source in (word,excel):
             self.assertIn('""attendus"":',source)

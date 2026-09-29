@@ -308,8 +308,8 @@
     "host": "word",
     "module": "modRuban",
     "source": "Src/Word/modRuban.bas",
-    "lines": 37,
-    "sha256": "916589363e15d1c5c4bf3cc9909c43cb80985db58846eb2a7d03a1c85ace2f1e"
+    "lines": 38,
+    "sha256": "ee74bd9d8656ec9afd2c3b6666892b41cca6560005df7ed8d93d3ec835349418"
   },
   {
     "role": "production",
@@ -372,16 +372,16 @@
     "host": "word",
     "module": "modIntegrationUnifie",
     "source": "Src/Integration/modIntegrationUnifie.bas",
-    "lines": 176,
-    "sha256": "247b9ec6396d31439f32d89cb3552dedff716cd7ebd3dcdb5c989beeb14eda63"
+    "lines": 179,
+    "sha256": "54c7a64dc97591c44af169bf1702a46960f7565863d59990e6ea6b9424ff56c2"
   },
   {
     "role": "production",
     "host": "word",
     "module": "modPowerMicUnifie",
     "source": "Src/Integration/modPowerMicUnifie.bas",
-    "lines": 83,
-    "sha256": "f3b8c25e4165a2b6e9800602d8b21c96a38bc2bdee87462c118677fb2a945a65"
+    "lines": 84,
+    "sha256": "3e8008875fea1f7e39bd46f1cd84c4ad0612718a146f18a39ff834aa9b5240c4"
   },
   {
     "role": "production",
@@ -444,8 +444,8 @@
     "host": "word",
     "module": "modFileArrivees",
     "source": "Src/Integration/modFileArrivees.bas",
-    "lines": 87,
-    "sha256": "5990f478c63f1ff31f15cff7b8ecd47309b92b5b37a8b5c138ed83357a636df3"
+    "lines": 95,
+    "sha256": "96398b492e9213a2f8e590806cb29573926e245d18ac6407b72b9fb6e154835b"
   },
   {
     "role": "production",
@@ -462,6 +462,22 @@
     "source": "Src/Commun/modIndexAnnexes.bas",
     "lines": 68,
     "sha256": "6cf4a3a89edf23c90f9c7f3af982da7e33e80d2ed6862c83e0c7c353a10022b5"
+  },
+  {
+    "role": "production",
+    "host": "word",
+    "module": "modFichePatient",
+    "source": "Src/Word/modFichePatient.bas",
+    "lines": 58,
+    "sha256": "5f3b951d76541ea2af46b3682bf135dc571f9bdbc5490e6a687616b995e04a6c"
+  },
+  {
+    "role": "production",
+    "host": "word",
+    "module": "ufPatientMedecin",
+    "source": "Src/Word/ufPatientMedecin.vba",
+    "lines": 137,
+    "sha256": "dffa509773aaa346b916892f4c51eb7ff7def04621096363bd556d0ecb2dc3e4"
   },
   {
     "role": "production",

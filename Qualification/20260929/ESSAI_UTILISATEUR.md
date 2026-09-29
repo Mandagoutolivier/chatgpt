@@ -97,3 +97,32 @@ Contrôles exécutés sur les sources : 11 tests de la recette du 20 septembre,
 erreur. Inventaires des sources actualisés. Sur AX8MAX, le validateur PowerShell
 accepte les trois modes de nommage et refuse un mode inconnu (4 contrôles),
 sans modifier la configuration installée.
+
+## Sélection du patient et fiche médecin
+
+Demandes supplémentaires du 29 septembre : fermer la sélection après ouverture
+du patient et ajouter « Fiche patient » dans le ruban Cabinet.
+
+- L'ouverture renvoie maintenant le document effectivement créé. La liste des
+  arrivées est déchargée seulement en cas de réussite ; Word reprend le premier
+  plan et le curseur revient au destinataire. En cas d'échec, la liste reste
+  disponible. La reprise réussie d'un brouillon ferme également la liste.
+- Le bouton ouvre la fiche du patient lié au courrier actif, avec identité,
+  coordonnées, NIR, mutuelle, ALD, notes et choix du médecin traitant. L'identifiant
+  du dossier est conservé. Fermer sans enregistrer n'écrit rien sur le NAS.
+- Nouvelle opération médecin `patient.update`, limitée au patient d'une
+  consultation appartenant à ce médecin ; pas de droit générique `table.update`
+  ni de création. La révision de la fiche empêche d'écraser une modification
+  concurrente. Commande durable, rejouable et journalisée par le service.
+- Une modification d'identité ne remplace pas aveuglément le texte médical :
+  la transmission reste bloquée jusqu'à correction/vérification du courrier
+  et des annexes. La fiche comporte alors « Identité du courrier vérifiée ».
+  La confirmation relit la révision serveur, invalide la relecture et démarre
+  un nouveau cycle de correction ; les archives publiées restent inchangées.
+
+Contrôles locaux : 3 tests de contrat/formulaire, 11 tests de recette, 22 tests
+d'architecture ; audit de 87 composants de production et 94 avec recette.
+Ajout de tests PostgreSQL (rôles, propriété de consultation, révisions,
+idempotence, données invalides et archives) et de 7 contrôles VBA d'identité.
+Compilation Office, contrôle visuel du formulaire et déploiement du service
+`patient.update` nécessaires avant activation du bouton sur les postes.
