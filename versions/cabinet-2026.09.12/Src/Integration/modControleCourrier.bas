@@ -25,12 +25,42 @@ Public Sub PreparerRelecture(ByVal doc As Document, ByVal source As String, ByVa
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "1"
     doc.Save
     Application.ScreenUpdating = True
-    MsgBox "Le courrier et ses annexes sont prets pour une seule relecture." & vbCrLf & _
-        IIf(Len(message) > 0, "Differences detectees :" & message & vbCrLf, "") & _
-        "Verifiez identite, destinataires, negations, doses et examens. Apres relecture, D transmet directement, sans seconde boite de confirmation.", vbInformation, "Relecture du courrier"
+    doc.Activate
+    AfficherEtatRelecture doc
+End Sub
+
+' Aucun clic de fermeture avant la relecture. Les differences restent conservees
+' dans le brouillon et consultables a la demande depuis le ruban Cabinet.
+Public Sub AfficherEtatRelecture(ByVal doc As Document)
+    Application.StatusBar = vbNullString
+    If doc Is Nothing Then Exit Sub
+    If Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureEnAttente")) <> "1" Then Exit Sub
+    If Len(Trim$(modIntegrationUnifie.VariableDoc(doc, "ControlesRelecture"))) > 0 Then
+        Application.StatusBar = "Points a verifier dans Cabinet > Points de relecture. Relisez le courrier et ses annexes, puis D pour transmettre."
+    Else
+        Application.StatusBar = "Courrier et annexes prets : relisez, puis D pour transmettre."
+    End If
+End Sub
+
+Public Sub ConsulterPointsRelecture()
+    Dim message As String
+    If Documents.Count = 0 Then Exit Sub
+    If Trim$(modIntegrationUnifie.VariableDoc(ActiveDocument, "RelectureEnAttente")) <> "1" Then
+        MsgBox "Aucune relecture preparee pour ce document.", vbInformation, "Points de relecture"
+        Exit Sub
+    End If
+    message = Trim$(modIntegrationUnifie.VariableDoc(ActiveDocument, "ControlesRelecture"))
+    If Len(message) > 0 Then
+        message = "Differences a verifier entre la dictee et le courrier corrige :" & vbCrLf & message
+    Else
+        message = "Aucune difference signalee par les controles automatiques."
+    End If
+    MsgBox message & vbCrLf & vbCrLf & _
+        "Relisez le courrier et ses annexes. D transmet apres votre relecture.", vbInformation, "Points de relecture"
 End Sub
 
 Public Sub InvaliderRelecture(ByVal doc As Document)
+    Application.StatusBar = vbNullString
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureDestinataireID", ""
@@ -99,6 +129,7 @@ Public Sub ValiderEtTransmettre(ByVal doc As Document)
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     doc.Save
+    Application.StatusBar = vbNullString
     MsgBox "Courrier transmis au secretariat.", vbInformation, "Cabinet"
     Exit Sub
 Echec:

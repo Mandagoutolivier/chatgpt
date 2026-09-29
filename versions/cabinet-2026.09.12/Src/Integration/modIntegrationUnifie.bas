@@ -100,6 +100,7 @@ Public Sub Unifie_ReprendreBrouillon()
     Dim doc As Document
     Set doc = Documents.Open(FileName:=CStr(choisi("CheminBrouillon")), AddToRecentFiles:=False)
     InitialiserPatientProd doc
+    modControleCourrier.AfficherEtatRelecture doc
     Exit Sub
 Echec:
     MsgBox "Reprise impossible : " & Err.Description, vbExclamation, "Cabinet"

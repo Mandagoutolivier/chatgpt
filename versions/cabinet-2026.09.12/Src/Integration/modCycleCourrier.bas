@@ -118,7 +118,9 @@ Sortie:
     Set mDocumentSource = Nothing: Set gPlageOriginale = Nothing
     gTexteAnonymise = "": gTexteCorrige = "": gReponseAPICabinetTest = ""
     gCorpsCorrigeAnonymiseCabinetTest = "": gCorrectionCabinetTestValidee = False
-    Application.ScreenUpdating = ancienEcran: Application.StatusBar = vbNullString
+    Application.ScreenUpdating = ancienEcran
+    Application.StatusBar = vbNullString
+    If numero = 0 Then modControleCourrier.AfficherEtatRelecture docPrincipal
     modEtatCourrier.LibererVerrou verrou
     mTraitementEnCours = False
     On Error GoTo 0

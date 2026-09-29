@@ -14,6 +14,7 @@ Public Sub Ruban_Action(ByVal control As IRibbonControl)
         Case "cabNouveau":      macro = "Unifie_A_NouvelleLettre"
         Case "cabPatient":      macro = "Unifie_C_InsererPatient"
         Case "cabCorriger":     macro = "Unifie_D_Finaliser"
+        Case "cabRelecture":    macro = "ConsulterPointsRelecture"
         Case "cabDerivee":      macro = "Unifie_D_Finaliser"
         Case "cabValider":      macro = "Unifie_D_Finaliser"
         Case "cabReprendre":     macro = "Unifie_ReprendreBrouillon"
