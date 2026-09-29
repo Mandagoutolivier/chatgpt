@@ -105,7 +105,7 @@ End Function
 Public Sub ValiderEtTransmettre(ByVal doc As Document)
     On Error GoTo Echec
     Dim cor As Object, p As Object, sortie As String, revision As String, id As String
-    Dim numero As Long, description As String
+    Dim numero As Long, description As String, transmis As Boolean
     If Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureEnAttente")) <> "1" Then Err.Raise vbObjectError + 1168, , "Preparez puis relisez le courrier avant transmission."
     modIntegrationUnifie.InitialiserPatientProd doc
     id = Trim$(modIntegrationUnifie.VariableDoc(doc, "CorrespondantID"))
@@ -126,11 +126,15 @@ Public Sub ValiderEtTransmettre(ByVal doc As Document)
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "1"
     doc.Save
     modIntegrationUnifie.TransmettreSecretariat doc, sortie
+    transmis = True
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     doc.Save
+    If Not doc.Saved Then Err.Raise vbObjectError + 1169, , "Enregistrement final non confirme."
     Application.StatusBar = vbNullString
-    MsgBox "Courrier transmis au secretariat.", vbInformation, "Cabinet"
+    ' Le retour de publish confirme la reception. Aucun clic supplementaire.
+    ' Fermer seulement ce courrier, apres sa sauvegarde, sans quitter Word.
+    doc.Close wdDoNotSaveChanges
     Exit Sub
 Echec:
     numero = Err.Number: description = Err.Description
@@ -138,6 +142,7 @@ Echec:
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     doc.Save
     On Error GoTo 0
+    If transmis Then description = "Le secretariat a recu le courrier, mais son enregistrement ou sa fermeture a echoue : " & description
     Err.Raise numero, "ValiderEtTransmettre", description
 End Sub
 

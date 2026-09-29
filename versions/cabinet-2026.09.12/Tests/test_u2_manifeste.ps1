@@ -39,6 +39,7 @@ function Tester-ConfigurationSortie([string]$contenu,[bool]$doitReussir,[string]
         Remove-Item -LiteralPath $chemin -Force -ErrorAction SilentlyContinue
     }
 }
+Tester-ConfigurationSortie "[SORTIE]`nExportActif=0`nDossier=Sorties`nNomFichier=IdentiteHorodatage" $true 'nom habituel sans activer export'
 Tester-ConfigurationSortie "[SORTIE]`nExportActif=1`nDossier=\\NAS-RECETTE\CabinetCardioTestU2\Echange\AEnvoyer`nNomFichier=PublicationID" $true 'active explicite'
 Tester-ConfigurationSortie "[SORTIE]`nExportActif=0`nDossier=\\NAS-RECETTE\CabinetCardioTestU2\Echange\AEnvoyer`nNomFichier=IdentitePublication" $true 'inactive explicite'
 Tester-ConfigurationSortie "[SORTIE]`nDossier=\\NAS-RECETTE\CabinetCardioTestU2\Echange\AEnvoyer`nNomFichier=PublicationID" $false 'activation absente'

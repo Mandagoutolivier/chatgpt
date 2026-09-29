@@ -1,6 +1,6 @@
 Attribute VB_Name = "modRecetteU2"
 Option Explicit
-Private Const NOMBRE_ATTENDU_U2 As Long = 36
+Private Const NOMBRE_ATTENDU_U2 As Long = 45
 Private mNombre As Long
 
 Private Sub ExigerU2(ByVal condition As Boolean, ByVal nom As String)
@@ -89,6 +89,7 @@ Public Function ExecuterU2(ByVal sortie As String) As String
     ExigerU2 modDonneesTransport.EmpreinteFichierSHA256(chemin) = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "empreinte du fichier vide"
     TesterDestinataireAvantIA
     TesterDestinataireRelecture
+    TesterNomCourrier
     If mNombre <> NOMBRE_ATTENDU_U2 Then Err.Raise vbObjectError + 1192, "Recette U2", "Nombre de controles inattendu."
     ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_U2) & ",""echec"":false}"
 Sortie:
@@ -100,6 +101,30 @@ Echec:
     description = Err.Description
     ExecuterU2 = "{""reussis"":" & CStr(mNombre) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_U2) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
     Resume Sortie
+End Function
+
+Private Sub TesterNomCourrier()
+    Dim nom As String
+    nom = modFichiers.NomCourrierHorodate("TESTCOURRIER", "Camille", "29/09/2026 18:31:57")
+    ExigerU2 nom = "TESTCOURRIER Camille 202609291831", "nom habituel avec annee complete et minutes"
+    ExigerU2 nom = modFichiers.NomCourrierHorodate("TESTCOURRIER", "Camille", "29/09/2026 18:31:00"), "pas de secondes dans le nom"
+    ExigerU2 modFichiers.NomCourrierHorodate("LE FICTIF", "Jean-Pierre", "01/02/2026 03:04:05") = "LE FICTIF Jean-Pierre 202602010304", "date francaise independante de la langue Windows"
+    ExigerU2 modFichiers.NomCourrierHorodate("FICTIF", ChrW(201) & "lodie", "29/09/2026 18:31:57") = "FICTIF " & ChrW(201) & "lodie 202609291831", "accents conserves"
+    ExigerU2 modFichiers.NomCourrierHorodate("  NOM/ESSAI  ", " Camille ", "29/09/2026 18:31:57") = "NOM ESSAI Camille 202609291831", "caracteres Windows et espaces nettoyes"
+    nom = modFichiers.NomCourrierHorodate(String$(120, "N"), "Camille", "29/09/2026 18:31:57")
+    ExigerU2 Len(nom) = 120 And Right$(nom, 13) = " 202609291831", "horodatage jamais tronque"
+    ExigerU2 NomCourrierRefuse("NOM", "Camille", "31/02/2026 18:31:57"), "date impossible refusee"
+    ExigerU2 NomCourrierRefuse("NOM", "Camille", "29/09/2026 24:31:57"), "heure impossible refusee"
+    ExigerU2 NomCourrierRefuse("NOM", "", "29/09/2026 18:31:57"), "identite incomplete refusee"
+End Sub
+
+Private Function NomCourrierRefuse(ByVal nom As String, ByVal prenom As String, ByVal instant As String) As Boolean
+    Dim resultat As String, numero As Long
+    On Error Resume Next
+    resultat = modFichiers.NomCourrierHorodate(nom, prenom, instant)
+    numero = Err.Number: Err.Clear
+    On Error GoTo 0
+    NomCourrierRefuse = (numero = vbObjectError + 123)
 End Function
 
 Private Sub TesterDestinataireRelecture()

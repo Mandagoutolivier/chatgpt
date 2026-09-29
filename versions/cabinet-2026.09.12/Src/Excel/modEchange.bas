@@ -122,9 +122,17 @@ Private Function CopieLectureArchive(ByVal d As Object) As String
     End If
     dossier = Environ$("LOCALAPPDATA")
     If Len(dossier) = 0 Then Err.Raise vbObjectError + 1116, , "Dossier local de consultation indisponible."
-    dossier = dossier & "\CabinetCardio\LecturesArchives"
+    ' Le nom visible est celui du courrier ; l empreinte isole les revisions.
+    dossier = dossier & "\CabinetCardio\LecturesArchives\" & empreinte
     modFichiers.EnsureDossier dossier
+    ' Les anciennes publications peuvent avoir un horodatage vide ou absent.
     copie = dossier & "\" & empreinte & "." & extension
+    If d.Exists("DateValidation") And d.Exists("Nom") And d.Exists("Prenom") Then
+        On Error Resume Next
+        copie = dossier & "\" & modFichiers.NomCourrierHorodate(CStr(d("Nom")), CStr(d("Prenom")), CStr(d("DateValidation"))) & "." & extension
+        Err.Clear
+        On Error GoTo 0
+    End If
     Set fso = CreateObject("Scripting.FileSystemObject")
     If Not fso.FileExists(copie) Then fso.CopyFile source, copie, False
     If modDonneesTransport.EmpreinteFichierSHA256(copie) <> empreinte Then

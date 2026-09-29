@@ -273,6 +273,25 @@ Public Sub SauvegardeHorodatee(ByVal chemin As String, Optional ByVal maxVersion
     ' Pas de purge automatique : retention a regler sur le Synology.
 End Sub
 
+' DateValidation est figee pour une publication : une reprise garde le meme nom.
+' Pas de CDate, dont l interpretation depend des parametres regionaux Windows.
+Public Function NomCourrierHorodate(ByVal nom As String, ByVal prenom As String, ByVal dateValidation As String) As String
+    Dim re As Object, identite As String, instant As Date
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^[0-9]{2}/[0-9]{2}/[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}$"
+    If Not re.Test(dateValidation) Then Err.Raise vbObjectError + 123, , "Date de validation absente ou invalide."
+    If Not modTexte.DateFrValide(Left$(dateValidation, 10)) Then Err.Raise vbObjectError + 123, , "Date de validation invalide."
+    If Val(Mid$(dateValidation, 12, 2)) > 23 Or Val(Mid$(dateValidation, 15, 2)) > 59 Or Val(Right$(dateValidation, 2)) > 59 Then Err.Raise vbObjectError + 123, , "Heure de validation invalide."
+    If Len(Trim$(nom)) = 0 Or Len(Trim$(prenom)) = 0 Then Err.Raise vbObjectError + 123, , "Nom et prenom requis pour enregistrer le courrier."
+    identite = NomFichierSur(Trim$(nom) & " " & Trim$(prenom))
+    Do While InStr(identite, "  ") > 0
+        identite = Replace(identite, "  ", " ")
+    Loop
+    instant = modTexte.DateFr(Left$(dateValidation, 10)) + TimeSerial(Val(Mid$(dateValidation, 12, 2)), Val(Mid$(dateValidation, 15, 2)), Val(Right$(dateValidation, 2)))
+    ' Conserver toujours les douze chiffres, meme pour une identite tres longue.
+    NomCourrierHorodate = RTrim$(Left$(identite, 107)) & " " & Format$(instant, "yyyymmddhhnn")
+End Function
+
 Public Function NomFichierSur(ByVal s As String) As String
     Dim c As Variant, i As Long
     For Each c In Array("\", "/", ":", "*", "?", """", "<", ">", "|")

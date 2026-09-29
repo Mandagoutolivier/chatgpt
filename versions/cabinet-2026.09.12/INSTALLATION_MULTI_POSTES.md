@@ -70,7 +70,7 @@ Le [correctif GDT du 24 septembre](U2C_GDT_20260924.md) ajoute la DDN au format 
 
 Les boutons ajoutés à l'accueil donnent accès à l'assuré distinct, aux paramètres des destinataires et à l'encaissement d'une séance. Les réglages inhabituels restent hors de la saisie courante.
 
-La section `[SORTIE]` doit préciser `ExportActif`, `Dossier` et `NomFichier`. Commencer la recette avec `ExportActif=0`, `Dossier=Sorties` et `NomFichier=PublicationID`. L'absence d'une clé est une erreur explicite. `IdentitePublication` ajoute l'identité au nom du fichier et ne doit être choisi qu'après validation du besoin.
+La section `[SORTIE]` doit préciser `ExportActif`, `Dossier` et `NomFichier`. Commencer la recette avec `ExportActif=0`, `Dossier=Sorties` et `NomFichier=IdentiteHorodatage`, conformément au besoin de nommage validé le 29 septembre : `Nom Prénom aaaammjjhhmm.docx`. L'absence d'une clé est une erreur explicite. Les anciens modes `PublicationID` et `IdentitePublication` restent acceptés ; une configuration existante n'est pas migrée implicitement. Le mode horodaté utilise un sous-dossier par publication pour conserver les courriers validés dans la même minute sans modifier leur nom ni écraser une version. L'heure est celle de la validation, conservée lors d'une reprise.
 
 Compléter RPPS et numéro AM dans la configuration médecin. Les positions du formulaire sont dans `Config\cerfa_positions.txt` sur le NAS. Les champs `PATIENT_NOM`, `PATIENT_DDN` sont requis pour un assuré distinct ; `MEDECIN_RPPS`, `MEDECIN_AM` sont requis si le praticien n'est pas préimprimé. Aucune coordonnée physique inconnue n'a été inventée. Ajouter les positions après essai sur le formulaire utilisé.
 

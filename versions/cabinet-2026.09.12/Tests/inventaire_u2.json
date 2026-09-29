@@ -325,8 +325,8 @@
       "role": "production",
       "module": "modSortieDragon",
       "source": "Src/Prod6/modSortieDragon.bas",
-      "lignes": 561,
-      "sha256": "0bd0cf550bec8944cdb23156b76595e2f2e9b3843f95fb9063b91708e9b606f2",
+      "lignes": 567,
+      "sha256": "24765e703c2fd74ed5c8071c78fcd1854d81a6957c5caf3d4af31979cd6c2873",
       "entrees_publiques": [
         "SD_CopierRevisionFinale",
         "SD_EnregistrerCourrierFinal",
@@ -517,8 +517,8 @@
       "role": "production",
       "module": "modFichiers",
       "source": "Src/Commun/modFichiers.bas",
-      "lignes": 304,
-      "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9",
+      "lignes": 323,
+      "sha256": "c811a59ddc32acf0fd88473e391a4c85a25600894af2fb533cdf4386fbaad6c3",
       "entrees_publiques": [
         "AcquerirVerrou",
         "CopieLocale",
@@ -534,6 +534,7 @@
         "LireDrapeau",
         "LireTexteUTF8",
         "ListerFichiers",
+        "NomCourrierHorodate",
         "NomFichierSur",
         "Pause",
         "RelacherVerrou",
@@ -659,8 +660,8 @@
       "role": "production",
       "module": "modRuban",
       "source": "Src/Word/modRuban.bas",
-      "lignes": 36,
-      "sha256": "d1ff7bf10a4d6c0a7cb2c9fa56f4e828763f475ca0a69c135e940aa072d8abb4",
+      "lignes": 37,
+      "sha256": "916589363e15d1c5c4bf3cc9909c43cb80985db58846eb2a7d03a1c85ace2f1e",
       "entrees_publiques": [
         "Ruban_Action"
       ]
@@ -718,8 +719,8 @@
       "role": "production",
       "module": "modValidation",
       "source": "Src/Word/modValidation.bas",
-      "lignes": 116,
-      "sha256": "23c6bed607959550e8bdc451633aebeba00c3f2d7fb7eb5b65bd454e162a1be6",
+      "lignes": 129,
+      "sha256": "6f14608582b96a7dc2b09df3f98daccc5324f16032cc62482f4463ba4a0a5727",
       "entrees_publiques": [
         "FinaliserCourrier",
         "ValiderCourrier",
@@ -769,8 +770,8 @@
       "role": "production",
       "module": "modIntegrationUnifie",
       "source": "Src/Integration/modIntegrationUnifie.bas",
-      "lignes": 175,
-      "sha256": "55c401062d1a85e79a57932178773b69394f814080704ae9bbabd6129d678d98",
+      "lignes": 176,
+      "sha256": "247b9ec6396d31439f32d89cb3552dedff716cd7ebd3dcdb5c989beeb14eda63",
       "entrees_publiques": [
         "FixerVariable",
         "InitialiserPatientProd",
@@ -827,10 +828,12 @@
       "role": "production",
       "module": "modControleCourrier",
       "source": "Src/Integration/modControleCourrier.bas",
-      "lignes": 178,
-      "sha256": "b38de4a5e54893f6aa9f99b64d0a009a1b674f089f794435ae0a603cd3c560dd",
+      "lignes": 214,
+      "sha256": "353ec4c68829de402ea5c0210ad7c5480573dcc5bb3940590458f1c8720e0377",
       "entrees_publiques": [
+        "AfficherEtatRelecture",
         "AssurerDestinataire",
+        "ConsulterPointsRelecture",
         "DestinataireRelectureConforme",
         "EmpreinteCourrier",
         "EmpreinteXmlCourrier",
@@ -902,8 +905,8 @@
       "role": "production",
       "module": "modCycleCourrier",
       "source": "Src/Integration/modCycleCourrier.bas",
-      "lignes": 131,
-      "sha256": "79d985629d0166c1e58c8fe0ccea3c44479ff88ae625f1363b90712db9c67660",
+      "lignes": 133,
+      "sha256": "ed02180cbd14051f6704f4b13c65d9f8cbbdf0907dde9aa6c3cd9afac96675ab",
       "entrees_publiques": [
         "CycleEnCours",
         "DocumentSource",
@@ -996,8 +999,8 @@
       "role": "recette",
       "module": "modRecetteU2",
       "source": "Tests/Vba/word/modRecetteU2.bas",
-      "lignes": 227,
-      "sha256": "798ace1db06d0b8d04a98cf1460bdfc9c494b3c0e8a347ca28db54290aaf7fb8",
+      "lignes": 252,
+      "sha256": "7bcaae81f51a31ac27cc5b83f2e0ed7f65e00b5e7e081b22d741bd360ce455db",
       "entrees_publiques": [
         "ExecuterFileAnnexes",
         "ExecuterU2"
@@ -1168,8 +1171,8 @@
       "role": "production",
       "module": "modEchange",
       "source": "Src/Excel/modEchange.bas",
-      "lignes": 210,
-      "sha256": "8378c26f30b622f14c6625a2dae689732410dad7c6d3ef9d83dce7edaed6f4df",
+      "lignes": 218,
+      "sha256": "32c3adab0749bbe35ecff415fd85596974f86058f142a06e9d27832f765f17a4",
       "entrees_publiques": [
         "ArreterScrutation",
         "CourriersEnAttente",
@@ -1189,8 +1192,8 @@
       "role": "production",
       "module": "modFichiers",
       "source": "Src/Commun/modFichiers.bas",
-      "lignes": 304,
-      "sha256": "7874f118e55e445942b67acbdd678f257657a9d8071a5226e980e84abebb2ca9",
+      "lignes": 323,
+      "sha256": "c811a59ddc32acf0fd88473e391a4c85a25600894af2fb533cdf4386fbaad6c3",
       "entrees_publiques": [
         "AcquerirVerrou",
         "CopieLocale",
@@ -1206,6 +1209,7 @@
         "LireDrapeau",
         "LireTexteUTF8",
         "ListerFichiers",
+        "NomCourrierHorodate",
         "NomFichierSur",
         "Pause",
         "RelacherVerrou",
@@ -1928,7 +1932,19 @@
       "hote": "word",
       "source": "modSortieDragon",
       "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modSortieDragon",
+      "cible": "modFichiers",
       "membre": "IdUnique"
+    },
+    {
+      "hote": "word",
+      "source": "modSortieDragon",
+      "cible": "modFichiers",
+      "membre": "NomCourrierHorodate"
     },
     {
       "hote": "word",
@@ -1939,8 +1955,20 @@
     {
       "hote": "word",
       "source": "modSortieDragon",
+      "cible": "modFichiers",
+      "membre": "VerifierIdentifiantFichier"
+    },
+    {
+      "hote": "word",
+      "source": "modSortieDragon",
       "cible": "modIntegrationUnifie",
       "membre": "PatientVerifie"
+    },
+    {
+      "hote": "word",
+      "source": "modSortieDragon",
+      "cible": "modIntegrationUnifie",
+      "membre": "VariableDoc"
     },
     {
       "hote": "word",
@@ -2292,6 +2320,18 @@
     },
     {
       "hote": "word",
+      "source": "modFichiers",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "word",
+      "source": "modFichiers",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
+    },
+    {
+      "hote": "word",
       "source": "modGdt",
       "cible": "modConfig",
       "membre": "Config"
@@ -2600,13 +2640,31 @@
       "hote": "word",
       "source": "modValidation",
       "cible": "modFichiers",
+      "membre": "EnsureDossier"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modFichiers",
       "membre": "IdUnique"
     },
     {
       "hote": "word",
       "source": "modValidation",
       "cible": "modFichiers",
+      "membre": "NomCourrierHorodate"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modFichiers",
       "membre": "NomFichierSur"
+    },
+    {
+      "hote": "word",
+      "source": "modValidation",
+      "cible": "modFichiers",
+      "membre": "VerifierIdentifiantFichier"
     },
     {
       "hote": "word",
@@ -2709,6 +2767,12 @@
       "source": "modIntegrationUnifie",
       "cible": "modBase",
       "membre": "PatientParID"
+    },
+    {
+      "hote": "word",
+      "source": "modIntegrationUnifie",
+      "cible": "modControleCourrier",
+      "membre": "AfficherEtatRelecture"
     },
     {
       "hote": "word",
@@ -3147,6 +3211,12 @@
       "source": "modCycleCourrier",
       "cible": "modAnonymisation",
       "membre": "LocaliserCorpsCourrier"
+    },
+    {
+      "hote": "word",
+      "source": "modCycleCourrier",
+      "cible": "modControleCourrier",
+      "membre": "AfficherEtatRelecture"
     },
     {
       "hote": "word",
@@ -3775,6 +3845,12 @@
     {
       "hote": "word",
       "source": "modRecetteU2",
+      "cible": "modFichiers",
+      "membre": "NomCourrierHorodate"
+    },
+    {
+      "hote": "word",
+      "source": "modRecetteU2",
       "cible": "modIndexAnnexes",
       "membre": "FixerMeta"
     },
@@ -4309,6 +4385,12 @@
     {
       "hote": "excel",
       "source": "modEchange",
+      "cible": "modFichiers",
+      "membre": "NomCourrierHorodate"
+    },
+    {
+      "hote": "excel",
+      "source": "modEchange",
       "cible": "modLog",
       "membre": "LogErreur"
     },
@@ -4335,6 +4417,18 @@
       "source": "modFichiers",
       "cible": "modConfig",
       "membre": "Chemin"
+    },
+    {
+      "hote": "excel",
+      "source": "modFichiers",
+      "cible": "modTexte",
+      "membre": "DateFr"
+    },
+    {
+      "hote": "excel",
+      "source": "modFichiers",
+      "cible": "modTexte",
+      "membre": "DateFrValide"
     },
     {
       "hote": "excel",
@@ -5096,7 +5190,7 @@
     },
     {
       "source": "Src/Word/modRuban.bas",
-      "ligne": 31
+      "ligne": 32
     },
     {
       "source": "Src/Integration/modRechercheWord.bas",

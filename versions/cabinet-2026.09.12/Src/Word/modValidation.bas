@@ -46,9 +46,25 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
     End If
     dateValidation = modIntegrationUnifie.VariableDoc(doc, "DateValidation")
     dossier = modPatient.DossierPatient(pat)
-    base = Format$(modTexte.DateFr(dateActe), "yyyy-mm-dd") & " " & _
-           modFichiers.NomFichierSur(typeCourrier) & " " & consultationID
-    cheminDocx = dossier & "\" & base & "_" & publicationID & ".docx"
+    If modEtatCourrier.PublicationPrete(publicationID) And VariableDoc(doc, "PublicationNomFormat") <> "IdentiteHorodatage" Then
+        ' Reprendre une publication preparee par une ancienne version sans
+        ' changer les chemins qui font partie de sa commande idempotente.
+        base = Format$(modTexte.DateFr(dateActe), "yyyy-mm-dd") & " " & _
+               modFichiers.NomFichierSur(typeCourrier) & " " & consultationID
+        cheminDocx = dossier & "\" & base & "_" & publicationID & ".docx"
+    Else
+        modFichiers.VerifierIdentifiantFichier publicationID
+        base = modFichiers.NomCourrierHorodate(CStr(pat("Nom")), CStr(pat("Prenom")), dateValidation)
+        ' Un sous-dossier par publication evite tout ecrasement si deux
+        ' courriers du meme patient sont valides dans la meme minute.
+        dossier = dossier & "\" & publicationID
+        modFichiers.EnsureDossier dossier
+        cheminDocx = dossier & "\" & base & ".docx"
+        If Not modEtatCourrier.PublicationPrete(publicationID) Then
+            modIntegrationUnifie.FixerVariable doc, "PublicationNomFormat", "IdentiteHorodatage"
+            doc.Save
+        End If
+    End If
     cheminPdf = Left$(cheminDocx, Len(cheminDocx) - 4) & "pdf"
 
     If Not modEtatCourrier.PublicationPrete(publicationID) Then
@@ -88,8 +104,7 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
 
 
     ' La copie secondaire est facultative ([SORTIE] ExportActif=1).
-    ' Si activee, son contenu a ete verifie avant publication ; son nom
-    ' porte uniquement l identifiant de publication.
+    ' Si activee, son contenu a ete verifie avant publication.
 
     modLog.LogInfo "Courrier valide : " & cheminDocx & " (consultation " & consultationID & ")"
     ValiderDocument = typeCourrier
@@ -102,8 +117,6 @@ End Function
 Public Sub FinaliserCourrier()
     modPowerMicUnifie.Unifie_D_Finaliser
 End Sub
-' Chemin libre : base.ext, puis "base v2.ext", "base v3.ext"... Les
-' corrections successives sont conservees au lieu de s'ecraser.
 
 Private Function VariableDoc(ByVal doc As Document, ByVal nom As String) As String
     On Error Resume Next
