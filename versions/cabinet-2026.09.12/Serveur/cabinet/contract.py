@@ -12,6 +12,7 @@ SPECS = {
     'journal.read': ({}, {'id': str, 'year': str, 'date': str, 'offset': int, 'limit': int}),
     'table.add': ({'genre': str, 'data': dict}, {}),
     'table.update': ({'genre': str, 'data': dict}, {}),
+    'patient.update': ({'consultation_id': str, 'data': dict}, {}),
     'correspondent.save': ({'data': dict}, {}),
     'correspondent.resolve': ({}, {'id': str, 'cle': str, 'examen': str}),
     'dictionary.add': ({'genre': str, 'texte': str}, {}),

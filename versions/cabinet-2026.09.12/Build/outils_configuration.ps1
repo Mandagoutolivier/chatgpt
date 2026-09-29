@@ -40,5 +40,5 @@ function Verifier-ConfigurationSortie([string]$Chemin) {
     if($null -eq $actif){throw 'Configuration historique detectee : renseignez explicitement SORTIE/ExportActif=0 ou 1 avant de poursuivre.'}
     if($actif -notin @('0','1')){throw 'SORTIE/ExportActif doit valoir 0 ou 1.'}
     if([string]::IsNullOrWhiteSpace($dossier)){throw 'SORTIE/Dossier doit etre renseigne explicitement.'}
-    if($nom -notin @('PublicationID','IdentitePublication')){throw 'SORTIE/NomFichier doit valoir PublicationID ou IdentitePublication.'}
+    if($nom -notin @('PublicationID','IdentitePublication','IdentiteHorodatage')){throw 'SORTIE/NomFichier doit valoir PublicationID, IdentitePublication ou IdentiteHorodatage.'}
 }

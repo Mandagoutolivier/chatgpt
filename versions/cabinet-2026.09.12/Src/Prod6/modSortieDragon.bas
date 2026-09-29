@@ -6,7 +6,7 @@ Option Explicit
 ' VERSION : DOMICILE-GRAS-1Z / SORTIE Z:
 '
 ' Enregistre le document final dans le dossier SORTIE configure sous la forme :
-'   NOM Prenom aammddhhmm.docx
+'   NOM Prenom aaaammjjhhmm.docx
 '
 ' Particularité :
 ' certains anciens courriers mémorisent l'identité ainsi :
@@ -76,7 +76,7 @@ Public Function SD_EnregistrerCourrierFinal( _
     baseNom = _
         UCase$(nomPatient) & " " & _
         SD_MajusculeInitialesPrenom(prenomPatient) & " " & _
-        Format$(Now, "yymmddhhnn")
+        Format$(Now, "yyyymmddhhnn")
 
     cheminCandidat = _
         SD_DOSSIER_SORTIE & "\" & _
@@ -519,7 +519,7 @@ Public Function SD_CopierRevisionFinale(ByVal doc As Document, ByVal source As S
     If Len(actif) = 0 Then Err.Raise vbObjectError + 1168, , "SORTIE/ExportActif n est pas configure. Choisissez explicitement 0 ou 1 avant utilisation."
     If actif <> "0" And actif <> "1" Then Err.Raise vbObjectError + 1168, , "SORTIE/ExportActif doit valoir 0 ou 1."
     modeNom = LCase$(Trim$(modConfig.Config("SORTIE", "NomFichier", "")))
-    If modeNom <> "publicationid" And modeNom <> "identitepublication" Then Err.Raise vbObjectError + 1168, , "SORTIE/NomFichier doit valoir PublicationID ou IdentitePublication."
+    If modeNom <> "publicationid" And modeNom <> "identitepublication" And modeNom <> "identitehorodatage" Then Err.Raise vbObjectError + 1168, , "SORTIE/NomFichier doit valoir PublicationID, IdentitePublication ou IdentiteHorodatage."
     If actif = "0" Then
         SD_CopierRevisionFinale = True
         Exit Function
@@ -539,6 +539,12 @@ Public Function SD_CopierRevisionFinale(ByVal doc As Document, ByVal source As S
     End If
     SD_CreerDossierSiNecessaire SD_DOSSIER_SORTIE
     destination = SD_DOSSIER_SORTIE & "\" & base & ".docx"
+    If modeNom = "identitehorodatage" Then
+        modFichiers.VerifierIdentifiantFichier publicationID
+        base = modFichiers.NomCourrierHorodate(CStr(pat("Nom")), CStr(pat("Prenom")), modIntegrationUnifie.VariableDoc(doc, "DateValidation"))
+        modFichiers.EnsureDossier SD_DOSSIER_SORTIE & "\" & publicationID
+        destination = SD_DOSSIER_SORTIE & "\" & publicationID & "\" & base & ".docx"
+    End If
     Set fso = CreateObject("Scripting.FileSystemObject")
     empreinte = modDonneesTransport.EmpreinteFichierSHA256(source)
     If fso.FileExists(destination) Then

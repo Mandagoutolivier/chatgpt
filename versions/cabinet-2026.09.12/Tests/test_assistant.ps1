@@ -3,6 +3,7 @@ $root=Split-Path $PSScriptRoot -Parent
 . (Join-Path $root 'Build/outils_installation.ps1')
 . (Join-Path $root 'Build/outils_assistant.ps1')
 . (Join-Path $root 'Build/outils_telechargement.ps1')
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $tmp=Join-Path ([IO.Path]::GetTempPath()) ('cabinet-assistant-test-'+[guid]::NewGuid().ToString('N'))
 [void][IO.Directory]::CreateDirectory($tmp)

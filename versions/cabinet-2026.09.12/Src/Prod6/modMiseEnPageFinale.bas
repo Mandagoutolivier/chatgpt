@@ -808,6 +808,8 @@ Private Sub MPF_SecuriserSignatureIndex( _
 
     If idxSignature <= 1 Then Exit Sub
 
+    idxSignature = MPF_RapprocherSignatureSiVides(doc, idxSignature)
+
     idxPrecedentNonVide = 0
 
     For j = idxSignature - 1 To 1 Step -1
@@ -873,6 +875,48 @@ Private Sub MPF_SecuriserSignatureIndex( _
     End If
 
 End Sub
+
+Private Function MPF_RapprocherSignatureSiVides( _
+    ByVal doc As Document, _
+    ByVal idxSignature As Long) As Long
+
+    Dim idxPrecedentNonVide As Long
+    Dim pagePrecedente As Long
+    Dim pageSignature As Long
+    Dim j As Long
+
+    MPF_RapprocherSignatureSiVides = idxSignature
+
+    If doc Is Nothing Then Exit Function
+    If idxSignature <= 2 Or idxSignature > doc.Paragraphs.Count Then Exit Function
+
+    For j = idxSignature - 1 To 1 Step -1
+        If Trim$(MPF_TexteParagraphe(doc.Paragraphs(j))) <> "" Then
+            idxPrecedentNonVide = j
+            Exit For
+        End If
+    Next j
+
+    If idxPrecedentNonVide = 0 Then Exit Function
+
+    ' Garder toujours un paragraphe vide. Retirer seulement le surplus si
+    ' ce surplus pousse la signature sur une page posterieure au dernier
+    ' paragraphe non vide. Une lettre courte conserve donc son aeration.
+    Do While idxSignature - idxPrecedentNonVide > 2
+        doc.Repaginate
+        pagePrecedente = doc.Paragraphs(idxPrecedentNonVide).Range.Information( _
+            wdActiveEndAdjustedPageNumber)
+        pageSignature = doc.Paragraphs(idxSignature).Range.Information( _
+            wdActiveEndAdjustedPageNumber)
+        If pageSignature <= pagePrecedente Then Exit Do
+
+        doc.Paragraphs(idxSignature - 1).Range.Delete
+        idxSignature = idxSignature - 1
+    Loop
+
+    MPF_RapprocherSignatureSiVides = idxSignature
+
+End Function
 
 Private Function MPF_ParagrapheCorpsPresentationAnnexe( _
     ByVal doc As Document, ByVal p As Paragraph) As Boolean

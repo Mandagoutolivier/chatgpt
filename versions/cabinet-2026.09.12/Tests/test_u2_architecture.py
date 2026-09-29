@@ -52,7 +52,7 @@ class ArchitectureU2(unittest.TestCase):
         root=audit_statique.ROOT
         word=(root/'Tests/Vba/word/modRecetteU2.bas').read_text(encoding='utf-8-sig')
         excel=(root/'Tests/Vba/excel/modRecetteU1Excel.bas').read_text(encoding='utf-8-sig')
-        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 36\b')
+        self.assertRegex(word,r'NOMBRE_ATTENDU_U2 As Long = 52\b')
         self.assertRegex(excel,r'NOMBRE_ATTENDU_EXCEL As Long = 74\b')
         for source in (word,excel):
             self.assertIn('""attendus"":',source)
@@ -67,7 +67,7 @@ class ArchitectureU2(unittest.TestCase):
     def test_export_et_reimpression_exigent_un_contrat_explicite(self):
         root=audit_statique.ROOT
         config=(root/'Src/ConfigDefaut/config.ini').read_text(encoding='utf-8')
-        self.assertRegex(config,r'(?ms)^\[SORTIE\].*^ExportActif=[01]$.*^Dossier=.+$.*^NomFichier=(?:PublicationID|IdentitePublication)$')
+        self.assertRegex(config,r'(?ms)^\[SORTIE\].*^ExportActif=[01]$.*^Dossier=.+$.*^NomFichier=(?:PublicationID|IdentitePublication|IdentiteHorodatage)$')
         sortie=(root/'Src/Prod6/modSortieDragon.bas').read_text(encoding='utf-8-sig')
         self.assertIn('Config("SORTIE", "ExportActif", "")',sortie)
         self.assertIn('Config("SORTIE", "NomFichier", "")',sortie)

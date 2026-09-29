@@ -25,12 +25,42 @@ Public Sub PreparerRelecture(ByVal doc As Document, ByVal source As String, ByVa
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "1"
     doc.Save
     Application.ScreenUpdating = True
-    MsgBox "Le courrier et ses annexes sont prets pour une seule relecture." & vbCrLf & _
-        IIf(Len(message) > 0, "Differences detectees :" & message & vbCrLf, "") & _
-        "Verifiez identite, destinataires, negations, doses et examens. Apres relecture, D transmet directement, sans seconde boite de confirmation.", vbInformation, "Relecture du courrier"
+    doc.Activate
+    AfficherEtatRelecture doc
+End Sub
+
+' Aucun clic de fermeture avant la relecture. Les differences restent conservees
+' dans le brouillon et consultables a la demande depuis le ruban Cabinet.
+Public Sub AfficherEtatRelecture(ByVal doc As Document)
+    Application.StatusBar = vbNullString
+    If doc Is Nothing Then Exit Sub
+    If Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureEnAttente")) <> "1" Then Exit Sub
+    If Len(Trim$(modIntegrationUnifie.VariableDoc(doc, "ControlesRelecture"))) > 0 Then
+        Application.StatusBar = "Points a verifier dans Cabinet > Points de relecture. Relisez le courrier et ses annexes, puis D pour transmettre."
+    Else
+        Application.StatusBar = "Courrier et annexes prets : relisez, puis D pour transmettre."
+    End If
+End Sub
+
+Public Sub ConsulterPointsRelecture()
+    Dim message As String
+    If Documents.Count = 0 Then Exit Sub
+    If Trim$(modIntegrationUnifie.VariableDoc(ActiveDocument, "RelectureEnAttente")) <> "1" Then
+        MsgBox "Aucune relecture preparee pour ce document.", vbInformation, "Points de relecture"
+        Exit Sub
+    End If
+    message = Trim$(modIntegrationUnifie.VariableDoc(ActiveDocument, "ControlesRelecture"))
+    If Len(message) > 0 Then
+        message = "Differences a verifier entre la dictee et le courrier corrige :" & vbCrLf & message
+    Else
+        message = "Aucune difference signalee par les controles automatiques."
+    End If
+    MsgBox message & vbCrLf & vbCrLf & _
+        "Relisez le courrier et ses annexes. D transmet apres votre relecture.", vbInformation, "Points de relecture"
 End Sub
 
 Public Sub InvaliderRelecture(ByVal doc As Document)
+    Application.StatusBar = vbNullString
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureDestinataireID", ""
@@ -75,7 +105,7 @@ End Function
 Public Sub ValiderEtTransmettre(ByVal doc As Document)
     On Error GoTo Echec
     Dim cor As Object, p As Object, sortie As String, revision As String, id As String
-    Dim numero As Long, description As String
+    Dim numero As Long, description As String, transmis As Boolean
     If Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureEnAttente")) <> "1" Then Err.Raise vbObjectError + 1168, , "Preparez puis relisez le courrier avant transmission."
     modIntegrationUnifie.InitialiserPatientProd doc
     id = Trim$(modIntegrationUnifie.VariableDoc(doc, "CorrespondantID"))
@@ -96,10 +126,15 @@ Public Sub ValiderEtTransmettre(ByVal doc As Document)
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "1"
     doc.Save
     modIntegrationUnifie.TransmettreSecretariat doc, sortie
+    transmis = True
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     doc.Save
-    MsgBox "Courrier transmis au secretariat.", vbInformation, "Cabinet"
+    If Not doc.Saved Then Err.Raise vbObjectError + 1169, , "Enregistrement final non confirme."
+    Application.StatusBar = vbNullString
+    ' Le retour de publish confirme la reception. Aucun clic supplementaire.
+    ' Fermer seulement ce courrier, apres sa sauvegarde, sans quitter Word.
+    doc.Close wdDoNotSaveChanges
     Exit Sub
 Echec:
     numero = Err.Number: description = Err.Description
@@ -107,6 +142,7 @@ Echec:
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     doc.Save
     On Error GoTo 0
+    If transmis Then description = "Le secretariat a recu le courrier, mais son enregistrement ou sa fermeture a echoue : " & description
     Err.Raise numero, "ValiderEtTransmettre", description
 End Sub
 

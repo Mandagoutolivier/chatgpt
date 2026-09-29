@@ -21,7 +21,7 @@ from .correspondants import normaliser_indicateurs
 READS = {'table.read', 'record.get', 'attentes', 'reprises', 'publications', 'whoami',
          'correspondent.resolve', 'clinical.compare', 'dictionary.read', 'journal.read', 'nir.validate', 'command.result', 'billing.get', 'stale_arrivals', 'publication.get'}
 SECRETARIAT = {'table.add', 'table.update', 'arrive', 'cancel_arrival', 'bill', 'printed', 'ack', 'payment', 'agenda.status', 'print.request', 'publication.revise'}
-MEDECIN = {'claim', 'release', 'draft', 'publish'}
+MEDECIN = {'claim', 'release', 'draft', 'publish', 'patient.update'}
 SHARED = {'dictionary.add', 'correspondent.save'}
 GENRES = {'PATIENTS', 'CORRESPONDANTS', 'RDV', 'ACTES', 'MEDICAMENTS', 'EXPRESSIONS'}
 PREFIX = {'PATIENTS':'P', 'CORRESPONDANTS':'C', 'RDV':'R', 'ACTES':'A', 'MEDICAMENTS':'M', 'EXPRESSIONS':'E'}
@@ -177,6 +177,15 @@ class Service:
             row = db.execute('SELECT resultat FROM commandes WHERE compte=%s AND id=%s', (actor['identifiant'], p['id'])).fetchone()
             return {'trouve': row is not None, 'resultat': resultat_rejouable(row['resultat']) if row else None}
         if op == 'record.get': return self._record(db,p['genre'],p['id'])
+        if op == 'patient.update':
+            row = self._consultation(db, p['consultation_id'], actor)
+            if row['etat'] not in {'encours', 'publie', 'traite'}:
+                raise Refus('Ouvrez une consultation avant de modifier sa fiche patient.')
+            if p['data'].get('ID') != row['patient_id']:
+                raise Refus('Patient different de celui de la consultation.', 422)
+            # Modification seulement, avec revision obligatoire dans _save.
+            # Aucun droit generique table.update, aucune creation par le medecin.
+            return self._save(db, 'PATIENTS', p['data'], update=True)
         if op in {'table.add','table.update','correspondent.save'}:
             genre='CORRESPONDANTS' if op=='correspondent.save' else p['genre']
             if genre=='CORRESPONDANTS' and op != 'correspondent.save' and 'secretariat' not in actor['roles']: raise Refus('Role requis.',403)

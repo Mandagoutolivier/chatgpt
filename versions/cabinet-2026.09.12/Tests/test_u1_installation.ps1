@@ -37,7 +37,7 @@ if([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT){
         [IO.File]::Copy($cible,$copie,$false);Proteger-FichierLocal $copie
         Exiger ((Get-Acl -LiteralPath $copie).AreAccessRulesProtected) 'sauvegarde fictive protegee'
         [IO.File]::WriteAllText($cible,'FICTIF APRES')
-        $acl=Get-Acl -LiteralPath $cible;$acl.SetAccessRuleProtection($false,$true);Set-Acl -LiteralPath $cible -AclObject $acl
+        $acl=Get-Acl -LiteralPath $cible;$acl.SetAccessRuleProtection($false,$true);[IO.File]::SetAccessControl($cible,$acl)
         Restaurer-FichierAvecDroits ([pscustomobject]@{backup=$copie;destination=$cible;sddl=$sddl})
         Exiger ([IO.File]::ReadAllText($cible) -eq 'FICTIF AVANT') 'octets restaures apres echec simule'
         Exiger ((Get-Acl -LiteralPath $cible).Sddl -eq $sddl) 'droits restaures apres echec simule'

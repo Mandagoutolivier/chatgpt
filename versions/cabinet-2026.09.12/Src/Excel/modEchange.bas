@@ -82,17 +82,112 @@ Public Sub DeplacerVersTraites(ByVal cheminDrapeau As String)
     Dim r As Object
     Set r = modServiceNas.CommandeID("ack", cheminDrapeau)
 End Sub
+' Les archives NAS ne sont jamais ouvertes directement dans une application.
+' Consulter une copie locale controlee ; corriger via modEditionSecretariat.
 Public Sub OuvrirCourrier(ByVal d As Object)
-    Dim chemin As String
-    If d.Exists("CheminPdf") Then chemin = d("CheminPdf")
+    Dim copie As String
+    copie = CopieLectureArchive(d)
+    If LCase$(Right$(copie, 5)) = ".docx" Then
+        OuvrirCopieWordLectureSeule copie
+    Else
+        ThisWorkbook.FollowHyperlink copie
+    End If
+End Sub
+
+Private Function CopieLectureArchive(ByVal d As Object) As String
+    Dim source As String, extension As String, empreinte As String
+    Dim dossier As String, copie As String, re As Object, fso As Object
+    If d Is Nothing Then Err.Raise vbObjectError + 1116, , "Publication absente."
+    extension = "pdf"
     If d.Exists("CheminDocx") Then
-        If modFichiers.FichierExiste(CStr(d("CheminDocx"))) Then chemin = d("CheminDocx")
+        If modFichiers.FichierExiste(CStr(d("CheminDocx"))) Then extension = "docx"
     End If
-    If Len(chemin) = 0 Or Not modFichiers.FichierExiste(chemin) Then
-        MsgBox "Fichier du courrier introuvable.", vbExclamation, "Cabinet"
-        Exit Sub
+    If extension = "docx" Then
+        source = CStr(d("CheminDocx"))
+    ElseIf d.Exists("CheminPdf") Then
+        source = CStr(d("CheminPdf"))
     End If
-    ThisWorkbook.FollowHyperlink chemin
+    If Len(source) = 0 Then Err.Raise vbObjectError + 1116, , "Fichier du courrier introuvable."
+    If Not d.Exists("sha_" & extension) Then Err.Raise vbObjectError + 1116, , "Empreinte de publication absente."
+    empreinte = LCase$(CStr(d("sha_" & extension)))
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^[0-9a-f]{64}$"
+    If Not re.Test(empreinte) Then Err.Raise vbObjectError + 1116, , "Empreinte de publication invalide."
+    If StrComp(source, modConfig.chemin("Documents") & "\" & empreinte & "." & extension, vbTextCompare) <> 0 Then
+        Err.Raise vbObjectError + 1116, , "Fichier hors des archives du cabinet."
+    End If
+    If Not modFichiers.FichierExiste(source) Then Err.Raise vbObjectError + 1116, , "Archive introuvable."
+    If modDonneesTransport.EmpreinteFichierSHA256(source) <> empreinte Then
+        Err.Raise vbObjectError + 1116, , "Archive modifiee : ouverture interrompue."
+    End If
+    dossier = Environ$("LOCALAPPDATA")
+    If Len(dossier) = 0 Then Err.Raise vbObjectError + 1116, , "Dossier local de consultation indisponible."
+    ' Le nom visible est celui du courrier ; l empreinte isole les revisions.
+    dossier = dossier & "\CabinetCardio\LecturesArchives\" & empreinte
+    modFichiers.EnsureDossier dossier
+    ' Les anciennes publications peuvent avoir un horodatage vide ou absent.
+    copie = dossier & "\" & empreinte & "." & extension
+    If d.Exists("DateValidation") And d.Exists("Nom") And d.Exists("Prenom") Then
+        On Error Resume Next
+        copie = dossier & "\" & modFichiers.NomCourrierHorodate(CStr(d("Nom")), CStr(d("Prenom")), CStr(d("DateValidation"))) & "." & extension
+        Err.Clear
+        On Error GoTo 0
+    End If
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(copie) Then fso.CopyFile source, copie, False
+    If modDonneesTransport.EmpreinteFichierSHA256(copie) <> empreinte Then
+        Err.Raise vbObjectError + 1116, , "Copie de consultation modifiee : ouverture interrompue."
+    End If
+    SetAttr copie, GetAttr(copie) Or vbReadOnly
+    CopieLectureArchive = copie
+End Function
+
+Private Sub OuvrirCopieWordLectureSeule(ByVal chemin As String)
+    Dim word As Object, doc As Object, existant As Object
+    Dim securite As Long, liens As Boolean, optionsCapturees As Boolean
+    Dim wordCree As Boolean, docCree As Boolean, numero As Long, description As String
+    On Error Resume Next
+    Set word = GetObject(, "Word.Application")
+    Err.Clear
+    On Error GoTo Echec
+    If word Is Nothing Then
+        Set word = CreateObject("Word.Application")
+        wordCree = True
+    End If
+    For Each existant In word.Documents
+        If StrComp(CStr(existant.FullName), chemin, vbTextCompare) = 0 Then
+            If Not existant.ReadOnly Then Err.Raise vbObjectError + 1116, , "Copie deja ouverte en modification : fermez-la avant de consulter."
+            word.Visible = True
+            existant.Activate
+            Exit Sub
+        End If
+    Next existant
+    securite = word.AutomationSecurity
+    liens = word.Options.UpdateLinksAtOpen
+    optionsCapturees = True
+    word.AutomationSecurity = 3
+    word.Options.UpdateLinksAtOpen = False
+    Set doc = word.Documents.Open(chemin, False, True, False)
+    docCree = True
+    doc.ActiveWindow.View.ReadingLayout = False
+    If Not doc.ReadOnly Then Err.Raise vbObjectError + 1116, , "La consultation en lecture seule a echoue."
+    word.AutomationSecurity = securite
+    word.Options.UpdateLinksAtOpen = liens
+    optionsCapturees = False
+    word.Visible = True
+    doc.Activate
+    Exit Sub
+Echec:
+    numero = Err.Number: description = Err.Description
+    On Error Resume Next
+    If docCree Then doc.Close 0
+    If optionsCapturees Then
+        word.AutomationSecurity = securite
+        word.Options.UpdateLinksAtOpen = liens
+    End If
+    If wordCree Then word.Quit 0
+    On Error GoTo 0
+    Err.Raise numero, "Consultation du courrier", description
 End Sub
 
 ' Publie sur le NAS l'identite minimale d'un patient marque Arrive.

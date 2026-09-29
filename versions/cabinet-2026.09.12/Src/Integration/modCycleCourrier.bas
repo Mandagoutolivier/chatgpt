@@ -64,7 +64,7 @@ Public Sub ExecuterCycleCourrier()
     gTexteAnonymise = source
     If Len(CStr(etat("corps"))) = 0 Then
         modEtatCourrier.AvantAppel docPrincipal, etat, "corps"
-        Set reponse = modOpenAI_v22_corrige.AppelerOpenAIStructure(source, modPrompts.ConstruirePromptReecritureMedicale(""))
+        Set reponse = modOpenAI_v22_corrige.AppelerOpenAIStructure(source, modPrompts.ConstruirePromptReecritureMedicale(""), "corps")
         corpsCorrige = CStr(reponse("corps_courrier"))
         If InStr(1, corpsCorrige, MARQUEUR_PATIENT, vbBinaryCompare) = 0 Then Err.Raise vbObjectError + 960, , "Marqueur patient absent du courrier corrige."
         corpsCorrige = modMiseEnPageFinale.MPF_NormaliserRetoursTexte(corpsCorrige)
@@ -76,7 +76,7 @@ Public Sub ExecuterCycleCourrier()
     If Len(CStr(etat("reponse"))) = 0 Then
         If modPrompts.TexteContientDemandeExamenEligible(source) Then
             modEtatCourrier.AvantAppel docPrincipal, etat, "annexes"
-            Set reponse = modOpenAI_v22_corrige.AppelerOpenAIStructure(corpsCorrige, modPrompts.ConstruirePromptDemandeExamenSeule(""))
+            Set reponse = modOpenAI_v22_corrige.AppelerOpenAIStructure(corpsCorrige, modPrompts.ConstruirePromptDemandeExamenSeule(""), "annexes")
             If reponse("demandes").Count = 0 Then Err.Raise vbObjectError + 436, , "Demande detectee dans la dictee mais aucune annexe recue."
         Else
             Set reponse = modServiceNas.Parametres(): Set reponse("demandes") = New Collection
@@ -118,7 +118,9 @@ Sortie:
     Set mDocumentSource = Nothing: Set gPlageOriginale = Nothing
     gTexteAnonymise = "": gTexteCorrige = "": gReponseAPICabinetTest = ""
     gCorpsCorrigeAnonymiseCabinetTest = "": gCorrectionCabinetTestValidee = False
-    Application.ScreenUpdating = ancienEcran: Application.StatusBar = vbNullString
+    Application.ScreenUpdating = ancienEcran
+    Application.StatusBar = vbNullString
+    If numero = 0 Then modControleCourrier.AfficherEtatRelecture docPrincipal
     modEtatCourrier.LibererVerrou verrou
     mTraitementEnCours = False
     On Error GoTo 0

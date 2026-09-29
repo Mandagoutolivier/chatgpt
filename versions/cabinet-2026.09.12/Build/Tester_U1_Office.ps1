@@ -83,7 +83,7 @@ try{
     $resultPresentation=$word.Run('modRecettePresentationAnnexe.ExecuterPresentationAnnexe')
     Trace-U1 ('Tests presentation annexe : '+[string]$resultPresentation)
     $presentation=Verifier-ResultatRecetteSimple ([string]$resultPresentation) 'Recette presentation annexe' 67
-    if ([int]$presentation.reussis -ne 67) { throw 'Nombre de controles presentation inattendu.' }
+    if ([int]$presentation.reussis -ne 71) { throw 'Nombre de controles presentation inattendu.' }
     $doc.Close([ref]$noSave);$doc=$null
     if ($null -ne $wordUpdateLinksAvant) { $word.Options.UpdateLinksAtOpen=$wordUpdateLinksAvant;$wordUpdateLinksAvant=$null }
     $word.Quit([ref]$noSave);$word=$null

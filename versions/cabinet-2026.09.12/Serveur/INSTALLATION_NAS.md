@@ -71,10 +71,10 @@ Pour une base d'essai, utiliser le partage d'essai, jamais le partage réel. Le 
 [SORTIE]
 ExportActif=0
 Dossier=Sorties
-NomFichier=PublicationID
+NomFichier=IdentiteHorodatage
 ```
 
-Une clé absente ou une valeur inconnue arrête l'initialisation. `ExportActif=1` ne doit être choisi qu'après vérification des droits du dossier. `NomFichier` vaut `PublicationID` ou `IdentitePublication`.
+Une clé absente ou une valeur inconnue arrête l'initialisation. `ExportActif=1` ne doit être choisi qu'après vérification des droits du dossier. `NomFichier=IdentiteHorodatage` produit `Nom Prénom aaaammjjhhmm.docx`, dans un sous-dossier par publication pour éviter les collisions. Les anciens modes `PublicationID` et `IdentitePublication` restent acceptés. Les archives internes du service conservent leur nom fondé sur leur empreinte ; leur copie de lecture au secrétariat porte le nom habituel.
 
 6. Afficher et examiner d'abord la configuration résolue :
 

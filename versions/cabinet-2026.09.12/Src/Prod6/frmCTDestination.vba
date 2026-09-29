@@ -149,4 +149,12 @@ Private Sub CT_RemplirListe( _
 
     Next destination
 
+    ' Une recherche qui ne laisse qu'une fiche doit produire un choix
+    ' visible et directement utilisable. Le controle herite du modele est
+    ' une liste deroulante : sans ListIndex, son grand cadre parait vide
+    ' alors que la ligne est bien chargee dans le menu deroulant.
+    If Len(filtre) > 0 And lstCorrespondants.ListCount = 1 Then
+        lstCorrespondants.ListIndex = 0
+    End If
+
 End Sub

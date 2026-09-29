@@ -78,10 +78,18 @@ Public Sub FermerFileArrivees()
 End Sub
 
 Public Sub DemarrerSelection(ByVal attente As Object)
+    Dim doc As Document
     If Not mActive Or mChargement Then Exit Sub
     If modPowerMicUnifie.Unifie_OperationEnCours() Then Exit Sub
     If attente Is Nothing Then Exit Sub
     ' Aucun choix implicite du premier patient ; uniquement l objet double-clique.
-    modPowerMicUnifie.Unifie_DemarrerConsultation attente
-    ActualiserFileArrivees
+    Set doc = modPowerMicUnifie.Unifie_DemarrerConsultation(attente)
+    If doc Is Nothing Then
+        ActualiserFileArrivees
+    Else
+        FermerFileArrivees
+        doc.Activate
+        Application.Activate
+        modCourrier.AllerDestinataire
+    End If
 End Sub

@@ -28,6 +28,8 @@ Public Function ConstruirePromptReecritureMedicale( _
     AjouterLignePrompt p, "Corrige les erreurs de dictée, d'orthographe, d'accord, de conjugaison, de syntaxe et de ponctuation, sans transformer le courrier en texte académique ou administratif."
     AjouterLignePrompt p, "Ne résume pas, ne simplifie pas excessivement, ne supprime aucune donnée médicale et n'ajoute aucune information absente du texte source."
     AjouterLignePrompt p, "Conserve exactement le marqueur [[PATIENT]] et n'invente jamais de nom, de prénom, d'âge, de diagnostic, de résultat, de traitement ou de destinataire."
+    AjouterLignePrompt p, "Dans cette reecriture du courrier principal, conserve aussi toutes les balises d'identite entre doubles accolades {{...}} presentes dans le texte source, strictement a l'identique et dans leur contexte."
+    AjouterLignePrompt p, "Ne supprime, ne reformule et ne remplace aucune de ces balises, meme si [[PATIENT]] figure ailleurs ; n'invente aucune nouvelle balise."
     AjouterLignePrompt p, "Dans le courrier principal, le confrère destinataire peut être désigné par tu ou vous ; le patient doit rester à la troisième personne : il, elle, le, la, lui, l' ou Monsieur/Madame [[PATIENT]]."
     AjouterLignePrompt p, "Conserve le tutoiement ou le vouvoiement du texte source et son degré de proximité confraternelle."
     AjouterLignePrompt p, "N'utilise ni liste à puces, ni tableau, ni titre visible, ni commentaire avant ou après les blocs demandés."

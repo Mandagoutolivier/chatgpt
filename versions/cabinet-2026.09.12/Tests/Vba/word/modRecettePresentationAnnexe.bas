@@ -324,6 +324,54 @@ Echec:
     Err.Raise numero, "VerifierDoubleRetourFinalPresentation", description
 End Sub
 
+Private Sub VerifierSignatureRepousseeParVides()
+    Dim doc As Document, signature As Long, precedent As Long, i As Long
+    Dim pageAvant As Long, pagePrecedente As Long, paragraphesAvant As Long
+    Dim numero As Long, description As String
+    On Error GoTo Echec
+    Set doc = Documents.Add
+    doc.Content.Text = "Conclusion entierement fictive." & vbCr & _
+        "Je vous remercie de votre confiance." & vbCr & _
+        "Docteur Olivier MANDAGOUT" & vbCr
+    doc.Content.Font.Name = "Times New Roman"
+    doc.Content.Font.Size = 12
+    signature = 3
+    precedent = 2
+
+    ' Ajouter des paragraphes vides jusqu'a reproduire le debordement
+    ' observe en recette sur une page posterieure.
+    For i = 1 To 60
+        doc.Paragraphs(signature).Range.InsertBefore vbCr
+        signature = signature + 1
+        doc.Repaginate
+        pagePrecedente = doc.Paragraphs(precedent).Range.Information( _
+            wdActiveEndAdjustedPageNumber)
+        pageAvant = doc.Paragraphs(signature).Range.Information( _
+            wdActiveEndAdjustedPageNumber)
+        If pageAvant > pagePrecedente And signature - precedent > 2 Then Exit For
+    Next i
+
+    Exiger pageAvant > pagePrecedente, "Fixture : vides repoussent la signature"
+    paragraphesAvant = doc.Paragraphs.Count
+    modMiseEnPageFinale.MPF_SecuriserToutesSignatures doc
+    doc.Repaginate
+
+    ' La correction supprime du texte uniquement dans les paragraphes vides.
+    Exiger doc.Paragraphs.Count < paragraphesAvant, "Vides excedentaires retires"
+    Exiger InStr(1, doc.Content.Text, "Conclusion entierement fictive.", vbBinaryCompare) > 0, _
+        "Texte precedent conserve"
+    Exiger InStr(1, doc.Content.Text, "Docteur Olivier MANDAGOUT", vbBinaryCompare) > 0, _
+        "Signature conservee"
+    doc.Close wdDoNotSaveChanges
+    Exit Sub
+Echec:
+    numero = Err.Number: description = Err.Description
+    On Error Resume Next
+    If Not doc Is Nothing Then doc.Close wdDoNotSaveChanges
+    On Error GoTo 0
+    Err.Raise numero, "VerifierSignatureRepousseeParVides", description
+End Sub
+
 Private Sub VerifierRefus(ByVal cas As String, ByVal message As String)
     Dim doc As Document, zone As Range, avant As String
     Dim refus As Long, details As String, numero As Long, description As String
@@ -370,6 +418,7 @@ Public Function ExecuterPresentationAnnexe() As String
     VerifierHistorique
     VerifierFinDuCycle
     VerifierDoubleRetourFinal
+    VerifierSignatureRepousseeParVides
     VerifierRefus "sans-corps", "CORPS absent"
     VerifierRefus "sans-style", "CabinetCorpsU2 absent"
     VerifierRefus "profil-inconnu", "inconnu"

@@ -177,14 +177,23 @@ def rebase_json(value, old_unc, new_unc, key=''):
     return value
 
 
-def reject_old_paths(value, old_unc):
+def reject_old_paths(value, old_unc, new_unc=None):
     if isinstance(value, dict):
         for child in value.values():
-            reject_old_paths(child, old_unc)
+            reject_old_paths(child, old_unc, new_unc)
     elif isinstance(value, list):
         for child in value:
-            reject_old_paths(child, old_unc)
+            reject_old_paths(child, old_unc, new_unc)
     elif isinstance(value, str):
+        # Une cible de recette peut etre un sous-dossier du partage source.
+        # Un chemin deja rebase sous cette cible n'est pas un ancien chemin.
+        # relative_unc refuse aussi les sorties par '..' et les faux prefixes.
+        if new_unc:
+            try:
+                relative_unc(value, new_unc)
+                return
+            except ValueError:
+                pass
         require(not value.lower().startswith(old_unc.rstrip('\\').lower()+'\\'),
                 'Ancien chemin restant dans un champ non prevu : intervention explicite requise.')
 
@@ -197,7 +206,7 @@ def rebase_database(db, old_unc, new_unc):
         rows = db.execute(sql.SQL('SELECT {} FROM {}').format(columns, sql.Identifier(table))).fetchall()
         for row in rows:
             updated = rebase_json(row[column], old_unc, new_unc)
-            reject_old_paths(updated, old_unc)
+            reject_old_paths(updated, old_unc, new_unc)
             if updated != row[column]:
                 condition = sql.SQL(' AND ').join(sql.SQL('{}=%s').format(sql.Identifier(k)) for k in keys)
                 db.execute(sql.SQL('UPDATE {} SET {}=%s WHERE {}').format(
