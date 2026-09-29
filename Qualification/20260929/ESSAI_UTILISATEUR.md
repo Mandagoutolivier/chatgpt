@@ -155,3 +155,34 @@ Ne pas installer une fiche présentée comme modifiable tant que cette opératio
 n'est pas déployée et essayée avec les rôles réels. L'affichage du formulaire,
 la sélection réelle avec fermeture de la liste et un aller-retour de modification
 de fiche fictive restent à valider ensemble après cette mise à jour.
+
+### Accès SSH confirmé et mise à jour préparée
+
+- Capture utilisateur du 29 septembre à 19 h 11 : connexion SSH interactive
+  `Mandagout@DS224`, `hostname`, `whoami`, `sudo -v` et `sudo docker ps`
+  réussis. L'API U2 utilise bien `127.0.0.1:8766`, l'autre projet `8765`.
+  L'échec du client SSH lancé par l'agent n'est donc pas un défaut d'accès NAS.
+- `MettreAJour-ServiceEssai.py` prépare uniquement `patient.update` sur U2.
+  Le dossier actif est déduit des labels Docker, pas du chemin générique du
+  guide. Contrôles des ports, volumes, rôle du conteneur, configuration et
+  concordance des sources sur disque et dans l'image avant modification.
+- Archive GitHub 06506de : SHA-256
+  `2a3c05875a0cbc6dee71e68019fed2561366e0defe4d41b9f8356834aff17707`.
+  Seuls `contract.py` et `service.py` changent côté serveur. L'image est
+  reconstruite depuis l'image locale vérifiée, sans téléchargement, puis
+  comparée aux sources qualifiées. Les sources sur disque sont aussi mises
+  à jour pour conserver la reproductibilité des constructions ultérieures.
+- Conservation privée de l'image précédente, des deux sources remplacées
+  et d'un dump PostgreSQL ; ce dump seul n'est pas une sauvegarde complète
+  base et documents. Redémarrage de la seule API avec `--no-deps`, contrôle
+  de santé et du code actif, puis vérification des autres conteneurs.
+  Retour automatique de code et d'image en cas d'échec après modification.
+- Syntaxe Python contrôlée, refus hors DS224 vérifié. Quatre simulations
+  locales avec commandes Docker substituées : contrôle seul, succès,
+  image candidate non conforme (arrêt avant modification), échec du
+  redémarrage (restauration des sources et de l'image) : réussies.
+  Ces simulations ne remplacent pas l'exécution réelle sur le NAS.
+- Sans argument, le script ne fait que les contrôles. `--appliquer` exécute
+  la mise à jour. Aucune lecture de jeton, migration, installation Office ni
+  validation clinique n'est effectuée par ce script. Le résultat NAS et
+  les essais authentifiés des deux postes restent à obtenir.
