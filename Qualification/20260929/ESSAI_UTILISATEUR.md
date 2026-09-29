@@ -126,3 +126,32 @@ Ajout de tests PostgreSQL (rôles, propriété de consultation, révisions,
 idempotence, données invalides et archives) et de 7 contrôles VBA d'identité.
 Compilation Office, contrôle visuel du formulaire et déploiement du service
 `patient.update` nécessaires avant activation du bouton sur les postes.
+
+### Qualification exécutée à 18 h 57–58 (heure de Paris)
+
+Source produit : `06506de063c76cc6811da46b5c503e5b549fc571` (GitHub).
+
+- Sur AX8MAX, fermeture de l'instance Word vide uniquement, après vérification
+  qu'aucun document ni modification de Normal n'était en attente.
+- Compilation VBA réelle et recette isolée réussies : 415 contrôles Office
+  (50 + 52 + 88 + 56 + 67 + 74 + 17 + 11). Aucun accès au NAS ni impression
+  pendant cette recette ; paramètres Office et Normal restaurés.
+- Construction séparée des binaires sans modules de recette, compilation,
+  réouverture et concordance avec les sources réussies : Word 60 composants,
+  Excel 27 composants. Constructeur reproductible : `Construire-Correctifs.ps1`.
+- GitHub Actions [36601330164](https://github.com/Mandagoutolivier/chatgpt/actions/runs/36601330164)
+  réussi : 238 tests serveur PostgreSQL, 5 tests d'interruption, contrôles
+  statiques, construction et restauration. Une attente de compteur VBA restée
+  à 36 dans un test serveur a été actualisée à 52 avec les nouveaux contrôles.
+- SHA-256 Word : `C8DC1F1EF7040FC6DCBAEC3DE553C5BFC64CDD38153846529C1FDC2BE21A8A67`.
+- SHA-256 Excel : `5293E7E3D9AB416BDCCE5680F22B9F044F17540879BF3594993FA3476926DC79`.
+- Binaires et rapports copiés avec vérification d'empreinte dans
+  `\\DS224\CabinetCardioTestU2\Patients\_Qualification20260929\CorrectifsFichePatient-06506de`.
+
+**Pas encore installés.** L'accès SSH non interactif essayé depuis le profil
+RDC de recette vers `Mandagout@DS224` retourne 255 sans diagnostic ; le partage
+SMB reste accessible. Le service de recette n'a donc pas reçu `patient.update`.
+Ne pas installer une fiche présentée comme modifiable tant que cette opération
+n'est pas déployée et essayée avec les rôles réels. L'affichage du formulaire,
+la sélection réelle avec fermeture de la liste et un aller-retour de modification
+de fiche fictive restent à valider ensemble après cette mise à jour.
