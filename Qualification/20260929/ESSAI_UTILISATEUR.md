@@ -211,3 +211,54 @@ de fiche fictive restent à valider ensemble après cette mise à jour.
   médecin strict, protocole 2, schéma 2 et révision U2c.
 - Simulations supplémentaires : mise à jour et retour arrière depuis
   7e3a6a0. L'installation effective reste à confirmer par le résultat NAS.
+
+### Installation d'essai effective et vérifications du 29 septembre au soir
+
+Les points « pas encore installés » ci-dessus décrivent les étapes antérieures.
+Les correctifs produit 06506de sont maintenant installés **uniquement dans
+l'environnement d'essai**.
+
+- NAS : résultat `SUCCESS` à **19 h 27 min 18 s, heure de Paris**. Sources
+  précédentes reconnues intégralement comme 7e3a6a0 ; code actif comparé à
+  06506de après reconstruction et redémarrage de la seule API U2. Autres
+  conteneurs et configuration Compose inchangés.
+  Sauvegarde : `/volume1/docker/cabinetcardio-test-u2/sauvegardes/avant-fiche-patient-20260929T172636Z`.
+  Image active : `sha256:9c90c5cb2beb77c0e478317ce7e7e2a2be67ef44c2fc4d46acb3422893180b62`.
+- Authentification HTTPS réelle des deux profils : HTTP 200, rôles médecin
+  et secrétariat strictement séparés, protocole 2, schéma 2, révision U2c.
+- Essai de `patient.update` sur **PESSAI2909A / TESTCOURRIER Camille**, via
+  sa consultation publiée `consult-RESSAI2909A` : modification temporaire
+  du téléphone par le médecin, visible depuis RDC. Rejeu de la même commande
+  sans double révision. Appel de cette opération avec le compte secrétariat
+  refusé en HTTP 403, sans modification. Téléphone initial ensuite restauré
+  par le médecin, restauration relue sur RDC ; révision finale 3.
+  Les empreintes des archives DOCX et PDF de la publication restent exactes.
+- Installation des binaires déjà compilés via `Installer-CorrectifsEssai.ps1` :
+  **AX8_MAX à 19 h 32** et **RDC à 19 h 33**. Anciens binaires et reçus
+  conservés dans `U2Q29/AvantCorrectifs-*`, reçu actualisé avec les empreintes
+  06506de. Normal, configuration, lanceurs, raccourcis et confiance Office
+  vérifiés inchangés. Word était sans document ; le classeur Excel ouvert a
+  été conservé en copie avant fermeture, y compris son état non enregistré.
+- Contrôle de démarrage réel depuis les deux nouvelles applications :
+  connexion VBA au NAS réussie, Word charge le nouveau modèle, Excel ouvre
+  le nouveau classeur en écriture et affiche toujours deux courriers en
+  attente. Les deux applications ont ensuite été relancées pour l'utilisateur.
+- Vérification du bouton **Cabinet → Fiche patient** dans le ruban Word :
+  bouton visible et actif, clic réel ouvrant le formulaire du patient fictif.
+  Contrôle visuel du formulaire : identité, coordonnées, notes, médecin
+  traitant, boutons Enregistrer/Fermer lisibles. Essai fait sur une copie
+  locale du courrier fictif ; fermeture sans édition, puis fermeture de
+  cette seule copie. Word revient à la liste des arrivées.
+- Preuves sur le partage d'essai, dans `CorrectifsFichePatient-06506de` :
+  `mise-a-jour-20260929T172636Z.json`, `installation-AX8_MAX.json`,
+  `installation-RDC.json`, `verification-patient-api.json` et
+  `verification-fiche-word.json`.
+
+Restent à essayer avec l'utilisateur : sélection réelle d'une arrivée avec
+fermeture automatique et position du curseur ; saisie et enregistrement
+depuis le formulaire ; parcours complet Dragon/PowerMic, relecture,
+transmission sans fenêtre finale, nom horodaté et fermeture du courrier,
+puis traitement secrétariat. Ces comportements sont présents dans les
+binaires compilés ; leur parcours interactif complet avec cette version
+n'est pas encore validé. Pas d'activation clinique ni de facturation/impression
+effectuée par ces vérifications.
