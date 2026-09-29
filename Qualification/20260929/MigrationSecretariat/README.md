@@ -24,9 +24,12 @@
 3. Ouvrir `RDC\PATRICIA`, inventorier son profil et sauvegarder son état.
 4. Comparer applications, licences, messagerie, raccourcis, lecteurs réseau,
    imprimantes, scanner et réglages métier.
-5. Copier seulement les éléments nécessaires, puis effectuer la bascule
+5. Sauvegarder puis reproduire le Bureau d'ACCUEIL : tous les éléments et
+   raccourcis, leurs icônes, ainsi que leur disposition lorsque la résolution
+   et la mise à l'échelle de RDC sont compatibles.
+6. Copier seulement les autres éléments nécessaires, puis effectuer la bascule
    après arrêt des écritures sur ACCUEIL.
-6. Conserver ACCUEIL intact et disponible comme retour arrière jusqu'à la
+7. Conserver ACCUEIL intact et disponible comme retour arrière jusqu'à la
    validation des tâches quotidiennes.
 
 Le profil `RDC\CabinetU2Test` et le partage `CabinetCardioTestU2` restent

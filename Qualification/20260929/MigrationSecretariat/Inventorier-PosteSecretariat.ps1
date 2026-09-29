@@ -62,9 +62,52 @@ $outlook = Join-Path $env:LOCALAPPDATA 'Microsoft\Outlook'
 $thunderbird = Join-Path $env:APPDATA 'Thunderbird'
 $firefox = Join-Path $env:APPDATA 'Mozilla\Firefox'
 $chrome = Join-Path $env:LOCALAPPDATA 'Google\Chrome\User Data'
+$bureauUtilisateur = [Environment]::GetFolderPath('Desktop')
+$bureauPublic = [Environment]::GetFolderPath('CommonDesktopDirectory')
+
+function Resumer-Bureau([string]$Nom, [string]$Chemin) {
+    $items = @()
+    if (Test-Path -LiteralPath $Chemin) {
+        $items = @(Get-ChildItem -LiteralPath $Chemin -Force -ErrorAction SilentlyContinue)
+    }
+    [pscustomobject]@{
+        Nom = $Nom
+        Chemin = $Chemin
+        Existe = (Test-Path -LiteralPath $Chemin)
+        Elements = $items.Count
+        Raccourcis = @($items | Where-Object Extension -eq '.lnk').Count
+        Dossiers = @($items | Where-Object PSIsContainer).Count
+        Extensions = @($items | Where-Object { -not $_.PSIsContainer } |
+            Group-Object Extension | Sort-Object Count -Descending |
+            Select-Object @{n='Extension';e={ if ($_.Name) { $_.Name } else { '[sans extension]' } }}, Count)
+    }
+}
+
+$clesDisposition = @(
+    [pscustomobject]@{
+        Reg = 'HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop'
+        PSPath = 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Bags\1\Desktop'
+    },
+    [pscustomobject]@{
+        Reg = 'HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\1\Desktop'
+        PSPath = 'Registry::HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\1\Desktop'
+    }
+)
+$exportsDisposition = @()
+for ($i = 0; $i -lt $clesDisposition.Count; $i++) {
+    $fichierReg = Join-Path $DossierRapport ('disposition-bureau-' + ($i + 1) + '.reg')
+    if (Test-Path -LiteralPath $clesDisposition[$i].PSPath) {
+        & reg.exe export $clesDisposition[$i].Reg $fichierReg /y *> $null
+        $exportsDisposition += [pscustomobject]@{
+            Cle = $clesDisposition[$i].Reg
+            Fichier = $fichierReg
+            SHA256 = (Get-FileHash -LiteralPath $fichierReg -Algorithm SHA256).Hash
+        }
+    }
+}
 
 $emplacements = @(
-    Mesurer-Dossier 'Bureau utilisateur' ([Environment]::GetFolderPath('Desktop'))
+    Mesurer-Dossier 'Bureau utilisateur' $bureauUtilisateur
     Mesurer-Dossier 'Documents utilisateur' ([Environment]::GetFolderPath('MyDocuments'))
     Mesurer-Dossier 'Word STARTUP' $startupWord
     Mesurer-Dossier 'Excel XLSTART' $xlstart
@@ -110,6 +153,17 @@ $rapport = [ordered]@{
     Partages = $partages
     ServicesSauvegarde = $servicesSauvegarde
     EmplacementsUtilisateur = $emplacements
+    Bureau = [ordered]@{
+        Contenu = @(
+            Resumer-Bureau 'Bureau utilisateur' $bureauUtilisateur
+            Resumer-Bureau 'Bureau public' $bureauPublic
+        )
+        Affichage = @(Get-CimInstance Win32_VideoController -ErrorAction SilentlyContinue |
+            Select-Object Name, CurrentHorizontalResolution, CurrentVerticalResolution, CurrentRefreshRate)
+        MiseAEchelleDPI = (Get-ItemProperty 'HKCU:\Control Panel\Desktop\WindowMetrics' `
+            -Name AppliedDPI -ErrorAction SilentlyContinue).AppliedDPI
+        ExportsDisposition = $exportsDisposition
+    }
     Exclusions = @('aucun mot de passe','aucun jeton','aucun nom de fichier patient','aucune copie de donnees')
 }
 
