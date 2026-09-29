@@ -168,11 +168,13 @@ de fiche fictive restent à valider ensemble après cette mise à jour.
   concordance des sources sur disque et dans l'image avant modification.
 - Archive GitHub 06506de : SHA-256
   `2a3c05875a0cbc6dee71e68019fed2561366e0defe4d41b9f8356834aff17707`.
-  Seuls `contract.py` et `service.py` changent côté serveur. L'image est
+  Par rapport à b40e7d9, seuls `contract.py` et `service.py` changent côté
+  serveur ; depuis 7e3a6a0, le correctif `recovery.py` est aussi nécessaire.
+  L'image est
   reconstruite depuis l'image locale vérifiée, sans téléchargement, puis
   comparée aux sources qualifiées. Les sources sur disque sont aussi mises
   à jour pour conserver la reproductibilité des constructions ultérieures.
-- Conservation privée de l'image précédente, des deux sources remplacées
+- Conservation privée de l'image précédente, des sources remplacées
   et d'un dump PostgreSQL ; ce dump seul n'est pas une sauvegarde complète
   base et documents. Redémarrage de la seule API avec `--no-deps`, contrôle
   de santé et du code actif, puis vérification des autres conteneurs.
@@ -186,3 +188,26 @@ de fiche fictive restent à valider ensemble après cette mise à jour.
   la mise à jour. Aucune lecture de jeton, migration, installation Office ni
   validation clinique n'est effectuée par ce script. Le résultat NAS et
   les essais authentifiés des deux postes restent à obtenir.
+
+### Arrêt au contrôle de version et correction de la procédure
+
+- À 19 h 23, l'utilisateur rapporte `Code deploye different des versions
+  qualifiees`. Ce contrôle précède les sauvegardes, modifications de code,
+  construction et redémarrage : cette tentative n'a pas appliqué la mise à jour.
+- L'ancien rapport NAS `compare-server.json` et son script comparaient le
+  conteneur à **7e3a6a0**, avec seulement une différence de BOM/fins de ligne
+  dans `schema.sql`, normalisée à l'identique. La procédure supposait à tort
+  la présence de **b40e7d9**, alors que le correctif intermédiaire de
+  `recovery.py` avait été qualifié dans une copie séparée. Cela explique un
+  écart possible ; la version courante devra encore être reconnue par ses
+  empreintes lors de la nouvelle exécution.
+- Le script accepte désormais les trois ensembles complets et exacts de
+  sources 7e3a6a0, b40e7d9 et 06506de. Il ne tolère pas des écarts fichier par
+  fichier hors de ces ensembles. Il remplace et sauvegarde aussi `recovery.py`.
+  Toute autre différence provoque toujours un arrêt avant modification,
+  avec un rapport des empreintes `diagnostic-code.json` sans jeton ni données
+  patient.
+- Contrôle authentifié depuis AX8_MAX après cet arrêt : HTTP 200, rôle
+  médecin strict, protocole 2, schéma 2 et révision U2c.
+- Simulations supplémentaires : mise à jour et retour arrière depuis
+  7e3a6a0. L'installation effective reste à confirmer par le résultat NAS.

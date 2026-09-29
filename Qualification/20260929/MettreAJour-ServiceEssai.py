@@ -24,11 +24,12 @@ DB = PROJECT + '-db-1'
 BASE = Path('/volume1/docker') / PROJECT
 SHARE = Path('/volume1/CabinetCardioTestU2/Patients/_Qualification20260929')
 PACKAGE = SHARE / 'CorrectifsFichePatient-06506de'
-CHANGED = ('contract.py', 'service.py')
+CHANGED = ('contract.py', 'service.py', 'recovery.py')
 OLD = {
     'contract.py': '6b07e2277cd85819ea0a0ee6e943cc97cc5cb9191acfc99c73c218917a9151d5',
     'service.py': '38ac38c5e13f0c1e876caaf12596758155c9dd8b3e5de120f8fffc32977ce726',
 }
+RECOVERY_7E3 = 'd9b65b5bd4015cf6ce4b06b3968260249598d4a9fd695291d9959f4d81c185c6'
 
 
 def require(condition, message):
@@ -185,16 +186,37 @@ def main(apply):
     expected_new = {n: normalized(data) for n, data in payload.items()}
     expected_old = dict(expected_new)
     expected_old.update({'Serveur/cabinet/' + n: h for n, h in OLD.items()})
+    # Le controle NAS du 29/09 portait sur 7e3a6a0. Le correctif recovery
+    # d'a152465/b40e7d9 a ete qualifie ensuite dans la copie de restauration,
+    # sans que cela prouve son installation dans l'API courante.
+    expected_7e3 = dict(expected_old)
+    expected_7e3['Serveur/cabinet/recovery.py'] = RECOVERY_7E3
     paths = {n: '/opt/cabinet/' + ('Serveur/requirements.txt' if
              n == 'Serveur/requirements-runtime.txt' else n) for n in payload}
     actual = runtime_hashes(['docker', 'exec', API], list(paths.values()))
     deployed = {n: actual[p] for n, p in paths.items()}
-    require(deployed in (expected_old, expected_new), 'Code deploye different des versions qualifiees')
+    known = {'7e3a6a0': expected_7e3, 'b40e7d9': expected_old, '06506de': expected_new}
+    source_before = next((name for name, hashes in known.items() if deployed == hashes), None)
+    if source_before is None:
+        diagnostic = {'statut': 'ARRET_AVANT_MODIFICATION', 'image': api['Image'],
+                      'dossier': str(server), 'fichiers': []}
+        for n in sorted(payload):
+            local = server.parent / n
+            disk_hash = normalized(local.read_bytes()) if local.is_file() and local.resolve() == local else None
+            entry = {'fichier': n, 'actif': deployed[n], 'disque': disk_hash,
+                     'attendus': {name: hashes[n] for name, hashes in known.items()}}
+            diagnostic['fichiers'].append(entry)
+            if deployed[n] not in set(entry['attendus'].values()):
+                print('ECART_CODE : ' + n, flush=True)
+        dest = PACKAGE / 'diagnostic-code.json'
+        dest.write_text(json.dumps(diagnostic, indent=2))
+        dest.chmod(0o644)
+        raise RuntimeError('Code deploye different des versions qualifiees ; diagnostic-code.json cree')
     for n in payload:
         path = server.parent / n
         require(path.is_file() and path.resolve() == path, 'Source locale manquante ou non canonique : ' + n)
         require(normalized(path.read_bytes()) == deployed[n], 'Source disque et image divergentes : ' + n)
-    print('CONTROLES_U2_OK ; dossier=' + str(server), flush=True)
+    print('CONTROLES_U2_OK ; source=' + source_before + ' ; dossier=' + str(server), flush=True)
     if deployed == expected_new:
         print('DEJA_A_JOUR_06506de ; verifier maintenant les connexions des postes', flush=True)
         return
@@ -207,7 +229,7 @@ def main(apply):
     require(backup.parent.resolve() == backup.parent, 'Sauvegardes hors chemin attendu')
     backup.mkdir(mode=0o700)
     private_log = backup / 'construction.log'
-    report = {'source': COMMIT, 'statut': 'EN_COURS', 'sauvegarde': str(backup),
+    report = {'source': COMMIT, 'source_avant': source_before, 'statut': 'EN_COURS', 'sauvegarde': str(backup),
               'api': API, 'source_installee': False, 'validation_postes': False}
     changed_disk = False
     tagged_new = False
@@ -242,7 +264,7 @@ def main(apply):
                 'Utilisateur image inattendu')
         (build / 'Dockerfile').write_text(
             'FROM ' + old_tag + '\nUSER root\n'
-            'COPY --chown=0:0 contract.py service.py /opt/cabinet/Serveur/cabinet/\n'
+            'COPY --chown=0:0 contract.py service.py recovery.py /opt/cabinet/Serveur/cabinet/\n'
             'USER ' + image_user + '\nLABEL cabinet.source="' + COMMIT + '"\n')
         print('CONSTRUCTION_API_U2 ; le service actuel reste disponible', flush=True)
         with private_log.open('wb') as output:
