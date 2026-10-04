@@ -643,3 +643,4 @@ Private Function ContientAnneeQuatreChiffres(ByVal s As String) As Boolean
     Next i
 
 End Function
+
