@@ -1,7 +1,8 @@
 Attribute VB_Name = "modControleCourrier"
 Option Explicit
 
-' Correction et validation humaine sont distinctes. Aucun envoi dans cette procedure.
+' Le medecin relit le dicte avant D. Les ecarts cliniques detectes apres
+' correction bloquent l envoi automatique.
 Public Sub PreparerRelecture(ByVal doc As Document, ByVal source As String, ByVal resultat As String)
     Dim p As Object, r As Object, difference As Object, message As String
     Dim cor As Object, valeur As Variant
@@ -13,21 +14,25 @@ Public Sub PreparerRelecture(ByVal doc As Document, ByVal source As String, ByVa
         For Each valeur In difference("retires"): message = message & " [retire: " & CStr(valeur) & "]": Next valeur
         For Each valeur In difference("ajoutes"): message = message & " [ajoute: " & CStr(valeur) & "]": Next valeur
     Next difference
+    If Len(message) > 0 Then
+        modIntegrationUnifie.FixerVariable doc, "ControlesRelecture", message
+        doc.Save
+        Err.Raise vbObjectError + 1169, , "La correction a modifie des donnees cliniques :" & message & vbCrLf & "Aucun envoi. Le brouillon reste ouvert pour verification."
+    End If
     Set cor = AssurerDestinataire(doc)
     If cor Is Nothing Then Exit Sub
-    ' Le bloc definitif est visible AVANT la relecture, jamais remplace apres elle.
-    modCourrier.RemplirSignet doc, "DESTINATAIRE", CStr(cor("BlocDestinataire"))
-    modCourrier.MettreEnFormeDestinataire doc
+    ' Le bloc AutoTexte Dragon est deja l'adresse structuree definitive.
+    ' Il est conserve tel quel et verifie automatiquement avant transmission.
+    If Not modCourrier.DestinataireCorrespondantConforme(doc, cor) Then _
+        Err.Raise vbObjectError + 1168, , "Le bloc destinataire dicte ne correspond pas au correspondant selectionne."
+    modCourrier.ReancrerSignetsDestinataire doc
     modIntegrationUnifie.FixerVariable doc, "RelectureDestinataireID", CStr(cor("ID"))
     modIntegrationUnifie.FixerVariable doc, "RelectureAdresseSource", modServiceNas.SHA256(CStr(cor("BlocDestinataire")))
-    modIntegrationUnifie.FixerVariable doc, "RelectureAdresseDocument", modServiceNas.SHA256(doc.Bookmarks("DESTINATAIRE").Range.Text)
+    modIntegrationUnifie.FixerVariable doc, "RelectureAdresseDocument", modServiceNas.SHA256(modCourrier.BlocDestinataireDicte(doc))
     modIntegrationUnifie.FixerVariable doc, "ControlesRelecture", message
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "1"
     doc.Save
     Application.ScreenUpdating = True
-    MsgBox "Le courrier et ses annexes sont prets pour une seule relecture." & vbCrLf & _
-        IIf(Len(message) > 0, "Differences detectees :" & message & vbCrLf, "") & _
-        "Verifiez identite, destinataires, negations, doses et examens. Apres relecture, D transmet directement, sans seconde boite de confirmation.", vbInformation, "Relecture du courrier"
 End Sub
 
 Public Sub InvaliderRelecture(ByVal doc As Document)
@@ -39,21 +44,15 @@ Public Sub InvaliderRelecture(ByVal doc As Document)
 End Sub
 
 Public Function AssurerDestinataire(ByVal doc As Document) As Object
-    Dim cor As Object, id As String, f As ufListe, recherche As String, p As Object
+    Dim cor As Object, id As String, p As Object
     id = Trim$(modIntegrationUnifie.VariableDoc(doc, "CorrespondantID"))
     If Len(id) = 0 Then
-        recherche = Trim$(InputBox("Nom du destinataire principal dicte (selection d un identifiant stable) :", "Destinataire"))
-        If Len(recherche) < 2 Then Exit Function
-        Set f = New ufListe
-        f.Configurer "Confirmer le destinataire", modServiceNas.LireTable("CORRESPONDANTS", recherche), Array("Nom", "Prenom", "Adresse1", "Ville"), "110 pt;90 pt;180 pt;100 pt"
-        f.Show vbModal
-        If Not f.Annule Then Set cor = f.Resultat
-        Unload f
-        If cor Is Nothing Then Exit Function
-        id = CStr(cor("ID"))
+        id = modCourrier.AssocierDestinataireDicte(doc)
+        If Len(id) = 0 Then Exit Function
     End If
     Set p = modServiceNas.Parametres(): p("id") = id
     Set cor = modServiceNas.Appeler("correspondent.resolve", p)
+    If Not modCourrier.DestinataireCorrespondantConforme(doc, cor) Then Err.Raise vbObjectError + 1168, , "Adresse destinataire absente de la liste Dragon validee. Le brouillon est conserve."
     modIntegrationUnifie.FixerVariable doc, "CorrespondantID", CStr(cor("ID"))
     Set AssurerDestinataire = cor
 End Function
@@ -61,17 +60,17 @@ End Function
 Public Function DestinataireRelectureConforme(ByVal doc As Document, ByVal cor As Object) As Boolean
     Dim id As String
     If cor Is Nothing Then Exit Function
-    If Not doc.Bookmarks.Exists("DESTINATAIRE") Then Exit Function
     id = Trim$(modIntegrationUnifie.VariableDoc(doc, "CorrespondantID"))
     If Len(id) = 0 Then Exit Function
     If id <> Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureDestinataireID")) Then Exit Function
     If id <> CStr(cor("ID")) Then Exit Function
     If modServiceNas.SHA256(CStr(cor("BlocDestinataire"))) <> Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureAdresseSource")) Then Exit Function
-    If modServiceNas.SHA256(doc.Bookmarks("DESTINATAIRE").Range.Text) <> Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureAdresseDocument")) Then Exit Function
+    If Not modCourrier.DestinataireCorrespondantConforme(doc, cor) Then Exit Function
+    If modServiceNas.SHA256(modCourrier.BlocDestinataireDicte(doc)) <> Trim$(modIntegrationUnifie.VariableDoc(doc, "RelectureAdresseDocument")) Then Exit Function
     DestinataireRelectureConforme = True
 End Function
 
-' Le geste explicite D apres relecture est la validation unique ; pas de Oui/Non redondant.
+' Le geste D suit la relecture du dicte et transmet apres correction conforme.
 Public Sub ValiderEtTransmettre(ByVal doc As Document)
     On Error GoTo Echec
     Dim cor As Object, p As Object, sortie As String, revision As String, id As String
@@ -99,7 +98,10 @@ Public Sub ValiderEtTransmettre(ByVal doc As Document)
     modIntegrationUnifie.FixerVariable doc, "RelectureEnAttente", "0"
     modIntegrationUnifie.FixerVariable doc, "RelectureValidee", "0"
     doc.Save
-    MsgBox "Courrier transmis au secretariat.", vbInformation, "Cabinet"
+    doc.Close SaveChanges:=wdDoNotSaveChanges
+    Application.StatusBar = "Courrier transmis au secretariat et ferme."
+    ' Le prochain patient arrive redevient visible sans touche supplementaire.
+    modFileArrivees.Unifie_AfficherFileArrivees
     Exit Sub
 Echec:
     numero = Err.Number: description = Err.Description
