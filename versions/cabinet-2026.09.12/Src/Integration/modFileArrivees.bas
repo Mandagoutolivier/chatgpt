@@ -22,10 +22,17 @@ Public Sub DemarrerFileAuChargement()
     Dim profil As String
     On Error GoTo Sortie
     profil = LCase$(modConfig.Config("POSTE", "Profil", ""))
-    If profil <> "domicile" And profil <> "cabinet" And profil <> "medecin" Then Exit Sub
+    If Not ProfilMedecinFile(profil) Then Exit Sub
     If modConfig.ConfigNum("FILE_ARRIVEES", "AfficherAuDemarrage", 1) = 1 Then Unifie_AfficherFileArrivees
 Sortie:
 End Sub
+
+Public Function ProfilMedecinFile(ByVal profil As String) As Boolean
+    Select Case LCase$(Trim$(profil))
+        Case "domicile", "cabinet", "medecin", "cabinetmedecin"
+            ProfilMedecinFile = True
+    End Select
+End Function
 
 Public Sub ActualiserFileArrivees()
     If Not mActive Or mChargement Then Exit Sub
@@ -82,6 +89,10 @@ Public Sub DemarrerSelection(ByVal attente As Object)
     If modPowerMicUnifie.Unifie_OperationEnCours() Then Exit Sub
     If attente Is Nothing Then Exit Sub
     ' Aucun choix implicite du premier patient ; uniquement l objet double-clique.
-    modPowerMicUnifie.Unifie_DemarrerConsultation attente
-    ActualiserFileArrivees
+    If modPowerMicUnifie.Unifie_DemarrerConsultation(attente) Then
+        SuspendreFileArrivees
+        mFenetre.Hide
+    Else
+        ActualiserFileArrivees
+    End If
 End Sub
