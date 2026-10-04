@@ -42,6 +42,25 @@ Public Function PatientVerifie(ByVal doc As Document) As Object
     Set PatientVerifie = pat
 End Function
 
+' Identite deja verifiee lors de la creation du brouillon. Cette lecture
+' locale permet a la touche C appelee par Dragon de ne faire aucun appel
+' reseau ; D relit toujours la base avant correction et transmission.
+Public Function PatientMemorise(ByVal doc As Document) As Object
+    Dim pat As Object, k As Variant, valeur As String
+    If Len(Trim$(VariableDoc(doc, "PatientID"))) = 0 Then Err.Raise vbObjectError + 957, "modIntegrationUnifie", "Ce courrier n est pas rattache a un patient."
+    If Len(Trim$(VariableDoc(doc, "ConsultationID"))) = 0 Then Err.Raise vbObjectError + 957, "modIntegrationUnifie", "Consultation NAS absente."
+    Set pat = CreateObject("Scripting.Dictionary")
+    For Each k In Array("Nom", "Prenom", "DDN", "Sexe")
+        valeur = Trim$(VariableDoc(doc, "Patient_" & CStr(k)))
+        If Len(valeur) = 0 Then Err.Raise vbObjectError + 957, "modIntegrationUnifie", "Identite patient memorisee incomplete : " & CStr(k)
+        pat(CStr(k)) = valeur
+    Next k
+    If Not modTexte.DateFrValide(CStr(pat("DDN"))) Then Err.Raise vbObjectError + 957, "modIntegrationUnifie", "Date de naissance memorisee invalide."
+    If modTexte.DateFr(CStr(pat("DDN"))) > Date Then Err.Raise vbObjectError + 957, "modIntegrationUnifie", "Date de naissance memorisee future."
+    If Len(modTexte.SexeNormalise(CStr(pat("Sexe")))) = 0 Then Err.Raise vbObjectError + 957, "modIntegrationUnifie", "Sexe patient memorise indetermine."
+    Set PatientMemorise = pat
+End Function
+
 Public Function InitialiserPatientProd(ByVal doc As Document) As Boolean
     Dim pat As Object
     Set pat = PatientVerifie(doc)
@@ -106,11 +125,20 @@ Echec:
 End Sub
 Public Function LocaliserCorpsUnifie(ByVal doc As Document, ByRef corps As Range, ByRef premier As Range) As Boolean
     Dim p As Paragraph, debut As Long, fin As Long, limite As Long, texte As String, appelTrouve As Boolean
+    Dim minimumAppel As Long, finDestinataire As Long, zoneDestinataire As Range
+    If VariableDoc(doc, "DestinataireDragonC4") = "1" Then
+        Set zoneDestinataire = modCourrier.ZoneDestinataireDragon(doc)
+        finDestinataire = zoneDestinataire.End
+        If Not doc.Bookmarks.Exists("APPEL") Then Err.Raise vbObjectError + 1168, , "Limites de la formule d appel absentes."
+        minimumAppel = doc.Bookmarks("APPEL").Range.Start
+        If minimumAppel < finDestinataire Then Err.Raise vbObjectError + 1168, , "Formule d appel dans le destinataire."
+    End If
     limite = doc.Content.End - 1
     If doc.Bookmarks.Exists("PR_DEBUT_DEMANDES") Then limite = doc.Bookmarks("PR_DEBUT_DEMANDES").Range.Start
     ' La formule d appel est un paragraphe distinct ; le corps commence juste apres.
     For Each p In doc.Paragraphs
         If p.Range.Start >= limite Then Exit For
+        If p.Range.Start < finDestinataire Or p.Range.End <= minimumAppel Then GoTo ParagrapheSuivant
         texte = NettoyerTexteParagraphe(p.Range.Text)
         If Not appelTrouve Then
             If EstFormuleAppel(texte) Then
@@ -121,6 +149,7 @@ Public Function LocaliserCorpsUnifie(ByVal doc As Document, ByRef corps As Range
             fin = p.Range.Start
             Exit For
         End If
+ParagrapheSuivant:
     Next p
     If Not appelTrouve Or fin <= debut Then Exit Function
     ' Seule une formule reconnue en fin de corps est exclue. On ne retire
@@ -140,6 +169,7 @@ Public Function LocaliserCorpsUnifie(ByVal doc As Document, ByRef corps As Range
     Next i
     If fin <= debut Then Exit Function
     Set corps = doc.Range(debut, fin)
+    modCourrier.ExigerCorpsApresDestinataire doc, corps
     Set premier = corps.Paragraphs(1).Range
     doc.Bookmarks.Add "CORPS", corps
     LocaliserCorpsUnifie = True
