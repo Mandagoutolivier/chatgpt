@@ -84,6 +84,10 @@ try{
     Trace-U1 ('Tests presentation annexe : '+[string]$resultPresentation)
     $presentation=Verifier-ResultatRecetteSimple ([string]$resultPresentation) 'Recette presentation annexe' 67
     if ([int]$presentation.reussis -ne 67) { throw 'Nombre de controles presentation inattendu.' }
+    $resultC4=$word.Run('modRecetteC4.ExecuterC4Destinataire',[ref]$testArgument)
+    Trace-U1 ('Tests destinataire Dragon C4 : '+[string]$resultC4)
+    $dragonC4=Verifier-ResultatRecetteSimple ([string]$resultC4) 'Recette destinataire Dragon C4' 70
+    if ([int]$dragonC4.reussis -ne 70) { throw 'Nombre de controles Dragon C4 inattendu.' }
     $doc.Close([ref]$noSave);$doc=$null
     if ($null -ne $wordUpdateLinksAvant) { $word.Options.UpdateLinksAtOpen=$wordUpdateLinksAvant;$wordUpdateLinksAvant=$null }
     $word.Quit([ref]$noSave);$word=$null
@@ -108,6 +112,7 @@ try{
     $wb.Close($false);$wb=$null;$excel.Quit();$excel=$null
     $resultats=[ordered]@{WordU1=$recette;WordU2=$null;AuditGdt=$audit;ModeleCourrier=$modele;PresentationAnnexe=$presentation;Excel=$recetteExcel;FileAnnexes=$fileAnnexes;EditionSecretariat=$edition;CopiesInstrumentees=[bool]$HorsReseau;ActivationEffectuee=$false;RecetteClinique=$false}
     if ($RecetteU2) { $resultats.WordU2=$u2 }
+    $resultats['DragonC4']=$dragonC4
     [IO.File]::WriteAllText((Join-Path $Sortie 'resultats-suites-office.json'),($resultats|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
     $testsValides=$true
 }catch{
