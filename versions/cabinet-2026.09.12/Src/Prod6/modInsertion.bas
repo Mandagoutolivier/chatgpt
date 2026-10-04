@@ -37,7 +37,7 @@ Public Function RemplacerCorpsOriginalParTexte(ByVal texteCorrigeAnonymise As St
     texteInsertion = GarantirRetourParagrapheFinal(texteRestaure)
 
     debutInsertion = gPlageOriginale.Start
-
+    modCourrier.ExigerCorpsApresDestinataire gPlageOriginale.Document, gPlageOriginale
     gPlageOriginale.Text = texteInsertion
 
     finInsertion = debutInsertion + Len(texteInsertion)
@@ -184,6 +184,16 @@ Public Sub MettreIdentitePatientEnGrasDansRange(ByVal rngZone As Range)
 
 
 
+    Loop
+
+    ' C peut inserer seulement NOM Prenom ; le nom reste en gras meme sans
+    ' civilite dictee devant lui.
+    Set rngRecherche = doc.Range(rngZone.Start, finZone)
+    Do While modRechercheWord.Trouver(rngRecherche, identiteSansCivilite)
+        Set rngIdentite = doc.Range(rngRecherche.Start, rngRecherche.End)
+        rngIdentite.Font.Bold = True
+        If rngRecherche.End >= finZone Then Exit Do
+        Set rngRecherche = doc.Range(rngRecherche.End, finZone)
     Loop
 
 End Sub
