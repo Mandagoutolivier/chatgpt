@@ -12,10 +12,20 @@ Public Function CycleEnCours() As Boolean
     CycleEnCours = mTraitementEnCours
 End Function
 
+Public Function AnonymiserIdentiteC4(ByVal original As String, ByVal civilite As String, _
+                                      ByVal nom As String, ByVal prenom As String) As String
+    Dim nomPrenom As String
+    nomPrenom = nom & " " & prenom
+    AnonymiserIdentiteC4 = Replace(original, civilite & " " & nomPrenom, _
+                                  civilite & " " & MARQUEUR_PATIENT, 1, -1, vbTextCompare)
+    AnonymiserIdentiteC4 = Replace(AnonymiserIdentiteC4, nomPrenom, _
+                                  MARQUEUR_PATIENT, 1, -1, vbTextCompare)
+End Function
+
 Public Sub ExecuterCycleCourrier()
     Dim docPrincipal As Document, rngCorps As Range, premier As Range, etat As Object, reponse As Object
     Dim original As String, source As String, corpsCorrige As String, numero As Long, description As String
-    Dim ancienEcran As Boolean, hashCourant As String, verrou As Integer, cor As Object
+    Dim ancienEcran As Boolean, hashCourant As String, verrou As Integer, cor As Object, transmettre As Boolean
     If mTraitementEnCours Then Exit Sub
     mTraitementEnCours = True
     ancienEcran = Application.ScreenUpdating
@@ -59,7 +69,7 @@ Public Sub ExecuterCycleCourrier()
     etat("destinataire_id") = CStr(cor("ID"))
     modEtatCourrier.Sauver docPrincipal, etat
     original = modEtatCourrier.LireProtege(Trim$(modIntegrationUnifie.VariableDoc(docPrincipal, "CycleU1")), "-source")
-    source = Replace(original, gPatient.NomComplet, gPatient.civilite & " " & MARQUEUR_PATIENT, 1, -1, vbTextCompare)
+    source = AnonymiserIdentiteC4(original, gPatient.civilite, gPatient.nom, gPatient.prenom)
     If InStr(1, source, MARQUEUR_PATIENT, vbBinaryCompare) = 0 Then Err.Raise vbObjectError + 960, , "Inserez l identite du patient avec C avant de finaliser."
     gTexteAnonymise = source
     If Len(CStr(etat("corps"))) = 0 Then
@@ -113,6 +123,7 @@ Public Sub ExecuterCycleCourrier()
     modEtatCourrier.Sauver docPrincipal, etat
     modControleCourrier.PreparerRelecture docPrincipal, source, corpsCorrige
     docPrincipal.Save
+    transmettre = True
 Sortie:
     On Error Resume Next
     Set mDocumentSource = Nothing: Set gPlageOriginale = Nothing
@@ -123,6 +134,7 @@ Sortie:
     mTraitementEnCours = False
     On Error GoTo 0
     If numero <> 0 Then Err.Raise numero, "Correction", description
+    If transmettre Then modControleCourrier.ValiderEtTransmettre docPrincipal
     Exit Sub
 Echec:
     numero = Err.Number: description = Err.Description
