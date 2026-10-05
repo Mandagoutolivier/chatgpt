@@ -50,6 +50,7 @@ Public Function CreerCourrierRapide() As Document
     Dim doc As Document, rng As Range
     Set doc = CreerDepuisModele("LETTRE TYPE")
     RemplirEnTeteSansDestinataire doc
+    EncadrerDestinataireDragon doc
     PreparerStyleCorps doc
     FigerChampsDate doc
     doc.Variables("TypeCourrier") = "consultation"
@@ -57,6 +58,7 @@ Public Function CreerCourrierRapide() As Document
     If doc.Bookmarks.Exists("DESTINATAIRE") Then
         Set rng = doc.Bookmarks("DESTINATAIRE").Range
         rng.Collapse wdCollapseStart
+        rng.Move wdCharacter, 1
         rng.Select
     Else
         PlacerCurseurCorps doc
@@ -84,8 +86,8 @@ Private Sub RemplirEnTeteSansDestinataire(ByVal doc As Document)
                     modConfig.Config("MEDECIN", "Prenom") & " " & modConfig.Config("MEDECIN", "Nom")
     End If
     If doc.Bookmarks.Exists("EXPEDITEUR") Then RemplirSignet doc, "EXPEDITEUR", expediteur
-    ' un espace : un signet totalement vide disparait a la premiere frappe
-    RemplirSignet doc, "DESTINATAIRE", " "
+    ' Le curseur reste a l interieur du controle pendant l insertion Dragon.
+    RemplirSignet doc, "DESTINATAIRE", "  "
     MettreEnFormeDestinataire doc
     If doc.Bookmarks.Exists("DATELIEU") Then RemplirSignet doc, "DATELIEU", modConfig.Config("GENERAL", "Ville") & ", le " & Format$(Date, "d mmmm yyyy")
     If doc.Bookmarks.Exists("CONCERNE") Then RemplirSignet doc, "CONCERNE", ""
@@ -112,6 +114,7 @@ Public Function CreerCourrierPour(ByVal pat As Object, ByVal cor As Object, _
     Dim doc As Document
     Set doc = CreerDepuisModele("LETTRE TYPE")
     RemplirEnTete doc, pat, cor
+    EncadrerDestinataireDragon doc
     PreparerStyleCorps doc
     ' Les modeles modernes conservent leur reglage explicite du bloc adresse.
     MettreEnFormeDestinataire doc
@@ -361,8 +364,20 @@ End Sub
 Public Function TexteIdentitePatient(ByVal pat As Object) As String
     Dim age As String
     age = CalculerAge(modTexte.DdnPatient(pat))
-    TexteIdentitePatient = Trim$(modTexte.Civilite(modTexte.SexePatient(pat)) & " " & UCase$(pat("Nom")) & " " & pat("Prenom")) & _
+    TexteIdentitePatient = Trim$(UCase$(pat("Nom")) & " " & pat("Prenom")) & _
                            IIf(Len(age) > 0, ", " & age & " ans, ", ", ")
+End Function
+
+' Dragon peut laisser le curseur colle au dernier mot dicte.
+Public Function PrefixeIdentitePatient(ByVal precedent As String) As String
+    If Len(precedent) = 0 Then Exit Function
+    Select Case Right$(precedent, 1)
+        Case " ", vbTab, vbCr, vbLf, ChrW$(160), ChrW$(11)
+            Exit Function
+        Case "'", ChrW$(&H2019)
+            Exit Function
+    End Select
+    PrefixeIdentitePatient = " "
 End Function
 
 Public Function CalculerAge(ByVal ddn As String) As String
@@ -420,6 +435,190 @@ Public Function EnSautsDeLigne(ByVal texte As String) As String
     Loop
     EnSautsDeLigne = t
 End Function
+
+' La zone appartient au logiciel ; ses signets internes peuvent etre
+' remplaces par Dragon sans perdre les limites du bloc adresse.
+Public Sub EncadrerDestinataireDragon(ByVal doc As Document)
+    Dim cc As ContentControl, zone As Range
+    For Each cc In doc.ContentControls
+        If cc.Tag = "CabinetU2.Destinataire" Then Err.Raise vbObjectError + 1168, , "Zone destinataire deja presente."
+    Next cc
+    ExigerSignet doc, "DESTINATAIRE"
+    Set zone = doc.Bookmarks("DESTINATAIRE").Range.Duplicate
+    Set cc = doc.ContentControls.Add(wdContentControlRichText, zone)
+    cc.Tag = "CabinetU2.Destinataire"
+    cc.Title = "Destinataire"
+    cc.LockContents = False
+    cc.LockContentControl = True
+    modIntegrationUnifie.FixerVariable doc, "DestinataireDragonC4", "1"
+    ReancrerSignetsDestinataire doc
+End Sub
+
+Public Function ZoneDestinataireDragon(ByVal doc As Document) As Range
+    Dim cc As ContentControl, trouve As ContentControl
+    For Each cc In doc.ContentControls
+        If cc.Tag = "CabinetU2.Destinataire" Then
+            If Not trouve Is Nothing Then Err.Raise vbObjectError + 1168, , "Plusieurs zones destinataire : aucun envoi."
+            Set trouve = cc
+        End If
+    Next cc
+    If trouve Is Nothing Then Err.Raise vbObjectError + 1168, , "Limites du destinataire absentes. Conservez ce brouillon pour verification."
+    If trouve.Type <> wdContentControlRichText Or trouve.Range.StoryType <> wdMainTextStory Then Err.Raise vbObjectError + 1168, , "Zone destinataire invalide."
+    Set ZoneDestinataireDragon = trouve.Range.Duplicate
+End Function
+
+Public Sub ReancrerSignetsDestinataire(ByVal doc As Document)
+    Dim zone As Range
+    Set zone = ZoneDestinataireDragon(doc)
+    If doc.Bookmarks.Exists("DESTINATAIRE") Then doc.Bookmarks("DESTINATAIRE").Delete
+    If doc.Bookmarks.Exists("CORRESPONDANT") Then doc.Bookmarks("CORRESPONDANT").Delete
+    doc.Bookmarks.Add "DESTINATAIRE", zone
+    doc.Bookmarks.Add "CORRESPONDANT", zone
+End Sub
+
+Public Function BlocDestinataireDicte(ByVal doc As Document) As String
+    BlocDestinataireDicte = ZoneDestinataireDragon(doc).Text
+End Function
+
+Public Function CleDestinataire(ByVal texte As String) As String
+    Dim lignes As Variant, ligne As Variant, t As String, resultat As String
+    texte = Replace(Replace(Replace(texte, vbCrLf, vbLf), vbCr, vbLf), Chr$(11), vbLf)
+    texte = Replace(Replace(Replace(texte, ChrW$(&H2019), "'"), ChrW$(&H2018), "'"), ChrW$(&H2BC), "'")
+    texte = Replace(Replace(texte, ChrW$(160), " "), vbTab, " ")
+    lignes = Split(texte, vbLf)
+    For Each ligne In lignes
+        t = Trim$(CStr(ligne))
+        Do While InStr(t, "  ") > 0: t = Replace(t, "  ", " "): Loop
+        If Len(t) > 0 Then
+            If Len(resultat) > 0 Then resultat = resultat & vbLf
+            resultat = resultat & UCase$(t)
+        End If
+    Next ligne
+    CleDestinataire = resultat
+End Function
+
+Private Function BlocStructureDragonConforme(ByVal bloc As String, ByVal cor As Object) As Boolean
+    Dim cleBloc As String, cleCanon As String, nom As String, prenom As String
+    Dim lignesBloc As Variant, lignesCanon As Variant, premiere As String, i As Long
+    If Not cor.Exists("BlocDestinataire") Or Not cor.Exists("Nom") Or Not cor.Exists("Prenom") Then Exit Function
+    cleBloc = CleDestinataire(bloc)
+    cleCanon = CleDestinataire(CStr(cor("BlocDestinataire")))
+    nom = CleDestinataire(CStr(cor("Nom")))
+    prenom = CleDestinataire(CStr(cor("Prenom")))
+    If Len(cleBloc) = 0 Or Len(cleCanon) = 0 Or Len(nom) = 0 Or Len(prenom) = 0 Then Exit Function
+    lignesBloc = Split(cleBloc, vbLf)
+    lignesCanon = Split(cleCanon, vbLf)
+    If UBound(lignesBloc) <> UBound(lignesCanon) Then Exit Function
+    premiere = CStr(lignesBloc(0))
+    Select Case premiere
+        Case "DOCTEUR " & nom & " " & prenom, _
+             "MONSIEUR LE DOCTEUR " & nom & " " & prenom, _
+             "MADAME LE DOCTEUR " & nom & " " & prenom, _
+             "MADAME LA DOCTEURE " & nom & " " & prenom, _
+             "DOCTEUR " & prenom & " " & nom, _
+             "MONSIEUR LE DOCTEUR " & prenom & " " & nom, _
+             "MADAME LE DOCTEUR " & prenom & " " & nom, _
+             "MADAME LA DOCTEURE " & prenom & " " & nom
+        Case Else
+            Exit Function
+    End Select
+    For i = 1 To UBound(lignesCanon)
+        If CStr(lignesBloc(i)) <> CStr(lignesCanon(i)) Then Exit Function
+    Next i
+    BlocStructureDragonConforme = True
+End Function
+
+Private Function AliasDestinatairesDragon() As Object
+    Dim chemin As String, liste As Object
+    chemin = Environ$("APPDATA") & "\CabinetCardio\destinataires-dragon.json"
+    If Not modFichiers.FichierExiste(chemin) Then
+        Set AliasDestinatairesDragon = New Collection
+        Exit Function
+    End If
+    Set liste = modJson.JsonParse(modFichiers.LireTexteUTF8(chemin))
+    If TypeName(liste) <> "Collection" Then Err.Raise vbObjectError + 1168, , "Liste Dragon invalide."
+    Set AliasDestinatairesDragon = liste
+End Function
+
+Public Function CorrespondantActifDragon(ByVal cor As Object) As Boolean
+    If Not cor.Exists("Actif") Or Not cor.Exists("AValider") Then Exit Function
+    CorrespondantActifDragon = (CStr(cor("Actif")) = "1" And CStr(cor("AValider")) = "0")
+End Function
+
+Public Function BlocCorrespondantDragonConforme(ByVal bloc As String, ByVal cor As Object, ByVal aliases As Object) As Boolean
+    Dim entree As Variant, cle As String, empreinte As String
+    If Not cor.Exists("BlocDestinataire") Or Not cor.Exists("ID") Then Exit Function
+    cle = CleDestinataire(bloc)
+    If Len(cle) = 0 Then Exit Function
+    If cle = CleDestinataire(CStr(cor("BlocDestinataire"))) Then
+        BlocCorrespondantDragonConforme = True
+        Exit Function
+    End If
+    If BlocStructureDragonConforme(bloc, cor) Then
+        BlocCorrespondantDragonConforme = True
+        Exit Function
+    End If
+    empreinte = modServiceNas.SHA256(CStr(cor("BlocDestinataire")))
+    For Each entree In aliases
+        If TypeName(entree) <> "Dictionary" Then Err.Raise vbObjectError + 1168, , "Entree Dragon invalide."
+        If Not entree.Exists("id") Or Not entree.Exists("source_sha256") Or Not entree.Exists("bloc") Then Err.Raise vbObjectError + 1168, , "Entree Dragon incomplete."
+        If CStr(entree("id")) = CStr(cor("ID")) Then
+            If StrComp(CStr(entree("source_sha256")), empreinte, vbTextCompare) = 0 Then
+                If cle = CleDestinataire(CStr(entree("bloc"))) Then BlocCorrespondantDragonConforme = True: Exit Function
+            End If
+        End If
+    Next entree
+End Function
+
+Public Function IdDestinataireDicteParmi(ByVal doc As Document, ByVal candidats As Collection, Optional ByVal aliases As Object = Nothing) As String
+    Dim cor As Variant, bloc As String, trouve As String
+    bloc = BlocDestinataireDicte(doc)
+    If aliases Is Nothing Then Set aliases = AliasDestinatairesDragon()
+    For Each cor In candidats
+        If CorrespondantActifDragon(cor) Then
+            If BlocCorrespondantDragonConforme(bloc, cor, aliases) Then
+                If Len(trouve) > 0 And trouve <> CStr(cor("ID")) Then Err.Raise vbObjectError + 1168, , "Bloc destinataire ambigu : aucun envoi."
+                trouve = CStr(cor("ID"))
+            End If
+        End If
+    Next cor
+    If Len(trouve) = 0 Then Err.Raise vbObjectError + 1168, , "Bloc destinataire absent de la liste Dragon validee. Le brouillon est conserve."
+    IdDestinataireDicteParmi = trouve
+End Function
+
+Public Function AssocierDestinataireDicte(ByVal doc As Document) As String
+    Dim id As String, cor As Variant, candidats As Collection, trouve As Object
+    Set candidats = modBase.Correspondants(False)
+    id = IdDestinataireDicteParmi(doc, candidats)
+    For Each cor In candidats
+        If cor.Exists("ID") Then
+            If CStr(cor("ID")) = id Then Set trouve = cor: Exit For
+        End If
+    Next cor
+    If trouve Is Nothing Then Err.Raise vbObjectError + 1168, , "Correspondant absent de la liste chargee."
+    If Not DestinataireCorrespondantConforme(doc, trouve) Then Err.Raise vbObjectError + 1168, , "Adresse destinataire modifiee depuis la liste Dragon."
+    ReancrerSignetsDestinataire doc
+    modIntegrationUnifie.FixerVariable doc, "CorrespondantID", id
+    AssocierDestinataireDicte = id
+End Function
+
+Public Function DestinataireDicteConforme(ByVal doc As Document, ByVal attendu As String) As Boolean
+    DestinataireDicteConforme = (CleDestinataire(BlocDestinataireDicte(doc)) = CleDestinataire(attendu))
+End Function
+
+Public Function DestinataireCorrespondantConforme(ByVal doc As Document, ByVal cor As Object) As Boolean
+    If cor Is Nothing Then Exit Function
+    If Not CorrespondantActifDragon(cor) Then Exit Function
+    DestinataireCorrespondantConforme = BlocCorrespondantDragonConforme(BlocDestinataireDicte(doc), cor, AliasDestinatairesDragon())
+End Function
+
+Public Sub ExigerCorpsApresDestinataire(ByVal doc As Document, ByVal corps As Range)
+    Dim destinataire As Range
+    If modIntegrationUnifie.VariableDoc(doc, "DestinataireDragonC4") <> "1" Then Exit Sub
+    Set destinataire = ZoneDestinataireDragon(doc)
+    If Not corps.Document Is doc Then Err.Raise vbObjectError + 1168, , "Document source incorrect."
+    If corps.StoryType <> wdMainTextStory Or corps.Start < destinataire.End Then Err.Raise vbObjectError + 1168, , "La correction chevauche le destinataire : aucun texte remplace."
+End Sub
 
 ' Bloc adresse du correspondant : les lignes de l'adresse sont SERREES
 ' (interligne simple par defaut, [COURRIER] InterligneDestinataire), sans

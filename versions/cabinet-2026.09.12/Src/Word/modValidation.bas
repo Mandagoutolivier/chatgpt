@@ -11,6 +11,37 @@ Option Explicit
 Public Sub ValiderCourrier()
     modPowerMicUnifie.Unifie_D_Finaliser
 End Sub
+
+' Nom lisible des copies conservees dans le dossier patient.
+Public Function NomBaseCourrierPatient(ByVal nom As String, ByVal prenom As String, _
+                                       ByVal dateValidation As String) As String
+    Dim instant As Date, identite As String, heure As String
+    On Error GoTo Invalide
+    If Len(Trim$(nom)) = 0 Or Len(Trim$(prenom)) = 0 Then GoTo Invalide
+    If Len(dateValidation) < 16 Then GoTo Invalide
+    heure = Mid$(dateValidation, 12, 5)
+    instant = modTexte.DateFr(Left$(dateValidation, 10)) + TimeValue(heure)
+    identite = modFichiers.NomFichierSur(Trim$(nom) & " " & Trim$(prenom))
+    NomBaseCourrierPatient = modFichiers.NomFichierSur(identite & " " & Format$(instant, "yyyymmddhhnn"))
+    Exit Function
+Invalide:
+    Err.Raise vbObjectError + 1131, "modValidation", "Nom, prenom ou date de validation invalide pour nommer le courrier."
+End Function
+
+' Deux courriers du meme patient valides dans la meme minute sont conserves
+' sous des noms distincts : le second recoit le suffixe 2, puis 3, etc.
+Private Function BaseCourrierDisponible(ByVal dossier As String, ByVal souhaite As String) As String
+    Dim fso As Object, candidat As String, numero As Long
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    candidat = souhaite
+    Do While fso.FileExists(dossier & "\" & candidat & ".docx") Or _
+             fso.FileExists(dossier & "\" & candidat & ".pdf")
+        numero = numero + 1
+        candidat = souhaite & " " & CStr(numero + 1)
+    Loop
+    BaseCourrierDisponible = candidat
+End Function
+
 ' Validation d'un document rattache a un patient : docx + PDF dans le
 ' dossier du patient, drapeau pour le secretariat. Renvoie le type de
 ' courrier. silencieux=True : aucun message (lettres derivees automatiques).
@@ -46,9 +77,9 @@ Public Function ValiderDocument(ByVal doc As Document, ByVal silencieux As Boole
     End If
     dateValidation = modIntegrationUnifie.VariableDoc(doc, "DateValidation")
     dossier = modPatient.DossierPatient(pat)
-    base = Format$(modTexte.DateFr(dateActe), "yyyy-mm-dd") & " " & _
-           modFichiers.NomFichierSur(typeCourrier) & " " & consultationID
-    cheminDocx = dossier & "\" & base & "_" & publicationID & ".docx"
+    base = NomBaseCourrierPatient(CStr(pat("Nom")), CStr(pat("Prenom")), dateValidation)
+    base = BaseCourrierDisponible(dossier, base)
+    cheminDocx = dossier & "\" & base & ".docx"
     cheminPdf = Left$(cheminDocx, Len(cheminDocx) - 4) & "pdf"
 
     If Not modEtatCourrier.PublicationPrete(publicationID) Then

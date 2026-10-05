@@ -19,8 +19,8 @@ from .actes import FIELDS as ACTE_FIELDS, normaliser as normaliser_acte
 from .correspondants import normaliser_indicateurs
 
 READS = {'table.read', 'record.get', 'attentes', 'reprises', 'publications', 'whoami',
-         'correspondent.resolve', 'clinical.compare', 'dictionary.read', 'journal.read', 'nir.validate', 'command.result', 'billing.get', 'stale_arrivals'}
-SECRETARIAT = {'table.add', 'table.update', 'arrive', 'cancel_arrival', 'bill', 'printed', 'ack', 'payment', 'agenda.status', 'print.request'}
+         'correspondent.resolve', 'clinical.compare', 'dictionary.read', 'journal.read', 'nir.validate', 'command.result', 'billing.get', 'stale_arrivals', 'publication.get'}
+SECRETARIAT = {'table.add', 'table.update', 'arrive', 'cancel_arrival', 'bill', 'printed', 'ack', 'payment', 'agenda.status', 'print.request', 'publication.revise'}
 MEDECIN = {'claim', 'release', 'draft', 'publish'}
 SHARED = {'dictionary.add', 'correspondent.save'}
 GENRES = {'PATIENTS', 'CORRESPONDANTS', 'RDV', 'ACTES', 'MEDICAMENTS', 'EXPRESSIONS'}
@@ -61,7 +61,7 @@ class Service:
         if operation in SECRETARIAT and 'secretariat' not in roles: raise Refus('Role secretariat requis.', 403)
         if operation in MEDECIN and 'medecin' not in roles: raise Refus('Role medecin requis.', 403)
         if not roles.intersection({'medecin','secretariat'}): raise Refus('Compte sans role cabinet.',403)
-        if operation == 'journal.read' and 'secretariat' not in roles: raise Refus('Role secretariat requis.',403)
+        if operation in {'journal.read','publication.get'} and 'secretariat' not in roles: raise Refus('Role secretariat requis.',403)
         if operation in {'attentes','reprises','clinical.compare','stale_arrivals'} and 'medecin' not in roles: raise Refus('Role medecin requis.',403)
         validate(operation, params)
         changing = operation not in READS
@@ -223,7 +223,14 @@ class Service:
             db.execute("INSERT INTO consultations(id,rdv_id,patient_id,etat,donnees) VALUES (%s,%s,%s,'arrive',%s)",(ident,rdv['ID'],pat['ID'],Jsonb(data)))
             self._set_rdv(db,rdv['ID'],'Arrive');return data
         if op=='attentes':
-            return {'items':[r['donnees'] for r in db.execute("SELECT donnees FROM consultations WHERE etat='arrive' AND donnees->>'DateArrivee'=%s ORDER BY modifie_le",(self.clock().strftime('%d/%m/%Y'),))]}
+            items=[]
+            for row in db.execute("SELECT * FROM consultations WHERE etat='arrive' AND donnees->>'DateArrivee'=%s ORDER BY modifie_le",(self.clock().strftime('%d/%m/%Y'),)):
+                pat=self._record(db,'PATIENTS',row['patient_id'])
+                data=dict(row['donnees'])
+                data.update({k:pat[k] for k in ('Nom','Prenom','DDN','Sexe')})
+                data['RevisionSelection']=self._selection_arrivee(row,pat)
+                items.append(data)
+            return {'items':items}
         if op=='stale_arrivals':
             return {'items':[dict(r['donnees'], Etat=r['etat']) for r in db.execute("SELECT donnees,etat FROM consultations WHERE etat='arrive' AND donnees->>'DateArrivee'<>%s ORDER BY modifie_le", (self.clock().strftime('%d/%m/%Y'),))]}
         if op in {'cancel_arrival', 'agenda.status'}:
@@ -247,7 +254,14 @@ class Service:
         if op=='claim':
             row=self._consultation(db,p['id'])
             if row['etat']!='arrive': raise Refus('Cette arrivee a deja ete reservee. Utilisez la reprise.')
+            if date_fr(row['donnees']['DateArrivee']) != self.clock().date():
+                raise Refus('Arrivee ancienne : actualisez la liste avant de commencer.')
+            pat=self._record(db,'PATIENTS',row['patient_id'])
+            patient_valide(pat,self.clock().date())
+            if 'selection' in p and p['selection'] != self._selection_arrivee(row,pat):
+                raise Refus('Identite modifiee depuis son affichage : actualisez et verifiez le patient.')
             data=dict(row['donnees'],ReservationNas=row['id'])
+            data.update({k:pat[k] for k in ('Nom','Prenom','DDN','Sexe')})
             db.execute("UPDATE consultations SET etat='encours',proprietaire=%s,donnees=%s,modifie_le=now() WHERE id=%s",(actor['identifiant'],Jsonb(data),row['id']))
             return data
         if op=='release':
@@ -294,6 +308,15 @@ class Service:
             return data
         if op=='publications':
             return {'items':[r['donnees'] for r in db.execute("SELECT donnees FROM publications WHERE etat='a_traiter' ORDER BY cree_le")]}
+        if op=='publication.get':
+            row=db.execute('SELECT etat,donnees FROM publications WHERE id=%s',(p['id'],)).fetchone()
+            if not row:raise Refus('Publication introuvable.',404)
+            latest=db.execute('SELECT id FROM publications WHERE consultation_id=%s ORDER BY cree_le DESC,id DESC LIMIT 1',(row['donnees']['ConsultationID'],)).fetchone()
+            return dict(row['donnees'],EditionCourante=(row['etat']!='remplacee' and latest['id']==p['id']),
+                        DossierEdition=str(self.documents.unc / 'Patients' / '_EditionsSecretariat'))
+        if op=='publication.revise':
+            from .editing import reviser_publication
+            return reviser_publication(self,db,actor,p)
         if op=='bill': return self._facturer(db,p)
         if op=='journal.read':
             limit=min(200,max(1,int(p.get('limit',200))));offset=max(0,int(p.get('offset',0)))
@@ -383,6 +406,12 @@ class Service:
         if op=='nir.validate':return {'nir':valider_nir(p['nir'])}
         if op=='clinical.compare':return comparer_clinique(p['source'],p['resultat'])
         raise Refus('Operation non implementee.',404)
+
+    @staticmethod
+    def _selection_arrivee(row,pat):
+        return empreinte({'consultation':row['id'],'patient':row['patient_id'],
+                          'jour':row['donnees']['DateArrivee'],
+                          'identite':{k:pat[k] for k in ('Nom','Prenom','DDN','Sexe')}})
 
     def _facturer(self,db,p):
         pub = db.execute('SELECT consultation_id,etat,donnees FROM publications WHERE id=%s', (p['publication_id'],)).fetchone()

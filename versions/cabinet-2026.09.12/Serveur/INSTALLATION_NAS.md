@@ -1,14 +1,14 @@
-# Préparer U2b sur le Synology
+# Préparer U2c sur le Synology
 
-## Recette U2b isolée
+## Recette U2c isolée
 
-Ce guide prépare la révision `2026.09.16-u2b` dans un environnement d'essai distinct. Il ne constate ni un déploiement NAS réussi ni une validation Office. L'installation U0 du cabinet reste en service et ne doit être ni remplacée ni arrêtée pendant cette recette.
+Ce guide prépare la révision `2026.09.21-u2c` dans un environnement d'essai distinct. Il ne constate ni un déploiement NAS réussi ni une validation Office. L'installation U0 du cabinet reste en service et ne doit être ni remplacée ni arrêtée pendant cette recette.
 
-| Élément | Valeur U2b de recette |
+| Élément | Valeur U2c de recette |
 |---|---|
 | Projet Compose | `cabinetcardio-test-u2` |
 | Port local du NAS | `127.0.0.1:8766` |
-| Image de maintenance | `cabinet-maintenance:2026.09.16-u2b` |
+| Image de maintenance | `cabinet-maintenance:2026.09.21-u2c` |
 | Code | `/volume1/docker/cabinetcardio-test-u2/code/versions/cabinet-2026.09.12` |
 | Données | `/volume1/CabinetCardioTestU2` |
 | PostgreSQL | `/volume1/docker/cabinetcardio-test-u2/postgres` |
@@ -45,7 +45,7 @@ Un nom de projet distinct n'isole pas à lui seul les dossiers montés : contrô
 1. Copier le dossier de version complet dans le nouvel emplacement de code de recette indiqué dans le tableau, distinct du code clinique. Ne pas placer les secrets dans un partage accessible aux postes.
 2. Copier `Serveur/.env.u2-test.example` en `Serveur/.env`. Vérifier le projet `cabinetcardio-test-u2`, le port `8766`, les trois volumes isolés, le chemin UNC et l'UID/GID. Ne pas copier le `.env` ni les secrets cliniques.
 3. Créer les trois répertoires et accorder les droits nécessaires. Réserver le sous-dossier `Documents` à l'écriture de l'API ; les postes du cabinet doivent seulement pouvoir le lire. Ils doivent pouvoir écrire dans `Patients` pour les brouillons. Éviter un partage donnant l'écriture globale aux archives.
-4. Générer les secrets dans le seul dossier de code U2b :
+4. Générer les secrets dans le seul dossier de code U2c :
 
 ```sh
 cd /volume1/docker/cabinetcardio-test-u2/code/versions/cabinet-2026.09.12/Serveur
@@ -59,7 +59,7 @@ sudo chmod 700 secrets
 
 Remplacer `GID_API_RECETTE` par le GID numérique configuré dans le `.env` de recette avant exécution. Le dossier parent des secrets doit appartenir à l'administrateur qui lance Compose. Le fichier DB est lisible par PostgreSQL et par le groupe de l'API ; seul ce secret est monté dans l'API. Le générateur ne remplace jamais un secret existant.
 
-5. Depuis le dossier de version U2b d’un PC Windows disponible, initialiser les fichiers de support du seul partage de recette :
+5. Depuis le dossier de version U2c d’un PC Windows disponible, initialiser les fichiers de support du seul partage de recette :
 
 ```powershell
 .\Build\initialiser_nas.ps1 -RacineNas '\\NAS-RECETTE\CabinetCardioTestU2'
@@ -90,7 +90,7 @@ u2b_compose ps
 curl -fsS http://127.0.0.1:8766/health
 ```
 
-Configurer le reverse proxy DSM distinct ; vérifier `https://adresse-de-recette/health`. La réponse attendue contient `status: ok`, `version` et `protocole: 2`. **`/health` n’annonce ni le schéma ni la révision U2b.** Ces deux valeurs sont contrôlées par le RPC authentifié `whoami` lors de la validation de l’installateur, après migration et création d’un compte de recette : `schema: 2` et `revision: 2026.09.16-u2b`. Si `init-db.sh` échoue sur un nouveau volume, corriger la cause et recréer uniquement ce volume neuf, sans données. L'initialisation PostgreSQL ne se rejoue pas automatiquement sur un volume déjà initialisé.
+Configurer le reverse proxy DSM distinct ; vérifier `https://adresse-de-recette/health`. La réponse attendue contient `status: ok`, `version` et `protocole: 2`. **`/health` n’annonce ni le schéma ni la révision U2c.** Ces deux valeurs sont contrôlées par le RPC authentifié `whoami` lors de la validation de l’installateur, après migration et création d’un compte de recette : `schema: 2` et `revision: 2026.09.21-u2c`. Si `init-db.sh` échoue sur un nouveau volume, corriger la cause et recréer uniquement ce volume neuf, sans données. L'initialisation PostgreSQL ne se rejoue pas automatiquement sur un volume déjà initialisé.
 
 ## Migration des données dans la copie isolée
 
@@ -110,9 +110,9 @@ L'import est transactionnel et refusé si la base cible contient déjà des donn
 
 Les formes `Specialistes_ParType` enrichissent les spécialistes existants via `ID_Specialiste`. Plusieurs clés d'examen peuvent être des alias de la même fiche. Une ancienne clé partagée par plusieurs personnes reste bloquée ; le choix explicite d'une fiche utilise son ID unique.
 
-## Mise à niveau du schéma 2 pour U2b
+## Mise à niveau du schéma 2 pour U2c
 
-Une base nouvellement initialisée commence au schéma 1. Une copie restaurée peut également nécessiter cette migration. D'abord sauvegarder et restaurer une copie isolée ; arrêter les clients de cette copie pendant la mise à niveau. Déployer U2b sur cette copie, puis simuler :
+Une base nouvellement initialisée commence au schéma 1. Une copie restaurée peut également nécessiter cette migration. D'abord sauvegarder et restaurer une copie isolée ; arrêter les clients de cette copie pendant la mise à niveau. Déployer U2c sur cette copie, puis simuler :
 
 ```sh
 u2b_compose exec -T api python -m cabinet.migration_u1
@@ -124,7 +124,7 @@ Lire les conflits et conserver l'empreinte du plan. Lorsque le plan est approuv�
 u2b_compose exec -T api python -m cabinet.migration_u1 --appliquer EMPREINTE_DU_PLAN
 ```
 
-Cette migration transactionnelle conserve les valeurs antérieures dans `migrations_ressources`, unifie `Libelle` et `LibelleCourt`, conserve `Depassement` et passe le schéma à 2. Si les données ont changé depuis la simulation, elle refuse l'application. L'installateur U2b exige le schéma 2 et la révision `2026.09.16-u2b`. La sauvegarde et la restauration acceptent les schémas 1 et 2.
+Cette migration transactionnelle conserve les valeurs antérieures dans `migrations_ressources`, unifie `Libelle` et `LibelleCourt`, conserve `Depassement` et passe le schéma à 2. Si les données ont changé depuis la simulation, elle refuse l'application. L'installateur U2c exige le schéma 2 et la révision `2026.09.21-u2c`. La sauvegarde et la restauration acceptent les schémas 1 et 2.
 
 Aucune de ces commandes de migration n'est à exécuter sur les données cliniques pendant la recette.
 
@@ -144,15 +144,15 @@ u2b_compose exec -T api python -m cabinet.admin revoquer domicile-recette
 
 Les reprises de consultation sont limitées au compte qui a réservé la consultation. Avec des comptes distincts domicile/cabinet, terminer la consultation sur son poste d'origine ; le transfert entre comptes n'est pas automatisé. Un même compte nominatif peut être utilisé sur les deux postes du même médecin si ses rôles conviennent ; ne pas partager son jeton avec le secrétariat.
 
-Préparer les seuls postes de recette selon [INSTALLATION_MULTI_POSTES.md](../INSTALLATION_MULTI_POSTES.md), en vérifiant leur identité et leurs chemins locaux. Ne pas activer U2b dans les modèles ou applications cliniques pendant cette phase. Le passage de tous les postes cliniques relève d’une mise en service ultérieure, après recette complète.
+Préparer les seuls postes de recette selon [INSTALLATION_MULTI_POSTES.md](../INSTALLATION_MULTI_POSTES.md), en vérifiant leur identité et leurs chemins locaux. Ne pas activer U2c dans les modèles ou applications cliniques pendant cette phase. Le passage de tous les postes cliniques relève d’une mise en service ultérieure, après recette complète.
 
 ## Sauvegarde et reprise
 
-Les exigences de cohérence sont décrites dans [U0_RECETTE.md](../U0_RECETTE.md) : suspension effective des écritures SMB, capture de la base et des fichiers/configuration, vérification dans un cluster isolé, puis restauration persistante sur une cible vide pour la recette Windows. Pour U2b, appliquer ces exigences aux seuls emplacements de recette ; ne pas reprendre les chemins ni les commandes de production U0 sans les adapter et les vérifier. Les anciens jeux sans manifeste U0 restent conservés, mais ne sont pas acceptés silencieusement par ce nouveau vérificateur. Ne pas fabriquer de marqueur `TERMINE` pour les convertir.
+Les exigences de cohérence sont décrites dans [U0_RECETTE.md](../U0_RECETTE.md) : suspension effective des écritures SMB, capture de la base et des fichiers/configuration, vérification dans un cluster isolé, puis restauration persistante sur une cible vide pour la recette Windows. Pour U2c, appliquer ces exigences aux seuls emplacements de recette ; ne pas reprendre les chemins ni les commandes de production U0 sans les adapter et les vérifier. Les anciens jeux sans manifeste U0 restent conservés, mais ne sont pas acceptés silencieusement par ce nouveau vérificateur. Ne pas fabriquer de marqueur `TERMINE` pour les convertir.
 
 ## Limites d'exploitation
 
-Les correctifs U2b ne sont pas qualifiés pour le service clinique tant que la recette réelle n'est pas terminée. Les UID, droits SMB, certificat, reverse proxy, volume libre et restauration physique doivent être contrôlés sur le NAS. Les parcours Word/Excel restent à qualifier dans l’environnement de recette. Les comptes sont des jetons applicatifs ; l'authentification SSO/MFA n'est pas implémentée. Le service conserve les ressources métier en JSONB versionné ; une évolution de schéma exige une migration explicite, pas une modification manuelle des tables.
+Les correctifs U2c ne sont pas qualifiés pour le service clinique tant que la recette réelle n'est pas terminée. Les UID, droits SMB, certificat, reverse proxy, volume libre et restauration physique doivent être contrôlés sur le NAS. Les parcours Word/Excel restent à qualifier dans l’environnement de recette. Les comptes sont des jetons applicatifs ; l'authentification SSO/MFA n'est pas implémentée. Le service conserve les ressources métier en JSONB versionné ; une évolution de schéma exige une migration explicite, pas une modification manuelle des tables.
 
 ## Arrêt de la recette et retour à l'installation actuelle
 

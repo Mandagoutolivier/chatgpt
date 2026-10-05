@@ -211,10 +211,8 @@ Public Function DonneesImpressionFigees(ByVal sauvegardees As Collection, ByVal 
     If assureDistinct Then
         If Len(Trim$(CStr(identite("AssureNom")))) = 0 Or Len(Trim$(CStr(identite("AssurePrenom")))) = 0 Then Err.Raise vbObjectError + 649, , "Identite de l assure figee incomplete."
         If Not modTexte.DateFrValide(CStr(identite("AssureDDN"))) Then Err.Raise vbObjectError + 649, , "Naissance de l assure figee invalide."
-        If Len(Trim$(CStr(identite("AssureNIR")))) = 0 Then Err.Raise vbObjectError + 649, , "NIR de l assure fige absent."
-    ElseIf Len(Trim$(CStr(identite("NIR")))) = 0 Then
-        Err.Raise vbObjectError + 649, , "NIR fige absent."
     End If
+    ' Un NIR absent reste vide. Ne pas substituer celui du patient a un assure distinct.
     Set DonneesImpressionFigees = identite
 End Function
 

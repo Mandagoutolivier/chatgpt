@@ -47,7 +47,7 @@ services:
     tmpfs: [/tmp]
     security_opt: [no-new-privileges:true]
   maintenance:
-    image: "${CABINET_MAINTENANCE_IMAGE:-cabinet-maintenance:2026.09.16-u2b}"
+    image: "${CABINET_MAINTENANCE_IMAGE:-cabinet-maintenance:2026.09.21-u2c}"
     build:
       context: ..
       dockerfile: Serveur/Dockerfile.maintenance

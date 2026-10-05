@@ -148,6 +148,7 @@ Private Function CreerFixture(ByVal avecProfil As Boolean) As Document
     Set zone = doc.Range(doc.Paragraphs(7).Range.Start + 10, doc.Paragraphs(7).Range.Start + 20)
     doc.Bookmarks.Add "NORMAL_FICTIF", zone
     If avecProfil Then doc.Variables.Add "PresentationCorpsU2", "annexe-v1"
+    st.Font.Size = 10
     Set CreerFixture = doc
     Exit Function
 Echec:

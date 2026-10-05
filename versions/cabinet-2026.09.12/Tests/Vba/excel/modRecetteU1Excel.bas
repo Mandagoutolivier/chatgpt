@@ -1,6 +1,6 @@
 Attribute VB_Name = "modRecetteU1Excel"
 Option Explicit
-Private Const NOMBRE_ATTENDU_EXCEL As Long = 70
+Private Const NOMBRE_ATTENDU_EXCEL As Long = 74
 
 Public Function Executer() As String
     Dim col As Collection, cas As Variant, numero As Long, reussis As Long, description As String
@@ -83,6 +83,17 @@ Public Function Executer() As String
     Set identiteFigee = modActes.DonneesImpressionFigees(sauvegardees, "P1", lignesImpression)
     If CStr(identiteFigee("NIR")) <> "" Or CStr(identiteFigee("AssureNIR")) <> "170020000000157" Then Err.Raise 5, , "Assure distinct fige refuse"
     reussis = reussis + 1
+    ' NIR vide ou absent accepte, sans substitution du NIR du patient.
+    ligneFigee("NIR") = "280010000000169": ligneFigee("AssureNIR") = ""
+    Set identiteFigee = modActes.DonneesImpressionFigees(sauvegardees, "P1", lignesImpression)
+    If CStr(identiteFigee("AssureNIR")) <> "" Or CStr(identiteFigee("AssureNom")) <> "ASSURE" Then Err.Raise 5, , "Assure sans NIR refuse ou NIR substitue"
+    If modCerfaPrint.NirFacultatifPourFeuille("") <> "" Then Err.Raise 5, , "NIR vide invente"
+    reussis = reussis + 1
+    ligneFigee.Remove "AssureNIR"
+    Set identiteFigee = modActes.DonneesImpressionFigees(sauvegardees, "P1", lignesImpression)
+    If CStr(identiteFigee("AssureNIR")) <> "" Or CStr(identiteFigee("AssureDDN")) <> "02/02/1970" Then Err.Raise 5, , "Cle NIR assure absente refusee"
+    If modCerfaPrint.NirFacultatifPourFeuille("   ") <> "" Then Err.Raise 5, , "NIR blanc invente"
+    reussis = reussis + 1
     ' Aucune fiche assuree partielle ne doit devenir implicitement le patient
     ' assure, meme si le NIR du patient est present. Ces refus sont hors reseau.
     Dim actesIdentite As New Collection
@@ -92,11 +103,11 @@ Public Function Executer() As String
                           Array("", "FICTIF", "02/02/1970", "170020000000157"), _
                           Array("ASSURE", "", "02/02/1970", "170020000000157"), _
                           Array("ASSURE", "FICTIF", "", "170020000000157"), _
-                          Array("ASSURE", "FICTIF", "02/02/1970", ""), _
+                          Array("", "", "", "170020000000157"), _
                           Array("ASSURE", "FICTIF", "31/02/1970", "170020000000157"), _
                           Array("   ", "FICTIF", "02/02/1970", "170020000000157"), _
                           Array("ASSURE", "   ", "02/02/1970", "170020000000157"), _
-                          Array("ASSURE", "FICTIF", "02/02/1970", "   "))
+                          Array("ASSURE", "FICTIF", "", ""))
         ligneFigee("AssureNom") = CStr(cas(0)): ligneFigee("AssurePrenom") = CStr(cas(1))
         ligneFigee("AssureDDN") = CStr(cas(2)): ligneFigee("AssureNIR") = CStr(cas(3))
         numero = 0
@@ -118,6 +129,14 @@ Public Function Executer() As String
     ligneFigee("AssureDDN") = "": ligneFigee("AssureNIR") = ""
     Set identiteFigee = modActes.DonneesImpressionFigees(sauvegardees, "P1", lignesImpression)
     If CStr(identiteFigee("NIR")) <> "280010000000169" Then Err.Raise 5, , "Patient assure sans fiche distincte refuse"
+    reussis = reussis + 1
+    ligneFigee("NIR") = ""
+    Set identiteFigee = modActes.DonneesImpressionFigees(sauvegardees, "P1", lignesImpression)
+    If CStr(identiteFigee("NIR")) <> "" Or CStr(identiteFigee("Nom")) <> "ANCIEN" Then Err.Raise 5, , "Patient sans NIR refuse"
+    reussis = reussis + 1
+    ligneFigee.Remove "NIR"
+    Set identiteFigee = modActes.DonneesImpressionFigees(sauvegardees, "P1", lignesImpression)
+    If CStr(identiteFigee("NIR")) <> "" Or CStr(identiteFigee("DDN")) <> "01/01/1980" Then Err.Raise 5, , "Cle NIR patient absente refusee"
     reussis = reussis + 1
     ligneFigee("NIR") = "": ligneFigee("AssureNom") = "ASSURE": ligneFigee("AssurePrenom") = "FICTIF"
     ligneFigee("AssureDDN") = "02/02/1970": ligneFigee("AssureNIR") = "170020000000157"
@@ -200,4 +219,51 @@ Public Function Executer() As String
 Echec:
     description = Err.Description
     Executer = "{""reussis"":" & CStr(reussis) & ",""attendus"":" & CStr(NOMBRE_ATTENDU_EXCEL) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
+End Function
+
+Public Function ExecuterEditionSecretariat() As String
+    Dim f As ufChoixActe, b As Object, nom As Variant, info As Object, pub As Object
+    Dim n As Long, chemin As String, etat As Variant, description As String, code As Long
+    On Error GoTo Echec
+    Set f = New ufChoixActe
+    For Each nom In Array("btnEditerAnnexes", "btnDestAnnexe", "btnSauverEdition", "btnAbandonnerEdition")
+        Set b = f.Controls(CStr(nom))
+        If b.Width <= 0 Or b.Height <= 0 Then Err.Raise 5, , "Bouton invisible : " & CStr(nom)
+        If b.Left + b.Width > f.InsideWidth Or b.Top + b.Height > f.InsideHeight Then Err.Raise 5, , "Bouton hors formulaire : " & CStr(nom)
+        n = n + 1
+    Next nom
+    Unload f: Set f = Nothing
+    Set pub = modServiceNas.Parametres(): pub("PublicationID") = "FICTIF-EDITION-" & modFichiers.IdUnique()
+    If modEditionSecretariat.EditionEnCours(pub) Then Err.Raise 5, , "Edition inexistante consideree ouverte"
+    n = n + 1
+    chemin = Environ$("LOCALAPPDATA") & "\CabinetCardio\EditionsSecretariat\" & CStr(pub("PublicationID")) & ".json"
+    modFichiers.EnsureDossier CreateObject("Scripting.FileSystemObject").GetParentFolderName(chemin)
+    Set info = modServiceNas.Parametres(): info("SourceID") = pub("PublicationID")
+    For Each etat In Array("edition", "preparee", "terminee", "abandonnee")
+        info("Etat") = CStr(etat)
+        modFichiers.EcrireTexteUTF8 chemin, modServiceNas.JsonValeur(info)
+        If modEditionSecretariat.EditionEnCours(pub) <> (CStr(etat) = "edition" Or CStr(etat) = "preparee") Then Err.Raise 5, , "Mauvaise gestion de l etat " & CStr(etat)
+        n = n + 1
+    Next etat
+    info("Etat") = "INCONNU"
+    modFichiers.EcrireTexteUTF8 chemin, modServiceNas.JsonValeur(info)
+    On Error Resume Next
+    code = 0: modEditionSecretariat.EditionEnCours pub
+    code = Err.Number: Err.Clear
+    On Error GoTo Echec
+    If code = 0 Then Err.Raise 5, , "Suivi local invalide accepte"
+    n = n + 1
+    If Not modServiceNas.EstLecture("publication.get") Then Err.Raise 5, , "Lecture publication classee comme ecriture"
+    n = n + 1
+    ExecuterEditionSecretariat = "{""reussis"":" & CStr(n) & ",""echec"":false}"
+Sortie:
+    On Error Resume Next
+    If Not f Is Nothing Then Unload f
+    modFichiers.SupprimerTemporaire chemin
+    On Error GoTo 0
+    Exit Function
+Echec:
+    description = Err.Description
+    ExecuterEditionSecretariat = "{""reussis"":" & CStr(n) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
+    Resume Sortie
 End Function

@@ -63,7 +63,7 @@ def test_chemin_cycle_et_recette_exercent_le_contrat():
     cycle = (ROOT / 'Src/Integration/modCycleCourrier.bas').read_text(encoding='utf-8-sig')
     assert cycle.count('modOpenAI_v22_corrige.AppelerOpenAIStructure(') == 2
     recette = (ROOT / 'Tests/Vba/word/modRecetteU2.bas').read_text(encoding='utf-8-sig')
-    assert 'Private Const NOMBRE_ATTENDU_U2 As Long = 29' in recette
+    assert 'Private Const NOMBRE_ATTENDU_U2 As Long = 36' in recette
     assert 'modOpenAI_v22_corrige.VerifierDestinataireAvantIA ident, cor' in recette
     assert '    TesterDestinataireAvantIA\n' in recette
     assert 'DestinataireIARefuse(" ", cor)' in recette

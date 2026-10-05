@@ -69,9 +69,15 @@ function Installer-SourcesVba($Projet, $Entrees, [string]$Racine, [string[]]$Ret
             if ($candidate.Name -eq $entry.name) { $component = $candidate; break }
         }
         if ($null -eq $component) {
-            if ($entry.kind -ne 'module') { throw "Formulaire ou classe absent du modele source : $($entry.name)" }
-            $component = $Projet.VBComponents.Add(1)
+            if ($entry.kind -eq 'form' -and $null -ne $entry.PSObject.Properties['designer']) {
+                $component = $Projet.VBComponents.Add(3)
+            } elseif ($entry.kind -eq 'module') {
+                $component = $Projet.VBComponents.Add(1)
+            } else { throw "Formulaire ou classe absent du modele source : $($entry.name)" }
             $component.Name = $entry.name
+        }
+        if ($null -ne $entry.PSObject.Properties['designer']) {
+            Installer-ControlesFormulaire $component $entry.designer
         }
         $code = Lire-CodeVba $file
         if ($component.CodeModule.CountOfLines -gt 0) { $component.CodeModule.DeleteLines(1, $component.CodeModule.CountOfLines) }
@@ -153,4 +159,41 @@ function Publier-FichierConstruit([string]$Source, [string]$Destination) {
             [IO.File]::Replace($temp, $Destination, $backup)
         } else { [IO.File]::Move($temp, $Destination) }
     } finally { if ([IO.File]::Exists($temp)) { [IO.File]::Delete($temp) } }
+}
+
+# Formulaires nouveaux / boutons ajoutes : uniquement la description du manifeste.
+function Installer-ControlesFormulaire($Component,$Spec) {
+    if ($Component.Type -ne 3) { throw 'Designer reserve aux formulaires.' }
+    $form=$Component.Designer
+    $append=$null -ne $Spec.PSObject.Properties['append'] -and [bool]$Spec.append
+    $base=0
+    if ($append) {
+        foreach ($control in $form.Controls) {
+            if ($control.Name -notin @($Spec.controls | ForEach-Object {$_.name})) {
+                $base=[Math]::Max($base,[double]$control.Top+[double]$control.Height+10)
+            }
+        }
+    } else {
+        foreach ($key in @('Caption','Width','Height')) { Definir-ProprieteFormulaire $Component $key $Spec.$key }
+        Definir-ProprieteFormulaire $Component 'ShowModal' $false
+    }
+    foreach ($c in $Spec.controls) {
+        if ($c.type -notin @('Forms.Label.1','Forms.TextBox.1','Forms.ListBox.1','Forms.CommandButton.1')) { throw 'Type de controle non autorise.' }
+        if ($c.name -notmatch '^[A-Za-z][A-Za-z0-9_]*$') { throw 'Nom de controle invalide.' }
+        $control=$null
+        foreach ($existing in $form.Controls) { if ($existing.Name -eq $c.name) {$control=$existing;break} }
+        if ($null -eq $control) { $control=$form.Controls.Add([string]$c.type,[string]$c.name,$true) }
+        $control.Left=[double]$c.left; $control.Top=$base+[double]$c.top
+        $control.Width=[double]$c.width; $control.Height=[double]$c.height
+        if ($null -ne $c.PSObject.Properties['caption']) { $control.Caption=[string]$c.caption }
+        # Police heritee du formulaire ; pas de propriete Font sur le proxy de controle du designer.
+        if ($append) { Definir-ProprieteFormulaire $Component 'Height' ([Math]::Max([double]$Component.Properties.Item('Height').Value,[double]$control.Top+[double]$control.Height+35)) }
+    }
+}
+
+# Les valeurs VBIDE.Property sont des VARIANT ; eviter le cache de conversion
+# PowerShell 5.1 qui reutilise le type String de Caption pour Width/Height.
+function Definir-ProprieteFormulaire($Component,[string]$Name,[object]$Value) {
+    $property=$Component.Properties.Item($Name)
+    [void]$property.GetType().InvokeMember('Value',[Reflection.BindingFlags]::SetProperty,$null,$property,[object[]]@($Value))
 }

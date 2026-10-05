@@ -7,6 +7,7 @@ Public Function Audit_TestsSansReseau() As String
     Dim dossier As String, doc As Document, pat As Object, racineJson As Object
     Dim texte As String, lignes As Variant, ligne As Variant, r As Range, premier As Range
     Dim n As Long, description As String, valeur As Variant, invalide As Variant
+    Dim dateTest As Variant, dateAttendue As String, stGdt As Object
     On Error GoTo Echec
     mVerifications = 0
     dossier = Environ$("TEMP") & "\CabinetAudit-" & modFichiers.IdUnique()
@@ -48,12 +49,59 @@ Public Function Audit_TestsSansReseau() As String
     lignes = Split(texte, vbCrLf)
     Audit_Verifier lignes(0) = "01380006302", "GDT satz 6302"
     Audit_Verifier CLng(Mid$(lignes(1), 8)) = Len(texte), "GDT longueur totale"
-    Audit_Verifier InStr(texte, "01031102") > 0, "GDT sexe femme"
+    Audit_Verifier InStr(texte, vbCrLf & "019310329.02.1960" & vbCrLf) > 0, "GDT DDN avec points"
+    Audit_Verifier InStr(texte, "3110") = 0, "GDT sans sexe"
     For Each ligne In lignes
         If Len(ligne) > 0 Then Audit_Verifier CLng(Left$(ligne, 3)) = Len(ligne) + 2, "GDT longueur de ligne"
     Next ligne
-    pat("Sexe") = "": Audit_Verifier Audit_GdtRefuse(pat), "GDT sexe absent refuse"
-    pat("Sexe") = "F": pat("DDN") = "31/02/1960": Audit_Verifier Audit_GdtRefuse(pat), "GDT date impossible refusee"
+    pat("Sexe") = "": Audit_Verifier modGdt.ConstruireGdt(pat) = texte, "GDT independant du sexe vide"
+    pat.Remove "Sexe"
+    Audit_Verifier modGdt.ConstruireGdt(pat) = texte, "GDT independant du sexe absent"
+    For Each dateTest In Array("15/01/1980", "15/11/1980", "29/02/1980", "31/12/1980", "29/02/2000")
+        pat("DDN") = CStr(dateTest)
+        dateAttendue = Replace(CStr(dateTest), "/", ".")
+        texte = modGdt.ConstruireGdt(pat)
+        Audit_Verifier InStr(texte, vbCrLf & "0193103" & dateAttendue & vbCrLf) > 0, "GDT DDN avec points " & dateAttendue
+        Audit_Verifier Audit_GdtLongueursValides(texte), "GDT longueurs CRLF " & dateAttendue
+    Next dateTest
+    pat("DDN") = "1/2/1980"
+    Audit_Verifier InStr(modGdt.ConstruireGdt(pat), vbCrLf & "019310301.02.1980" & vbCrLf) > 0, "GDT DDN courte normalisee"
+    For Each invalide In Array("", "   ", "31/02/1960", "29/02/1900", "29/02/1981", "31/04/1980", "00/01/1980", "15/00/1980", "15/13/1980", "15.01.1980", "1980-01-15", "15011980", "15/01/80")
+        pat("DDN") = CStr(invalide)
+        Audit_Verifier Audit_GdtRefuse(pat), "GDT DDN invalide refusee " & CStr(invalide)
+    Next invalide
+    pat.Remove "DDN"
+    Audit_Verifier Audit_GdtRefuse(pat), "GDT DDN absente refusee"
+    pat("DDN") = Replace(Format$(Date + 1, "dd.mm.yyyy"), ".", "/")
+    Audit_Verifier Audit_GdtRefuse(pat), "GDT DDN future refusee"
+    pat("DDN") = Replace(Format$(Date, "dd.mm.yyyy"), ".", "/")
+    Audit_Verifier InStr(modGdt.ConstruireGdt(pat), vbCrLf & "0193103" & Format$(Date, "dd.mm.yyyy") & vbCrLf) > 0, "GDT DDN du jour acceptee"
+    pat("DDN") = "29/02/1960"
+    pat("ID") = "P1234567890aaaaaaaaaaaaaaaaaaaaaa1"
+    texte = modGdt.ConstruireGdt(pat)
+    Audit_Verifier InStr(texte, "3000" & pat("ID") & vbCrLf) > 0, "GDT identifiant long integral"
+    pat("ID") = "P1234567890aaaaaaaaaaaaaaaaaaaaaa2"
+    Audit_Verifier modGdt.ConstruireGdt(pat) <> texte, "GDT deux identifiants de meme prefixe distincts"
+    pat("Prenom") = "El" & ChrW$(233) & "odie"
+    texte = modGdt.ConstruireGdt(pat)
+    Audit_Verifier InStr(texte, "3102" & pat("Prenom") & vbCrLf) > 0, "GDT accent CP1252 conserve"
+    Set stGdt = CreateObject("ADODB.Stream")
+    stGdt.Type = 2: stGdt.Charset = "windows-1252": stGdt.Open
+    stGdt.LoadFromFile modGdt.EcrireGdtPatient(pat, dossier)
+    Audit_Verifier stGdt.Size = Len(texte) And stGdt.ReadText = texte, "GDT octets CP1252 sans BOM"
+    For Each invalide In Array("", "31/02/1960", Replace(Format$(Date + 1, "dd.mm.yyyy"), ".", "/"))
+        pat("DDN") = CStr(invalide)
+        Audit_Verifier Audit_GdtEcritureDdnRefusee(pat, dossier), "GDT DDN refusee avant ecriture"
+        stGdt.Position = 0
+        stGdt.LoadFromFile dossier & "\IMPORT.GDT"
+        Audit_Verifier stGdt.Size = Len(texte) And stGdt.ReadText = texte, "GDT existant preserve apres refus DDN"
+        Audit_Verifier modFichiers.ListerFichiers(dossier, ".tmp").Count = 0, "GDT aucun temporaire apres refus DDN"
+    Next invalide
+    modFichiers.EnsureDossier dossier & "\GdtRefuse"
+    Audit_Verifier Audit_GdtEcritureDdnRefusee(pat, dossier & "\GdtRefuse"), "GDT futur refuse dans dossier vide"
+    Audit_Verifier Not modFichiers.FichierExiste(dossier & "\GdtRefuse\IMPORT.GDT"), "GDT futur ne cree aucun import"
+    stGdt.Close
+    Set stGdt = Nothing
     pat("DDN") = "29/02/1960": pat("Nom") = "FICTIF" & vbCrLf & "31101"
     Audit_Verifier Audit_GdtRefuse(pat), "GDT injection de champ refusee"
     pat("Nom") = ChrW$(&H4E2D): Audit_Verifier Audit_GdtRefuse(pat), "GDT caractere hors CP1252 refuse"
@@ -71,6 +119,7 @@ Public Function Audit_TestsSansReseau() As String
     Audit_TestsSansReseau = CStr(mVerifications) & " verifications VBA reussies. Aucun test Dragon/ECG/imprimante/API."
 Sortie:
     On Error Resume Next
+    If Not stGdt Is Nothing Then stGdt.Close
     If Not doc Is Nothing Then doc.Close wdDoNotSaveChanges
     modConfig.DefinirRacine ""
     If Len(dossier) > 0 Then CreateObject("Scripting.FileSystemObject").DeleteFolder dossier, True
@@ -80,6 +129,19 @@ Sortie:
 Echec:
     n = Err.Number: description = Err.Description
     Resume Sortie
+End Function
+
+Private Function Audit_GdtLongueursValides(ByVal texte As String) As Boolean
+    Dim lignes As Variant, ligne As Variant
+    lignes = Split(texte, vbCrLf)
+    If Right$(texte, 2) <> vbCrLf Then Exit Function
+    If CLng(Mid$(lignes(1), 8)) <> Len(texte) Then Exit Function
+    For Each ligne In lignes
+        If Len(ligne) > 0 Then
+            If CLng(Left$(ligne, 3)) <> Len(ligne) + 2 Then Exit Function
+        End If
+    Next ligne
+    Audit_GdtLongueursValides = True
 End Function
 
 Public Sub Audit_LancerTests()
@@ -120,4 +182,24 @@ Private Function Audit_GdtRefuse(ByVal patient As Object) As Boolean
     Exit Function
 Attendu:
     Audit_GdtRefuse = True
+End Function
+
+Private Function Audit_GdtEcritureDdnRefusee(ByVal patient As Object, ByVal dossier As String) As Boolean
+    Dim sortie As String
+    On Error GoTo Attendu
+    sortie = modGdt.EcrireGdtPatient(patient, dossier)
+    Exit Function
+Attendu:
+    Audit_GdtEcritureDdnRefusee = (Err.Number = vbObjectError + 809 And Err.Source = "modGdt")
+End Function
+
+Public Function Audit_ExecuterJson() As String
+    Dim resultat As String, description As String
+    On Error GoTo Echec
+    resultat = Audit_TestsSansReseau()
+    Audit_ExecuterJson = "{""reussis"":" & CStr(mVerifications) & ",""echec"":false}"
+    Exit Function
+Echec:
+    description = Err.Description
+    Audit_ExecuterJson = "{""reussis"":" & CStr(mVerifications) & ",""echec"":true,""description"":" & modServiceNas.JsonValeur(description) & "}"
 End Function

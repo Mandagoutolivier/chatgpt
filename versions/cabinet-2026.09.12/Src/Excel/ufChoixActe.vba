@@ -36,7 +36,7 @@ Public Sub Charger(ByVal drapeau As Object)
         cmbPaiement.AddItem CStr(m)
     Next m
     cmbPaiement.ListIndex = 0
-    chkFds.Value = True
+    chkFds.Value = False
     MajTotal
 End Sub
 
@@ -184,6 +184,10 @@ End Function
 Private Sub btnOK_Click()
     On Error GoTo Erreur
     Dim actes As Collection, seanceID As String, a As Object, tarifZero As Boolean, deja As Boolean
+    If modEditionSecretariat.EditionEnCours(mDrapeau) Then
+        MsgBox "Enregistrez ou abandonnez la copie en cours d edition avant de traiter cette consultation.", vbExclamation, "Cabinet"
+        Exit Sub
+    End If
     seanceID = IdentifiantSeance()
     ' Recontroler au clic : un autre poste a pu facturer depuis l'ouverture.
     ' Cette branche ne construit aucune selection et n'appelle jamais bill.
@@ -264,4 +268,20 @@ Public Sub ReimprimerFeuille()
     Exit Sub
 Echec:
     MsgBox Err.Description, vbExclamation, "Reimpression"
+End Sub
+
+Private Sub btnEditerAnnexes_Click()
+    modEditionSecretariat.OuvrirEditionAnnexes mDrapeau
+End Sub
+
+Private Sub btnDestAnnexe_Click()
+    modEditionSecretariat.ChoisirDestinataireAnnexe mDrapeau
+End Sub
+
+Private Sub btnSauverEdition_Click()
+    modEditionSecretariat.EnregistrerEditionAnnexes mDrapeau
+End Sub
+
+Private Sub btnAbandonnerEdition_Click()
+    modEditionSecretariat.AbandonnerEditionAnnexes mDrapeau
 End Sub

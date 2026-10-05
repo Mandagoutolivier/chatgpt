@@ -8,7 +8,7 @@ Pour la recette Office locale, utiliser un compte Windows standard dédié, sans
 |---|---|
 | Projet Compose et volumes | Projet `cabinetcardio-test-u2`, port `8766`, données, PostgreSQL, sauvegardes et secrets distincts |
 | Service `/health` | Statut `ok`, version applicative et protocole 2 |
-| RPC authentifié `whoami` | Rôles attendus, schéma 2 et révision `2026.09.16-u2b` |
+| RPC authentifié `whoami` | Rôles attendus, schéma 2 et révision `2026.09.21-u2c` |
 | Service clinique pendant la recette | Toujours accessible séparément ; aucun arrêt, changement de port ou changement de volume |
 | Préparation des profils Domicile, Secretariat et Cabinet | Binaires dans un dossier de préparation ; anciens fichiers actifs conservés |
 | Word/Excel : Débogage > Compiler, fermer/rouvrir | Aucune erreur, aucune référence manquante, sources conformes au manifeste |
@@ -30,7 +30,9 @@ Pour la recette Office locale, utiliser un compte Windows standard dédié, sans
 | Deux RDV distincts du même patient le même jour | Deux arrivées distinctes dans le cache et le service |
 | Deux médecins sélectionnent la même arrivée | Une seule réservation réussit |
 | A puis dictée du destinataire, B puis corps, C | Signets et formule d'appel corrects ; identité/âge du patient réservé |
-| Export GDT, accents et identité fictive | Fichier correct dans le dossier U2b dédié ; import uniquement via un profil ECG de test distinct, jamais via le profil clinique |
+| Export GDT, accents et identité fictive | Fichier correct dans le dossier U2c dédié ; import uniquement via un profil ECG de test distinct, jamais via le profil clinique |
+| GDT Resting12Lead27 : DDN `3103` | `JJ.MM.AAAA` ; vérifier janvier, novembre, 29 février et 31 décembre via F2 / Nouveau Patient ; DDN absente, invalide ou future refusée avant écriture |
+| Âge après import GDT | Changer temporairement le jour dans le calendrier puis restaurer la DDN exacte ; âge cohérent ; geste encore manuel, sexe à renseigner ; Annuler sans Suivant, acquisition ni sauvegarde — voir [qualification GDT](U2C_GDT_20260924.md) |
 | D : sortie complète de l'API, puis relecture et D | Texte et annexes proposés ; rien dans la file avant confirmation ; toutes les pages relues |
 | Réponse API incomplète, refus, JSON invalide, annexe vide | Erreur explicite ; aucun courrier incomplet publié |
 | Négation/dose/nombre changé | Différence signalée ; relire même si aucun signal n'apparaît |
@@ -50,12 +52,12 @@ Pour la recette Office locale, utiliser un compte Windows standard dédié, sans
 | CERFA plus de quatre lignes | Refus explicite, aucune ligne ignorée silencieusement |
 | Deux imprimantes/postes | Calage local indépendant ; essai papier vérifié |
 | Sauvegarde, contrôle et restauration sur volumes neufs | Base et fichiers récupérés, droits corrects, rapprochement puis lecture d'échantillons réussis |
-| Arrêt du projet U2b | Seul `cabinetcardio-test-u2` s'arrête ; le service clinique reste disponible |
+| Arrêt du projet U2c | Seul `cabinetcardio-test-u2` s'arrête ; le service clinique reste disponible |
 | Restauration du PC d'essai | Simulation puis application réussies ; ancien modèle de nouveau utilisable |
 
 Avec le lanceur autonome, fermer les applications après les essais et saisir **RECETTE** dans sa console. Il exécute la validation et l'activation sans commande à recopier. Pour tester le modèle Word, utiliser **Fichier > Ouvrir** sur le `.dotm` préparé ; un double-clic dans l'Explorateur crée un nouveau document. Les macros des fichiers ouverts par le constructeur sont désactivées : fermer puis rouvrir le fichier pour les essais, en respectant les autorisations Office du poste.
 
-La recette U2b n'est recevable que si les deux compilations Office réussissent, si le socle Word annonce `50`, si l'extension Word U2 annonce `29/29`, si Excel annonce `70/70`, si les autorisations VBA et `Normal.dotm` sont restaurés, si le parcours fictif complet est validé et si le retour à l'installation précédente a été testé sur le PC d'essai. Un journal annonçant des tests réussis ne suffit pas si le nettoyage reste incomplet.
+La recette U2c n'est recevable que si les deux compilations Office réussissent, si le socle Word annonce `50`, si l'extension Word U2 annonce `29/29`, si Excel annonce `70/70`, si les autorisations VBA et `Normal.dotm` sont restaurés, si le parcours fictif complet est validé et si le retour à l'installation précédente a été testé sur le PC d'essai. Un journal annonçant des tests réussis ne suffit pas si le nettoyage reste incomplet.
 
 Sur une installation neuve, les essais en réseau exigent auparavant un environnement d'essai configuré (service, partage, compte et configuration locale du client). Choisir **PAUSE** si cet environnement n'est pas disponible ; le lanceur ne crée pas un serveur de test sur le PC et ne confond pas essai et production.
 

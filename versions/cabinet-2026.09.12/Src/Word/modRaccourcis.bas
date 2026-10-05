@@ -11,7 +11,7 @@ Public Sub AideCabinet()
     MsgBox "PowerMic A : patients arrives puis destinataire Dragon." & vbCrLf & _
            "B : formule d appel, puis dictee du courrier." & vbCrLf & _
            "C / F6 : NOM Prenom, age, a la position du curseur." & vbCrLf & _
-           "D : correction, annexes et gras ; relire puis D pour transmettre au secretariat." & vbCrLf & _
+           "Relisez le dicte puis D : coupe le micro, corrige et transmet au secretariat." & vbCrLf & _
            "Reprendre : rouvrir un brouillon interrompu.", vbInformation, "Cabinet"
 End Sub
 ' Execute automatiquement au chargement de CabinetUnifie.dotm (demarrage de Word) :
@@ -20,6 +20,7 @@ Public Sub AutoExec()
     On Error Resume Next
     modLog.LogInfo "AutoExec CabinetUnifie.dotm : demarrage"
     InstallerRaccourcisSession False
+    modFileArrivees.DemarrerFileAuChargement
 End Sub
 
 ' Sonde sans interface : prouve qu'une liaison de touche declenche bien une
@@ -111,3 +112,7 @@ Public Function ModeleUnifie() As Template
     Set ModeleUnifie = TrouverModeleCabinet()
     If ModeleUnifie Is Nothing Then Err.Raise vbObjectError + 965, , "CabinetUnifie.dotm n est pas charge."
 End Function
+
+Public Sub AutoExit()
+    modFileArrivees.FermerFileArrivees
+End Sub

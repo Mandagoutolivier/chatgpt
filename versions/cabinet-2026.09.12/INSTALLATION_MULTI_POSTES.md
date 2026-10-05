@@ -1,10 +1,10 @@
 # Installer les trois profils
 
-**U2b (`2026.09.16-u2b`) reste en recette isolée. L'installation clinique actuelle doit être conservée. Les premiers essais ont lieu sur un PC secondaire formellement identifié — le PC de l'étage s'il est bien distinct — et sur `cabinetcardio-test-u2`, jamais sur le poste indispensable aux consultations du lendemain.**
+**U2c (`2026.09.21-u2c`) reste en recette isolée. L'installation clinique actuelle doit être conservée. Les premiers essais ont lieu sur un PC secondaire formellement identifié — le PC de l'étage s'il est bien distinct — et sur `cabinetcardio-test-u2`, jamais sur le poste indispensable aux consultations du lendemain.**
 
 ## Lanceur autonome conseillé
 
-Télécharger **[Demarrer_Installation_Cabinet.cmd](../../Installateur/Demarrer_Installation_Cabinet.cmd)** avec le bouton de téléchargement du fichier GitHub, ou utiliser la pièce jointe fournie dans la conversation. Un seul fichier suffit. Pour U2b, le lancer exclusivement dans le compte Windows dédié à la recette du PC secondaire, jamais dans le profil clinique U0, et sans élévation administrateur.
+Télécharger **[Demarrer_Installation_Cabinet.cmd](../../Installateur/Demarrer_Installation_Cabinet.cmd)** avec le bouton de téléchargement du fichier GitHub, ou utiliser la pièce jointe fournie dans la conversation. Un seul fichier suffit. Pour U2c, le lancer exclusivement dans le compte Windows dédié à la recette du PC secondaire, jamais dans le profil clinique U0, et sans élévation administrateur.
 
 Le lanceur ouvre le navigateur pour télécharger une version précise du dépôt privé, repère le ZIP dans Téléchargements (ou ouvre un sélecteur), extrait la version, vérifie les SHA-256 et débloque ses fichiers. Votre navigateur doit être connecté à GitHub avec le compte autorisé ; en cas de page 404, se connecter puis rouvrir le lien affiché. Aucun jeton GitHub n'est demandé. Git et Python ne sont pas requis sur le PC.
 
@@ -22,7 +22,7 @@ Les fichiers téléchargés restent dans `%LOCALAPPDATA%\CabinetCardio\Installat
 
 ## Installation depuis le dépôt complet
 
-1. Déployer le service selon [INSTALLATION_NAS.md](Serveur/INSTALLATION_NAS.md), avec le projet `cabinetcardio-test-u2`, le port `8766`, le partage d'exemple `\\NAS-RECETTE\CabinetCardioTestU2` et des volumes propres à U2b. N'utiliser que des données fictives ou une copie isolée.
+1. Déployer le service selon [INSTALLATION_NAS.md](Serveur/INSTALLATION_NAS.md), avec le projet `cabinetcardio-test-u2`, le port `8766`, le partage d'exemple `\\NAS-RECETTE\CabinetCardioTestU2` et des volumes propres à U2c. N'utiliser que des données fictives ou une copie isolée.
 2. Depuis le dépôt privé `Mandagoutolivier/chatgpt`, télécharger le ZIP, l'extraire sur le PC, puis ouvrir `versions/cabinet-2026.09.12`. Conserver toute son arborescence.
 3. Fermer Word et Excel. Word et Excel doivent être installés. Le constructeur nécessite l'accès au modèle objet du projet VBA, à autoriser dans le centre de gestion de la confidentialité pendant la construction. Le script ne désactive pas les protections Office/Windows. Si une stratégie d'entreprise interdit les scripts/macros, faire signer ou autoriser le paquet selon cette stratégie.
 4. À domicile, connecter la liaison privée sécurisée du cabinet et vérifier l'accès au partage UNC et à l'adresse HTTPS du service.
@@ -54,17 +54,17 @@ Exécuter ensuite `Build\Tester_U2_Office.ps1`. La recette automatisée n'est va
 
 Remplacer les chemins et l'adresse d'exemple. Pour secrétariat, utiliser `-Profil Secretariat` et `-CompilationExcelValidee`. Pour médecin, `-Profil Cabinet` et `-CompilationWordValidee`. Le validateur rouvre les binaires, compare leur source au manifeste et vérifie les références Office. La compilation et les essais physiques restent attestés par l'opérateur ; ils ne sont pas simulés.
 
-À l'activation, le script demande le secret applicatif du compte par saisie masquée, ou accepte `-FichierJeton` pointant vers un fichier local protégé. Il contrôle HTTPS, le protocole 2, la révision serveur `2026.09.16-u2b`, le schéma 2 et les rôles. Il conserve ce secret dans `%APPDATA%\CabinetCardio\service.token` avec des droits limités au compte Windows, SYSTEM et administrateurs. Ne jamais le saisir dans la ligne de commande ni le déposer dans GitHub.
-
-Le fichier local `%APPDATA%\CabinetCardio\service.url` doit contenir uniquement l'adresse HTTPS, en UTF-8 sans BOM et **sans retour à la ligne**. Le client VBA ajoute `/v1/rpc` au texte lu ; un CR/LF final rend donc l'URL WinHTTP invalide. L'installateur écrit désormais ce format. Pour un poste déjà configuré avec l'ancien format, fermer Word et Excel, sauvegarder ce seul fichier puis retirer son retour à la ligne final, en conservant l'adresse du service prévu. Cette correction locale ne nécessite pas de reconstruire les modèles et ne constitue pas une validation des essais fonctionnels.
+À l'activation, le script demande le secret applicatif du compte par saisie masquée, ou accepte `-FichierJeton` pointant vers un fichier local protégé. Il contrôle HTTPS, le protocole 2, la révision serveur `2026.09.21-u2c`, le schéma 2 et les rôles. Il conserve ce secret dans `%APPDATA%\CabinetCardio\service.token` avec des droits limités au compte Windows, SYSTEM et administrateurs. Ne jamais le saisir dans la ligne de commande ni le déposer dans GitHub.
 
 Le service doit avoir été initialisé et les classeurs importés avant cette activation. Les ressources initiales sont copiées seulement si absentes ; les bases Excel historiques ne sont jamais remplacées par l'installateur.
 
 ## Réglages du poste médecin
 
-Le dossier de recette ECG se règle avec `-DossierGdt 'C:\CabinetCardioTestU2\GDT'`. Il doit être réservé à U2b et ne jamais être surveillé par le profil Resting12Lead clinique. Si aucun profil ECG de test entièrement distinct n'est disponible, vérifier seulement la génération du fichier fictif `IMPORT.GDT`, sans l'importer dans Resting12Lead. Ne jamais utiliser `C:\ECG\GDT`, `C:\Mandagout` ou un autre dossier clinique pour cette recette. Le logiciel ne suppose pas un accès documenté à sa base interne propriétaire.
+Le dossier de recette ECG se règle avec `-DossierGdt 'C:\CabinetCardioTestU2\GDT'`. Il doit être réservé à U2c et ne jamais être surveillé par le profil Resting12Lead clinique. Si aucun profil ECG de test entièrement distinct n'est disponible, vérifier seulement la génération du fichier fictif `IMPORT.GDT`, sans l'importer dans Resting12Lead. Ne jamais utiliser `C:\ECG\GDT`, `C:\Mandagout` ou un autre dossier clinique pour cette recette. Le logiciel ne suppose pas un accès documenté à sa base interne propriétaire.
 
 Affecter les touches Dragon/PowerMic aux macros `Unifie_A_NouvelleLettre`, `Unifie_B_FormuleAppel`, `Unifie_C_InsererPatient`, `Unifie_D_Finaliser`. La clé OpenAI demeure locale au poste médecin, via `OPENAI_API_KEY` ou `%APPDATA%\CabinetCardio\openai.key`.
+
+Le [correctif GDT du 24 septembre](U2C_GDT_20260924.md) ajoute la DDN au format `JJ.MM.AAAA` attendu par la version testée de Resting12Lead27. Après import par **F2 / Nouveau Patient**, contrôler l'identité et la date complète. L'import de la date ne déclenche pas à lui seul le calcul de l'âge : le changement temporaire du jour dans le calendrier, puis le retour à la DDN exacte, reste à effectuer et à vérifier. Le sexe n'est pas transmis. Cette qualification ne permet aucune acquisition ni sauvegarde dans la base clinique.
 
 ## Feuille de soins et comptabilité
 
@@ -98,4 +98,4 @@ La recette sur le PC de l'étage ne doit ni désinstaller ni remplacer l'install
 .\Build\restaurer_poste.ps1 -DossierSauvegarde 'C:\chemin\sauvegarde' -Appliquer
 ```
 
-Ce retour restaure les fichiers du poste d'essai, pas les transactions du NAS. Pour abandonner la recette, restaurer ce PC si nécessaire puis arrêter uniquement `cabinetcardio-test-u2`. Ne pas arrêter le projet clinique, ne pas réutiliser ses volumes et ne pas faire écrire simultanément U2b et l'ancien logiciel dans les mêmes données.
+Ce retour restaure les fichiers du poste d'essai, pas les transactions du NAS. Pour abandonner la recette, restaurer ce PC si nécessaire puis arrêter uniquement `cabinetcardio-test-u2`. Ne pas arrêter le projet clinique, ne pas réutiliser ses volumes et ne pas faire écrire simultanément U2c et l'ancien logiciel dans les mêmes données.

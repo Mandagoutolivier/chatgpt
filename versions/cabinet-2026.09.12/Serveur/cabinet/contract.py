@@ -17,6 +17,8 @@ SPECS = {
     'dictionary.add': ({'genre': str, 'texte': str}, {}),
     'clinical.compare': ({'source': str, 'resultat': str}, {}),
     'nir.validate': ({'nir': str}, {}),
+    'publication.get': ({'id': str}, {}),
+    'publication.revise': ({k: str for k in ('source_id','source_sha','revision_id','patient_id','docx','pdf','sha_docx','sha_pdf')}, {}),
     'draft': ({'id': str, 'path': str}, {}),
     'agenda.status': ({'id': str, 'statut': str, 'revision': str}, {}),
     'bill': ({'id': str, 'publication_id': str, 'lignes': list}, {}),
@@ -29,7 +31,8 @@ SPECS = {
         {k: str for k in ('Nom', 'Prenom', 'DDN', 'NIR', 'TypeCourrier', 'SeanceID',
                           'RdvID', 'AnneeAgenda', 'DateValidation', 'Poste')}),
 }
-for op in ('arrive', 'cancel_arrival', 'claim', 'release', 'ack', 'billing.get'):
+SPECS['claim'] = ({'id': str}, {'selection': str})
+for op in ('arrive', 'cancel_arrival', 'release', 'ack', 'billing.get'):
     SPECS[op] = ({'id': str}, {})
 
 LINE_REQUIRED = {'SeanceID', 'PatientID', 'Date', 'CodeActe', 'Montant', 'TiersPayant', 'Paye'}

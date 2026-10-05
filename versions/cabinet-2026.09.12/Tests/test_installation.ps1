@@ -10,7 +10,15 @@ try {
     [void][IO.Directory]::CreateDirectory($stage)
     $source=Join-Path $root 'Src/test.bas';[IO.File]::WriteAllText($source,'source fictive')
     foreach ($name in @('CabinetUnifie.dotm','Cabinet.xlsm')) { [IO.File]::WriteAllText((Join-Path $stage $name),'binaire fictif') }
-    Ecrire-Preparation $stage 'Domicile' $root
+    $commitAvant=$env:CABINET_SOURCE_COMMIT
+    try {
+        $env:CABINET_SOURCE_COMMIT='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        Ecrire-Preparation $stage 'Domicile' $root
+        $env:CABINET_SOURCE_COMMIT=$null
+        Ecrire-Preparation $stage 'Domicile' $root
+        $trace=Get-Content -LiteralPath (Join-Path $stage 'preparation.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+        Verifier ($trace.commitSources -eq 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa') 'commit source conserve lors de la validation'
+    } finally { $env:CABINET_SOURCE_COMMIT=$commitAvant }
     Verifier-Preparation $stage 'Domicile' $root
     Verifier $true 'empreintes et profil initiaux acceptes'
     $refuse=$false;try { Verifier-Preparation $stage 'CabinetMedecin' $root } catch { $refuse=$true };Verifier $refuse 'autre profil refuse'

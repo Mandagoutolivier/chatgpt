@@ -1,6 +1,6 @@
-# Maintenance U2b — opérations sur la recette isolée
+# Maintenance U2c — opérations sur la recette isolée
 
-Ce guide décrit les opérations à qualifier sur des données fictives dans le projet `cabinetcardio-test-u2`. Il ne constate ni déploiement NAS ni validation Office réussis. Le serveur et les clients U2b doivent être qualifiés ensemble ; le RPC authentifié `whoami` annonce la révision `2026.09.16-u2b` et l’installateur exige cette révision, sur schéma 2. `/health` vérifie la disponibilité et le protocole ; il ne donne ni le schéma ni cette révision.
+Ce guide décrit les opérations à qualifier sur des données fictives dans le projet `cabinetcardio-test-u2`. Il ne constate ni déploiement NAS ni validation Office réussis. Le serveur et les clients U2c doivent être qualifiés ensemble ; le RPC authentifié `whoami` annonce la révision `2026.09.21-u2c` et l’installateur exige cette révision, sur schéma 2. `/health` vérifie la disponibilité et le protocole ; il ne donne ni le schéma ni cette révision.
 
 L’installation U0, ses comptes, ses volumes et ses postes restent inchangés. RDC peut rester éteint. Identifier explicitement le poste et le service utilisés pour la recette ; le nom AX8_MAX n’indique pas à lui seul son emplacement ou son rôle.
 

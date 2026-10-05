@@ -1,6 +1,6 @@
 services:
   recette:
-    image: "${CABINET_MAINTENANCE_IMAGE:-cabinet-maintenance:2026.09.16-u2b}"
+    image: "${CABINET_MAINTENANCE_IMAGE:-cabinet-maintenance:2026.09.21-u2c}"
     entrypoint: [python3, /tests/recovery_smoke.py]
     environment:
       PGHOST: verification-db
