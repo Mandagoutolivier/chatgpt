@@ -153,6 +153,7 @@ Private Function OuvrirSansMacros(ByVal word As Object, ByVal chemin As String, 
     word.AutomationSecurity = 3
     word.Options.UpdateLinksAtOpen = False
     Set OuvrirSansMacros = word.Documents.Open(chemin, False, lectureSeule, False)
+    OuvrirSansMacros.ActiveWindow.View.ReadingLayout = False
 Sortie:
     ' Restaurer les deux options meme si l'ouverture a echoue.
     On Error Resume Next
