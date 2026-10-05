@@ -17,6 +17,20 @@ function Tester-PaquetCabinet([string]$Dossier,$Empreintes) {
     }
 }
 
+function Ecarter-PaquetCabinetAltere([string]$Dossier,$Empreintes) {
+    # Un paquet deja telecharge mais altere (fichier ajoute, modifie ou supprime) est mis a l ecart,
+    # jamais supprime, pour permettre un nouveau telechargement sans intervention manuelle.
+    if (-not (Test-Path -LiteralPath $Dossier -PathType Container)) { return $false }
+    try { Tester-PaquetCabinet $Dossier $Empreintes;return $true } catch {
+        $ecarte=$Dossier+'.altere-'+[DateTime]::UtcNow.ToString('yyyyMMddHHmmss')+'-'+[guid]::NewGuid().ToString('N').Substring(0,8)
+        Write-Host ('Paquet local altere : '+$_.Exception.Message)
+        [IO.Directory]::Move($Dossier,$ecarte)
+        Write-Host ('Il a ete mis a l ecart dans : '+$ecarte)
+        Write-Host 'Une nouvelle copie va etre telechargee et verifiee.'
+        return $false
+    }
+}
+
 function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$Commit,$Empreintes) {
     if ($Commit -notmatch '^[a-f0-9]{40}$') { throw 'Identifiant de version invalide.' }
     if (Test-Path -LiteralPath $Destination) { throw 'Le dossier de destination doit etre nouveau.' }
@@ -63,23 +77,23 @@ function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$C
 
 # Ce modele est assemble avec les outils et les empreintes par generer_lanceur.py.
 # Aucun mot de passe ni jeton GitHub n est demande ou conserve.
-$Commit='d7479552db94941612c20989696ac16b745fcd19'
+$Commit='4309f20958b6bf5320f7bb50004b0c0404e7c8fc'
 $Empreintes=@'
 {
   ".dockerignore": "30eae15fc1fa5b14ff10f03e58ed06cb18f519802455a73df93d0de4bf6d807f",
   "AUDIT.md": "d28f2a32618dea4ab44bf848879a848ab55e0788cc723346bc2570a2e35517a9",
-  "Build/assistant_installation.ps1": "d7be691963c57e092a3dd627edb28d57a34cc33d91490d90444dee226e989b06",
-  "Build/construire_cabinet_secretariat.ps1": "96b468cbb32f309cb28728416ad0b8853266388fc2770954de4bacbb12da2da4",
-  "Build/construire_modele_unifie.ps1": "03a3ba9f0e44c8713d4deab6c5e1a84169a24a8063bed475263c09494f85c44b",
+  "Build/assistant_installation.ps1": "2d61193ce5a49bf5e415743ac104c1c83609ba51cf29fa8c5d8eaeda0b38c426",
+  "Build/construire_cabinet_secretariat.ps1": "4e8bbb66f096aac7102ad7594f6aa81357c3beb9f1ef9b6a38098dcc357c31ba",
+  "Build/construire_modele_unifie.ps1": "81c9cf20621805d392f1ea36bd1e2801ffd19883a9a32e014cef1f05854ae0b0",
   "Build/donnees_initiales.json": "2c6a672f018d9db815c4f3fcdc91892db9b9a43bb3c7477bc83f49cb4b23b790",
-  "Build/initialiser_nas.ps1": "4598eac4dc1a80addb0aefd486f109d82087000c64912abea66c854bc6f507f1",
-  "Build/installer_multi_postes.ps1": "1c1675568434656116291bdd0a36592764b577e86e5e39316abd85b9f84c16d9",
+  "Build/initialiser_nas.ps1": "4a3c3bec32126dfa6cf4b34f018fb275d370f08cd581f3f7d616d6a0123862e7",
+  "Build/installer_multi_postes.ps1": "3e19de6981fd79cb6e214e188dc8e036e4b9b494787ebac811472298798e7743",
   "Build/installer_sqlite_medecin.ps1": "0d6221fa88894d767fdad5d8a6eb290a52c27830629b5557fc73eed52673ebc7",
   "Build/manifest.json": "7100344ca659bfe3a85bafd47c292cba5bfbf237c05a79650cf3132e07a6f9f6",
-  "Build/outils_assistant.ps1": "08e27219541566fc75b69ab2167ce1e72d355347f6c1554d46975869d3c419d2",
+  "Build/outils_assistant.ps1": "186eb351b9cd929cc53fe0f2086338c11ae09b72d19a0c48f41b773c2b29c19f",
   "Build/outils_construction.ps1": "cd519c89b5a0da498001abe5efdcd1300c3f68c53ded8d26e60e75fa3de65409",
   "Build/outils_installation.ps1": "daa32259aca3c5266f2f6114eb6be008efcf02a31bcd5ee95b862fee0178e793",
-  "Build/outils_telechargement.ps1": "a20c18c69d5bbd823a72d036d047cd20505985440529fe03dbd9323ecf74d705",
+  "Build/outils_telechargement.ps1": "54f3b072c6082854ab0de0aad862bcf4bd305d6d63d3e2196536f2ca82e4bd39",
   "Build/restaurer_poste.ps1": "055022fe8b814f2d2f2cf0950d952608a91b97621833d0e464b3ee16527e0127",
   "Build/ruban_unifie.xml": "23440d0ff03843e9f40f7e02d62a4addbdbeed85a558ff85674e8bf40e429978",
   "Build/schemas.json": "9b6c70a98f9129de98bf9aa1f1f6714b714e1610352801e0d806ab7254f3d0d4",
@@ -95,7 +109,7 @@ $Empreintes=@'
   "DonneesInitiales/Config/cerfa_positions.txt": "f09aece2ca125f32bb303bbbd16b9dbdc20e006807d0977d5fa95bdeb95a9876",
   "DonneesInitiales/Config/substitutions.txt": "80f82f0cf411b94c10368c3458703a6ad44e779778d3741d2008717f5692078a",
   "DonneesInitiales/Modeles/LETTRE TYPE.dot": "56c0ff3cb8167cb6746fda4ca772dee83d1e49a9480ead4f94017681c5dd55ed",
-  "INSTALLATION_MULTI_POSTES.md": "1d8855ec78ccda2d315cf29cb5813d10c959b55c193d7f28655684d0242f309d",
+  "INSTALLATION_MULTI_POSTES.md": "a8481722cc72a84e0d86e760606cd2f69d28ecf6fe428793b2479265e80599c6",
   "INTEGRATION_UNIFIEE.md": "b94a76904d32c45d663428074997b3855794df76a16b389e008beabd03ffb4f0",
   "Installer.cmd": "8074b6ad7a2734a6c962b3641aeb2199cb611e1c9325c84aa3e8635576830efb",
   "Installer.ps1": "eb6dd013e1d1c624116613e19e3ff7a787890f16a0b07e3ff42e25fd8e121b8b",
@@ -106,7 +120,7 @@ $Empreintes=@'
   "RECETTE_WINDOWS.md": "8749183e7c9d0e57f019a3a075b239181feb64dc74b4ce4e10ce62ecba81e362",
   "Serveur/.dockerignore": "891c19e4a4cc9f2b65c507511effbb989345d165389833708b19671f3fc4b58f",
   "Serveur/.env.example": "54b6a40fe98c2a1c40d5a97159ef4ca819a7761128e1c46c7efa480ee166809b",
-  "Serveur/Dockerfile": "529096dcb342f690289782313bc1a1d21e44d22edb9f69b0dd014d7bc1ba009d",
+  "Serveur/Dockerfile": "1a8851fe7f1f529f5cbde88afc0009b96cc96c80d9703849c531449a5923ddd2",
   "Serveur/INSTALLATION_NAS.md": "6014fee7d6f9bc59a52e9052daf27a7c44185060decec797df10d10f98627102",
   "Serveur/cabinet/__init__.py": "eb5a55e6e2b94787dba75aa3fbad0c5da564e583ab4bab302dbb5a04e8a4491a",
   "Serveur/cabinet/admin.py": "1b86b34db19d9b440f06e3d0b45163c639c3ca1ac6b38b16d8347c9f3c3c60b1",
@@ -202,13 +216,15 @@ $Empreintes=@'
   "Tests/inventaire_sources.json": "eba0aa1db04e586b164752ff77b616d29a5cb6c4ee4f321fe5abb64ccb0cd271",
   "Tests/nettoyage_sources.json": "f3b54768aca28e41878d9bd36a147d7f2f7da5815609e85576d2a03986c5e07d",
   "Tests/schema_reponse_api.json": "fbf5f9805faa23b77cdffe368bdd737e320665c58b75a528a268f69ac06665f4",
-  "Tests/test_assistant.ps1": "11cc4bb1293777569a72537d23a203dbc70da60f191ae37fc9650b9b728bc2f6",
+  "Tests/test_assistant.ps1": "961afb1ddb5df346b4b40f0f4db59c9ad646f3af0144779b11105263d352a78a",
   "Tests/test_attente_office.ps1": "1859e958edd9d74ce5b3d27d8d8faa976bf5576e5138d9a3fa6ac608f53b7677",
   "Tests/test_choix_nas.ps1": "54dd2afe5dde485758abdb0dc8064f00bf5e6a7b87689fe41e8deebd65201c0c",
   "Tests/test_compilation_office.ps1": "dfb927de3bf82ba3d31a304b17f944fdb0ae3d73b589ab2f7002aadcf0b2de9b",
   "Tests/test_construction.ps1": "4718fae561570b4d477c7a990cd24aec3cdd5535cc288d406cc2d545cd1b145e",
   "Tests/test_feuilles_excel.ps1": "4d552b64e4a44913daa035af1ee346e2c7d9ac3f1b1d8c9218f1eef82a21c48a",
+  "Tests/test_image_permissions.sh": "ae34c465ef05c08667703e9bc2609f05112e862c2115859edd03ca80ed8b5c2d",
   "Tests/test_installation.ps1": "9b56f991c5949918038f04535259b800f8f293866f309fa9dbc37fcf12b44617",
+  "Tests/test_lancement_direct.ps1": "44dd1fc6b61d15d73c779b298764470954a77f51a6f158ec9282c77bbdf71cc5",
   "Tests/test_sqlite.py": "b72e003154f16caf168fbd660a0e68c676196ec52eca3c496cefac603c11368d",
   "Tests/verification_livraison.json": "824c011534ea20fa09f6cf299ab28b7b7498fc67ce1fc158270e849992196486"
 }
@@ -222,7 +238,7 @@ try {
     [void][IO.Directory]::CreateDirectory($cache)
     $bootLock=[IO.File]::Open((Join-Path $cache 'telechargement.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
     $package=Join-Path $cache $Commit
-    if (-not (Test-Path -LiteralPath $package)) {
+    if (-not (Ecarter-PaquetCabinetAltere $package $Empreintes)) {
         $url="https://github.com/Mandagoutolivier/chatgpt/archive/$Commit.zip"
         Write-Host ''
         Write-Host 'Le navigateur va telecharger une version precise du depot prive.'
