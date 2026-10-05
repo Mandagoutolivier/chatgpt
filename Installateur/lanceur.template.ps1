@@ -13,7 +13,7 @@ try {
     [void][IO.Directory]::CreateDirectory($cache)
     $bootLock=[IO.File]::Open((Join-Path $cache 'telechargement.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
     $package=Join-Path $cache $Commit
-    if (-not (Test-Path -LiteralPath $package)) {
+    if (-not (Ecarter-PaquetCabinetAltere $package $Empreintes)) {
         $url="https://github.com/Mandagoutolivier/chatgpt/archive/$Commit.zip"
         Write-Host ''
         Write-Host 'Le navigateur va telecharger une version precise du depot prive.'

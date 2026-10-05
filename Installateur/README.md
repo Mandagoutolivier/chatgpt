@@ -14,13 +14,13 @@ Le même fichier fonctionne sur les trois postes. Utiliser la session Windows ha
 
 La compilation dans Word/Excel et les essais réels nécessitent votre intervention. Le script ouvre les projets et le guide, recueille les confirmations, puis poursuit jusqu'à l'activation ; il ne certifie pas un essai non réalisé. **PAUSE** conserve la préparation pour une reprise avec le même profil. Les données partagées restent sur le NAS.
 
-Si Windows affiche une interdiction relevant d'une stratégie administrateur, le lanceur s'arrête : il ne modifie pas cette stratégie. L'autorisation VBA par utilisateur est temporaire et journalisée, sans activation globale des macros. Après une coupure brutale, relancer le même fichier pour permettre sa restauration.
+Si Windows affiche une interdiction relevant d'une stratégie administrateur, le lanceur s'arrête : il ne modifie pas cette stratégie. L'autorisation VBA par utilisateur est temporaire et journalisée, sans activation globale des macros. Après une coupure brutale, relancer le même fichier pour permettre sa restauration. Si le profil a déjà été installé par ce lanceur, il propose **R** pour réinstaller, **A** pour réactiver le dossier déjà validé, **Q** pour quitter ; un paquet téléchargé devenu altéré est mis à l'écart automatiquement et retéléchargé.
 
 Détails : [guide des trois postes](../versions/cabinet-2026.09.12/INSTALLATION_MULTI_POSTES.md).
 
 ## Maintenance du lanceur
 
-`generer_lanceur.py COMMIT` assemble `outils_telechargement.ps1`, le modèle et les empreintes des fichiers locaux de `versions/cabinet-2026.09.12`. Le commit indiqué doit contenir exactement ces fichiers. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. Les contrôles GitHub Actions testent l'extraction, le refus des fichiers altérés, la reprise et la syntaxe sur PowerShell 5.1 et 7. Ils ne remplacent pas une exécution sous Word/Excel.
+`generer_lanceur.py COMMIT` assemble `outils_telechargement.ps1`, le modèle et les empreintes des fichiers locaux de `versions/cabinet-2026.09.12`. Il refuse de générer si HEAD n'est pas ce commit, si `versions/` contient des modifications non commitées ou des fichiers non suivis : le lanceur correspond ainsi toujours à un commit publié. Publier d'abord la version, puis générer et publier le lanceur : cette séparation évite une référence circulaire. Les contrôles GitHub Actions testent l'extraction, le refus des fichiers altérés, la reprise et la syntaxe sur PowerShell 5.1 et 7. Ils ne remplacent pas une exécution sous Word/Excel.
 
 ## Word ou Excel encore actif
 

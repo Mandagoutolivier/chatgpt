@@ -25,7 +25,18 @@ try {
         Ecrire-EtatAssistant $statePath $state
     }
     if (Test-Path -LiteralPath $journal) { Attendre-FermetureOffice;Restaurer-AccesVbaAssistant $journal }
-    if ($state.phase -eq 'installe') { Write-Host "Le profil $Profil a deja ete installe par ce lanceur. Dossier : $($state.dossierPrepare)";return }
+    if ($state.phase -eq 'installe') {
+        $choice=Choisir-ReinstallationAssistant $Profil $state.dossierPrepare $statePath
+        if ($choice -eq 'Q') { Write-Host 'Aucune modification.';return }
+        if ($choice -eq 'A') {
+            # Le dossier deja valide est reverifie (empreintes, manifeste) avant toute nouvelle activation.
+            $state.phase='valide'
+        } else {
+            $state.dossierPrepare='';$state.phase='nouveau';$state.wordCompile=$false;$state.excelCompile=$false
+            $state.wordHash='';$state.excelHash='';$state.recette=$false
+        }
+        Ecrire-EtatAssistant $statePath $state
+    }
     $ancienNas=$state.racineNas
     $RacineNas=Choisir-RacineNasAssistant $RacineNas $ancienNas (Join-Path (Split-Path $local -Parent) 'chemin.txt')
     if (-not $RacineNas) { Write-Host 'Installation en pause.';return }

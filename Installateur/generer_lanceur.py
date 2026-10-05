@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -48,10 +49,28 @@ def payload(commit):
     main = main.replace('@@COMMIT@@', commit).replace('@@HASHES@@', json.dumps(hashes, ensure_ascii=True, indent=2))
     return helpers + '\n' + main
 
+def verifier_commit(commit):
+    """Les empreintes sont calculees sur l arbre de travail : il doit etre identique au commit publie."""
+    head = subprocess.run(['git', 'rev-parse', commit], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
+    if head != commit:
+        raise SystemExit('Le commit indique est introuvable ou abrege : ' + commit)
+    actuel = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
+    if actuel != commit:
+        raise SystemExit('HEAD (' + actuel[:7] + ') differe du commit a publier (' + commit[:7] + ') : extraire ce commit avant de generer.')
+    statut = subprocess.run(['git', 'status', '--porcelain', '--', str(VERSION)], cwd=ROOT, capture_output=True, text=True, check=True).stdout
+    if statut.strip():
+        raise SystemExit('Modifications locales non commitees dans versions/ : le lanceur ne correspondrait a aucun commit.')
+    suivis = set(subprocess.run(['git', 'ls-files', '--', str(VERSION)], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split('\n')) - {''}
+    locaux = {p.relative_to(ROOT).as_posix() for p in VERSION.rglob('*') if p.is_file() and '__pycache__' not in p.parts and '.pytest_cache' not in p.parts}
+    if locaux - suivis:
+        raise SystemExit('Fichiers non suivis par git dans versions/ : ' + ', '.join(sorted(locaux - suivis)))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('commit')
     args = parser.parse_args()
+    verifier_commit(args.commit)
     code = payload(args.commit)
     target = ROOT / 'Installateur'
     # Le payload ne comporte que de l ASCII : compatible cmd.exe et PowerShell 5.1.

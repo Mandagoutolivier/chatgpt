@@ -195,6 +195,21 @@ function Compiler-ProjetAssistantUneTentative([string]$Fichier,[ValidateSet('Wor
     }
 }
 
+function Choisir-ReinstallationAssistant([string]$Profil,[string]$DossierPrepare,[string]$FichierEtat) {
+    # Profil deja active par ce lanceur : proposer une reparation au lieu de s arreter sans explication.
+    $reactivable=[bool]($DossierPrepare -and (Test-Path -LiteralPath $DossierPrepare -PathType Container))
+    Write-Host ''
+    Write-Host "Le profil $Profil a deja ete installe par ce lanceur."
+    Write-Host "Etat de reprise : $FichierEtat"
+    Write-Host 'R - REINSTALLER : nouvelle preparation, compilation Office et recette, puis activation'
+    if ($reactivable) { Write-Host "A - REACTIVER : reverifier le dossier deja valide ($DossierPrepare) puis l activer de nouveau" }
+    else { Write-Host 'Le dossier prepare precedent est introuvable : seule la reinstallation est possible.' }
+    Write-Host 'Q - QUITTER sans rien modifier'
+    $allowed=@('R','Q');if ($reactivable) { $allowed+='A' }
+    do { $choice=([string](Read-Host 'Votre choix (R, A ou Q)')).Trim().ToUpperInvariant() } until ($choice -in $allowed)
+    return $choice
+}
+
 function Confirmer-RecetteAssistant([string]$Guide,[string]$Dossier) {
     Write-Host ''
     Write-Host 'La compilation est terminee. Les essais fonctionnels ne peuvent pas etre inventes.'

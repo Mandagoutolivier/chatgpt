@@ -16,7 +16,7 @@ Il affiche les trois profils, contrôle le dossier NAS choisi, autorise temporai
 
 Le service Synology doit être configuré pour ce même emplacement de données (volume monté côté serveur et chemin UNC côté Windows) ; un choix de dossier dans Windows ne reconfigure pas le serveur. Le VPN doit déjà être configuré : ce lanceur installe les clients Windows, pas le serveur DSM. L'adresse HTTPS et le jeton NAS seront demandés à l'activation. Le déploiement NAS, les réglages Dragon/ECG et le calage de l'imprimante restent décrits ci-dessous.
 
-Les fichiers téléchargés restent dans `%LOCALAPPDATA%\CabinetCardio\Installation\Sources`. L'état de reprise est dans `%APPDATA%\CabinetCardio\Assistant`. Après un arrêt brutal, relancer le fichier pour restaurer aussi le réglage Office temporaire. Si le cache est déclaré altéré, le renommer dans l'Explorateur avant de relancer pour télécharger une nouvelle copie ; ne pas modifier les empreintes du lanceur.
+Les fichiers téléchargés restent dans `%LOCALAPPDATA%\CabinetCardio\Installation\Sources`. L'état de reprise est dans `%APPDATA%\CabinetCardio\Assistant`. Après un arrêt brutal, relancer le fichier pour restaurer aussi le réglage Office temporaire. Si le cache est altéré (fichier ajouté, modifié ou supprimé), le lanceur le met de lui-même à l'écart dans un dossier `…altere-<horodatage>` et télécharge une nouvelle copie ; ne pas modifier les empreintes du lanceur. Lorsque le profil a déjà été activé par ce lanceur, il propose **R** (réinstaller : nouvelle préparation, compilation et recette), **A** (réactiver le dossier déjà validé après revérification) ou **Q** (quitter).
 
 ## Installation depuis le dépôt complet
 

@@ -17,6 +17,20 @@ function Tester-PaquetCabinet([string]$Dossier,$Empreintes) {
     }
 }
 
+function Ecarter-PaquetCabinetAltere([string]$Dossier,$Empreintes) {
+    # Un paquet deja telecharge mais altere (fichier ajoute, modifie ou supprime) est mis a l ecart,
+    # jamais supprime, pour permettre un nouveau telechargement sans intervention manuelle.
+    if (-not (Test-Path -LiteralPath $Dossier -PathType Container)) { return $false }
+    try { Tester-PaquetCabinet $Dossier $Empreintes;return $true } catch {
+        $ecarte=$Dossier+'.altere-'+[DateTime]::UtcNow.ToString('yyyyMMddHHmmss')+'-'+[guid]::NewGuid().ToString('N').Substring(0,8)
+        Write-Host ('Paquet local altere : '+$_.Exception.Message)
+        [IO.Directory]::Move($Dossier,$ecarte)
+        Write-Host ('Il a ete mis a l ecart dans : '+$ecarte)
+        Write-Host 'Une nouvelle copie va etre telechargee et verifiee.'
+        return $false
+    }
+}
+
 function Extraire-PaquetCabinet([string]$Archive,[string]$Destination,[string]$Commit,$Empreintes) {
     if ($Commit -notmatch '^[a-f0-9]{40}$') { throw 'Identifiant de version invalide.' }
     if (Test-Path -LiteralPath $Destination) { throw 'Le dossier de destination doit etre nouveau.' }

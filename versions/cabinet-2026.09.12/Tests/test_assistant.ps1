@@ -72,6 +72,27 @@ try {
     $link=Ecrire-Zip 'lien.zip' @('Build/test.ps1') $true
     Refuser { Extraire-PaquetCabinet $link $badDest $commit $map } 'lien ZIP refuse'
     Refuser { Extraire-PaquetCabinet $zip $badDest ('b'*40) $map } 'mauvaise version du depot refusee'
+    # Paquet altere : mis a l ecart puis re-telechargeable ; paquet sain : conserve.
+    $altered=Join-Path $tmp 'altere'
+    Extraire-PaquetCabinet $zip $altered $commit $map
+    Verifier (Ecarter-PaquetCabinetAltere $altered $map) 'paquet sain conserve'
+    Verifier (Test-Path -LiteralPath $altered) 'paquet sain non deplace'
+    [IO.File]::WriteAllText((Join-Path $altered 'desktop.ini'),'x')
+    Verifier (-not (Ecarter-PaquetCabinetAltere $altered $map)) 'paquet altere signale'
+    Verifier (-not (Test-Path -LiteralPath $altered)) 'paquet altere libere pour un nouveau telechargement'
+    Verifier (@(Get-ChildItem $tmp -Directory -Filter 'altere.altere-*').Count -eq 1) 'paquet altere conserve a l ecart, jamais supprime'
+    Verifier (-not (Ecarter-PaquetCabinetAltere (Join-Path $tmp 'inexistant') $map)) 'paquet absent : telechargement demande'
+    # Profil deja installe : choix R / A / Q, A refuse sans dossier prepare.
+    $answers=New-Object 'System.Collections.Generic.Queue[string]'
+    function Read-Host { param([string]$Prompt) return $script:answers.Dequeue() }
+    try {
+        foreach ($x in @('x','r')) { $answers.Enqueue($x) }
+        Verifier ((Choisir-ReinstallationAssistant 'Domicile' $tmp 'etat.json') -eq 'R') 'reinstallation : saisie invalide ignoree puis R accepte'
+        $answers.Enqueue('a')
+        Verifier ((Choisir-ReinstallationAssistant 'Domicile' $tmp 'etat.json') -eq 'A') 'reactivation acceptee quand le dossier prepare existe'
+        foreach ($x in @('A','Q')) { $answers.Enqueue($x) }
+        Verifier ((Choisir-ReinstallationAssistant 'Domicile' (Join-Path $tmp 'absent') 'etat.json') -eq 'Q') 'reactivation refusee sans dossier prepare'
+    } finally { Remove-Item -LiteralPath Function:\Read-Host -ErrorAction SilentlyContinue }
     # Parse aussi le lanceur autonome lorsqu il existe (second commit de publication).
     $repo=Split-Path (Split-Path $root -Parent) -Parent
     $standalone=Join-Path $repo 'Installateur/Demarrer_Installation_Cabinet.ps1'
